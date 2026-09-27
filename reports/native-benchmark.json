@@ -1,0 +1,39 @@
+{
+  "scope": "Microbenchmark on generated image; not detector accuracy or live end-to-end performance",
+  "hardware": {
+    "os": "Windows",
+    "architecture": "AMD64",
+    "cores": 6,
+    "ram_gb": 15.795906066894531,
+    "available_gb": 5.9746246337890625,
+    "cpu_percent": 63.4,
+    "memory_percent": 62.2,
+    "gpu": {
+      "name": "NVIDIA GeForce MX130",
+      "memory_mb": 2048.0,
+      "used_mb": 23.0,
+      "utilization": 0.0,
+      "temperature_c": 0.0,
+      "power_w": null
+    },
+    "temperature_c": 0,
+    "battery_percent": 32,
+    "plugged_in": false
+  },
+  "iterations": 25,
+  "results": {
+    "native_hog_ms": {
+      "mean": 14.790111999864166,
+      "p95": 19.071419999818314
+    },
+    "python_tracker_ms": {
+      "mean": 0.02710800003114855,
+      "p95": 0.05142000027262836
+    },
+    "python_scheduler_ms": {
+      "mean": 0.09324400012701517,
+      "p95": 0.1626400002351147
+    }
+  },
+  "decision": "OpenCV/PyTorch native kernels plus Python orchestration; no custom C++ without a measured bottleneck"
+}

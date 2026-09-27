@@ -1,0 +1,25 @@
+Metadata-Version: 2.4
+Name: surveilx-edge
+Version: 0.1.0
+Requires-Python: >=3.11
+Requires-Dist: fastapi<1,>=0.115
+Requires-Dist: uvicorn<1,>=0.30
+Requires-Dist: sqlalchemy<3,>=2
+Requires-Dist: psycopg[binary]<4,>=3.2
+Requires-Dist: pydantic-settings<3,>=2
+Requires-Dist: psutil<8,>=6
+Requires-Dist: numpy<3,>=2
+Requires-Dist: opencv-python-headless<5,>=4.10
+Requires-Dist: cryptography>=43
+Requires-Dist: httpx<1,>=0.27
+Requires-Dist: argon2-cffi>=23
+Requires-Dist: boto3<2,>=1.35
+Provides-Extra: research
+Requires-Dist: torch>=2.5; extra == "research"
+Requires-Dist: onnx>=1.17; extra == "research"
+Requires-Dist: onnxscript>=0.2; extra == "research"
+Requires-Dist: onnxruntime>=1.20; extra == "research"
+Requires-Dist: ultralytics>=8.3; extra == "research"
+Provides-Extra: dev
+Requires-Dist: pytest>=8; extra == "dev"
+Requires-Dist: ruff>=0.9; extra == "dev"

@@ -1,0 +1,197 @@
+{
+  "timestamp": 1790497939.2455614,
+  "four_generated_streams": true,
+  "frames_advance": true,
+  "jpeg_streams": true,
+  "evidence_roundtrip": true,
+  "acknowledgement": true,
+  "feedback": true,
+  "websocket": true,
+  "incidents_persisted": 20,
+  "runtime": {
+    "hardware": {
+      "os": "Windows",
+      "architecture": "AMD64",
+      "cores": 6,
+      "ram_gb": 15.795906066894531,
+      "available_gb": 4.92291259765625,
+      "cpu_percent": 71.4,
+      "memory_percent": 68.8,
+      "gpu": {
+        "name": "NVIDIA GeForce MX130",
+        "memory_mb": 2048.0,
+        "used_mb": 0.0,
+        "utilization": 0.0,
+        "temperature_c": null,
+        "power_w": null
+      },
+      "temperature_c": null,
+      "battery_percent": 27,
+      "plugged_in": false
+    },
+    "power": {
+      "level": "economy",
+      "reason": "Hardware capacity and sustained measured headroom",
+      "resolution": 320,
+      "budget_ms": 200,
+      "capture_fps": 5,
+      "watts_target": null,
+      "os_power_plan_changed": false
+    },
+    "decision": {
+      "selected": [
+        "10ebb2ba-db2f-43c8-870b-128e5b9b8c0e",
+        "67df85b8-3c91-4e4a-9f57-be862f81c8c1",
+        "b7e1a49c-7f91-4cc0-a014-bf45c115fa80",
+        "1fa24695-cae6-4f9a-b7d6-7aa6fd3fd21a"
+      ],
+      "deferred": [],
+      "estimated_ms": 40,
+      "policy": "deadline-first-cold-start-v1"
+    },
+    "heartbeat": 1790497938.608501,
+    "error": null,
+    "mean_latency_ms": 1.6062966139972361,
+    "p95_latency_ms": 2.4527000006855793,
+    "cameras": [
+      {
+        "id": "b7e1a49c-7f91-4cc0-a014-bf45c115fa80",
+        "name": "Test 01 \u00b7 Parking",
+        "status": "online",
+        "synthetic": true,
+        "environment": "parking",
+        "priority": 1,
+        "capture_fps_target": 5,
+        "frames": 669,
+        "dropped_frames": 557,
+        "reconnects": 0,
+        "latency_ms": 1.44,
+        "model": "synthetic-color-fixture",
+        "service_age_seconds": 0.64,
+        "last_frame": 1790497939.1465995,
+        "detections": [
+          {
+            "box": [
+              0.2875,
+              0.3888888888888889,
+              0.3453125,
+              0.6138888888888889
+            ],
+            "label": "synthetic_entity",
+            "score": 1.0,
+            "track_id": 83
+          }
+        ],
+        "motion": 0.006944444444444444,
+        "brightness": 0.10193695533769064,
+        "calibration": "uncalibrated",
+        "secondary_evidence": null,
+        "risk": "no active zone observation"
+      },
+      {
+        "id": "67df85b8-3c91-4e4a-9f57-be862f81c8c1",
+        "name": "Test 02 \u00b7 Office",
+        "status": "online",
+        "synthetic": true,
+        "environment": "office",
+        "priority": 2,
+        "capture_fps_target": 5,
+        "frames": 668,
+        "dropped_frames": 556,
+        "reconnects": 0,
+        "latency_ms": 1.61,
+        "model": "synthetic-color-fixture",
+        "service_age_seconds": 0.66,
+        "last_frame": 1790497939.1675549,
+        "detections": [
+          {
+            "box": [
+              0.3953125,
+              0.3888888888888889,
+              0.453125,
+              0.6138888888888889
+            ],
+            "label": "synthetic_entity",
+            "score": 1.0,
+            "track_id": 83
+          }
+        ],
+        "motion": 0.006944444444444444,
+        "brightness": 0.10200674019607843,
+        "calibration": "uncalibrated",
+        "secondary_evidence": null,
+        "risk": "no active zone observation"
+      },
+      {
+        "id": "10ebb2ba-db2f-43c8-870b-128e5b9b8c0e",
+        "name": "Test 03 \u00b7 Warehouse",
+        "status": "online",
+        "synthetic": true,
+        "environment": "warehouse",
+        "priority": 3,
+        "capture_fps_target": 5,
+        "frames": 670,
+        "dropped_frames": 558,
+        "reconnects": 0,
+        "latency_ms": 1.65,
+        "model": "synthetic-color-fixture",
+        "service_age_seconds": 0.66,
+        "last_frame": 1790497939.065551,
+        "detections": [
+          {
+            "box": [
+              0.5296875,
+              0.3888888888888889,
+              0.5875,
+              0.6138888888888889
+            ],
+            "label": "synthetic_entity",
+            "score": 1.0,
+            "track_id": 83
+          }
+        ],
+        "motion": 0.003472222222222222,
+        "brightness": 0.09940767973856209,
+        "calibration": "uncalibrated",
+        "secondary_evidence": null,
+        "risk": "no active zone observation"
+      },
+      {
+        "id": "1fa24695-cae6-4f9a-b7d6-7aa6fd3fd21a",
+        "name": "Test 04 \u00b7 Retail",
+        "status": "online",
+        "synthetic": true,
+        "environment": "retail",
+        "priority": 1,
+        "capture_fps_target": 5,
+        "frames": 669,
+        "dropped_frames": 558,
+        "reconnects": 0,
+        "latency_ms": 1.58,
+        "model": "synthetic-color-fixture",
+        "service_age_seconds": 0.64,
+        "last_frame": 1790497939.1675549,
+        "detections": [
+          {
+            "box": [
+              0.6390625,
+              0.3888888888888889,
+              0.696875,
+              0.6138888888888889
+            ],
+            "label": "synthetic_entity",
+            "score": 1.0,
+            "track_id": 78
+          }
+        ],
+        "motion": 0.003472222222222222,
+        "brightness": 0.1011233660130719,
+        "calibration": "uncalibrated",
+        "secondary_evidence": null,
+        "risk": "review"
+      }
+    ],
+    "database": "sqlite-local"
+  },
+  "scope": "Local generated sources and SQLite; no real RTSP/network camera or PostgreSQL claim"
+}

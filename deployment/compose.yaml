@@ -1,0 +1,32 @@
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile
+    ports: ["127.0.0.1:8000:8000"]
+    environment:
+      SURVEILX_DATABASE_URL: postgresql+psycopg://surveilx:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}@database:5432/surveilx
+      SURVEILX_ADMIN_PASSWORD: ${SURVEILX_ADMIN_PASSWORD:?Set SURVEILX_ADMIN_PASSWORD}
+      SURVEILX_DEMO: "true"
+      SURVEILX_ALLOWED_ORIGIN: http://127.0.0.1:8000
+    volumes: ["app_data:/app/data"]
+    depends_on:
+      database:
+        condition: service_healthy
+    restart: unless-stopped
+  database:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: surveilx
+      POSTGRES_USER: surveilx
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+    volumes: ["database_data:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U surveilx"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+volumes:
+  app_data:
+  database_data:
