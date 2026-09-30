@@ -26,7 +26,7 @@ Pop-Location
 
 - Live camera feeds show detected labels, counts, tracks and model provenance. Incident details explain what was detected and separate object detection from a reviewed incident decision.
 - A hardware governor selects economy, balanced or performance workload budgets from measured resources. A global scheduler prioritizes overdue cameras and reports infeasible coverage.
-- Incidents retain encrypted evidence, acknowledgment, review feedback and audit records. Four synthetic feeds exercise this workflow without implying real-world detection accuracy.
+- Incidents retain encrypted raw frames, titled review frames, raw/review clips, acknowledgment, review feedback and audit records. Positive detections are logged at a bounded interval even outside a configured rule, and every review frame states what was detected. Four synthetic feeds exercise this workflow without implying real-world detection accuracy.
 - Import labeled detection images or annotated event videos, validate independent splits, train, calibrate, evaluate and register a candidate. Choose the scratch architecture or modified YOLO in Experiments.
 - Annotate incident evidence, obtain independent review, assemble later dataset generations with replay, and enable automatic candidate training. **Model acceptance** evaluates frozen models on independent data and records deployment criteria. See [reviewed learning](docs/reviewed-learning.md).
 - Model activation records an explicit canary and previous version, survives restart and supports rollback. Production promotion requires real-domain acceptance.

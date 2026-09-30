@@ -1,0 +1,534 @@
+{
+  "scope": "Label counts describe coverage, not statistical independence or sufficient sample size",
+  "datasets": [
+    {
+      "dataset": "urfall-development-v1",
+      "classes": [
+        {
+          "class": "normal",
+          "labeled_instances": {
+            "train": 5,
+            "validation": 5,
+            "calibration": 5,
+            "test": 5
+          },
+          "training_short_side_pixels_at_256": {
+            "median": null,
+            "fraction_below_stride_8": null
+          },
+          "missing_splits": []
+        },
+        {
+          "class": "fall",
+          "labeled_instances": {
+            "train": 5,
+            "validation": 5,
+            "calibration": 5,
+            "test": 5
+          },
+          "training_short_side_pixels_at_256": {
+            "median": null,
+            "fraction_below_stride_8": null
+          },
+          "missing_splits": []
+        }
+      ],
+      "synthetic": false,
+      "provenance": {
+        "publisher": "University of Rzeszow UR Fall Detection Dataset",
+        "publisher_page": "https://fenix.ur.edu.pl/~mkepski/ds/uf.html",
+        "label_scope": "whole_clip_sequence_category; fall transition only localizes positive clips",
+        "source_independence_verified": false,
+        "reason": "Sequence groups are disjoint, but participant/site identities are not published",
+        "rgb_depth_timing_note": "Publisher posture labels refer to depth frames; they are not copied as RGB frame labels"
+      }
+    },
+    {
+      "dataset": "generated-v1",
+      "classes": [
+        {
+          "class": "slow_motion",
+          "labeled_instances": {
+            "train": 20,
+            "validation": 20,
+            "calibration": 20,
+            "test": 20
+          },
+          "training_short_side_pixels_at_256": {
+            "median": null,
+            "fraction_below_stride_8": null
+          },
+          "missing_splits": []
+        },
+        {
+          "class": "fast_motion",
+          "labeled_instances": {
+            "train": 20,
+            "validation": 20,
+            "calibration": 20,
+            "test": 20
+          },
+          "training_short_side_pixels_at_256": {
+            "median": null,
+            "fraction_below_stride_8": null
+          },
+          "missing_splits": []
+        }
+      ],
+      "synthetic": true,
+      "provenance": {}
+    },
+    {
+      "dataset": "generated-v2",
+      "classes": [
+        {
+          "class": "slow_motion",
+          "labeled_instances": {
+            "train": 50,
+            "validation": 50,
+            "calibration": 50,
+            "test": 50
+          },
+          "training_short_side_pixels_at_256": {
+            "median": null,
+            "fraction_below_stride_8": null
+          },
+          "missing_splits": []
+        },
+        {
+          "class": "fast_motion",
+          "labeled_instances": {
+            "train": 50,
+            "validation": 50,
+            "calibration": 50,
+            "test": 50
+          },
+          "training_short_side_pixels_at_256": {
+            "median": null,
+            "fraction_below_stride_8": null
+          },
+          "missing_splits": []
+        }
+      ],
+      "synthetic": true,
+      "provenance": {}
+    },
+    {
+      "dataset": "sh17-development-v1",
+      "classes": [
+        {
+          "class": "person",
+          "labeled_instances": {
+            "train": 233,
+            "validation": 60,
+            "calibration": 50,
+            "test": 58
+          },
+          "training_short_side_pixels_at_256": {
+            "median": 90.025216,
+            "fraction_below_stride_8": 0.06437768240343347
+          },
+          "missing_splits": []
+        },
+        {
+          "class": "ear",
+          "labeled_instances": {
+            "train": 131,
+            "validation": 22,
+            "calibration": 31,
+            "test": 44
+          },
+          "training_short_side_pixels_at_256": {
+            "median": 5.19756799999999,
+            "fraction_below_stride_8": 0.7786259541984732
+          },
+          "missing_splits": []
+        },
+        {
+          "class": "earmuffs",
+          "labeled_instances": {
+            "train": 2,
+            "validation": 0,
+            "calibration": 0,
+            "test": 1
+          },
+          "training_short_side_pixels_at_256": {
+            "median": 10.21657600000001,
+            "fraction_below_stride_8": 0.5
+          },
+          "missing_splits": [
+            "validation",
+            "calibration"
+          ]
+        },
+        {
+          "class": "face",
+          "labeled_instances": {
+            "train": 164,
+            "validation": 40,
+            "calibration": 24,
+            "test": 36
+          },
+          "training_short_side_pixels_at_256": {
+            "median": 21.92063999999999,
+            "fraction_below_stride_8": 0.12195121951219512
+          },
+          "missing_splits": []
+        },
+        {
+          "class": "face_guard",
+          "labeled_instances": {
+            "train": 0,
+            "validation": 0,
+            "calibration": 0,
+            "test": 0
+          },
+          "training_short_side_pixels_at_256": {
+            "median": null,
+            "fraction_below_stride_8": null
+          },
+          "missing_splits": [
+            "train",
+            "validation",
+            "calibration",
+            "test"
+          ]
+        },
+        {
+          "class": "face_mask",
+          "labeled_instances": {
+            "train": 6,
+            "validation": 3,
+            "calibration": 2,
+            "test": 3
+          },
+          "training_short_side_pixels_at_256": {
+            "median": 6.429312000000003,
+            "fraction_below_stride_8": 0.6666666666666666
+          },
+          "missing_splits": []
+        },
+        {
+          "class": "foot",
+          "labeled_instances": {
+            "train": 11,
+            "validation": 0,
+            "calibration": 4,
+            "test": 10
+          },
+          "training_short_side_pixels_at_256": {
+            "median": 11.585023999999976,
+            "fraction_below_stride_8": 0.36363636363636365
+          },
+          "missing_splits": [
+            "validation"
+          ]
+        },
+        {
+          "class": "tools",
+          "labeled_instances": {
+            "train": 57,
+            "validation": 8,
+            "calibration": 12,
+            "test": 37
+          },
+          "training_short_side_pixels_at_256": {
+            "median": 27.308288000000005,
+            "fraction_below_stride_8": 0.07017543859649122
+          },
+          "missing_splits": []
+        },
+        {
+          "class": "glasses",
+          "labeled_instances": {
+            "train": 34,
+            "validation": 10,
+            "calibration": 5,
+            "test": 14
+          },
+          "training_short_side_pixels_at_256": {
+            "median": 13.598847999999983,
+            "fraction_below_stride_8": 0.23529411764705882
+          },
+          "missing_splits": []
+        },
+        {
+          "class": "gloves",
+          "labeled_instances": {
+            "train": 54,
+            "validation": 13,
+            "calibration": 12,
+            "test": 10
+          },
+          "training_short_side_pixels_at_256": {
+            "median": 12.928000000000004,
+            "fraction_below_stride_8": 0.3148148148148148
+          },
+          "missing_splits": []
+        },
+        {
+          "class": "helmet",
+          "labeled_instances": {
+            "train": 13,
+            "validation": 17,
+            "calibration": 8,
+            "test": 5
+          },
+          "training_short_side_pixels_at_256": {
+            "median": 5.461248000000012,
+            "fraction_below_stride_8": 0.6153846153846154
+          },
+          "missing_splits": []
+        },
+        {
+          "class": "hands",
+          "labeled_instances": {
+            "train": 265,
+            "validation": 84,
+            "calibration": 44,
+            "test": 73
+          },
+          "training_short_side_pixels_at_256": {
+            "median": 17.23084800000001,
+            "fraction_below_stride_8": 0.15471698113207547
+          },
+          "missing_splits": []
+        },
+        {
+          "class": "head",
+          "labeled_instances": {
+            "train": 212,
+            "validation": 49,
+            "calibration": 45,
+            "test": 53
+          },
+          "training_short_side_pixels_at_256": {
+            "median": 28.095871999999986,
+            "fraction_below_stride_8": 0.1792452830188679
+          },
+          "missing_splits": []
+        },
+        {
+          "class": "medical_suit",
+          "labeled_instances": {
+            "train": 1,
+            "validation": 2,
+            "calibration": 0,
+            "test": 4
+          },
+          "training_short_side_pixels_at_256": {
+            "median": 140.809216,
+            "fraction_below_stride_8": 0.0
+          },
+          "missing_splits": [
+            "calibration"
+          ]
+        },
+        {
+          "class": "shoes",
+          "labeled_instances": {
+            "train": 93,
+            "validation": 31,
+            "calibration": 9,
+            "test": 14
+          },
+          "training_short_side_pixels_at_256": {
+            "median": 10.342912000000013,
+            "fraction_below_stride_8": 0.3763440860215054
+          },
+          "missing_splits": []
+        },
+        {
+          "class": "safety_suit",
+          "labeled_instances": {
+            "train": 5,
+            "validation": 0,
+            "calibration": 0,
+            "test": 0
+          },
+          "training_short_side_pixels_at_256": {
+            "median": 27.979520000000004,
+            "fraction_below_stride_8": 0.0
+          },
+          "missing_splits": [
+            "validation",
+            "calibration",
+            "test"
+          ]
+        },
+        {
+          "class": "safety_vest",
+          "labeled_instances": {
+            "train": 10,
+            "validation": 12,
+            "calibration": 3,
+            "test": 1
+          },
+          "training_short_side_pixels_at_256": {
+            "median": 7.829375999999996,
+            "fraction_below_stride_8": 0.6
+          },
+          "missing_splits": []
+        }
+      ],
+      "synthetic": false,
+      "provenance": {
+        "source": "https://github.com/ahmadmughees/SH17dataset",
+        "archive_etag": "\"2e9eb8708de4d1ca84246ed230ca66f8\"",
+        "source_independence_verified": false,
+        "selection": "Seeded subset of images <=3 MiB; publisher photographer IDs assigned wholly to one split; selection bias not evaluated",
+        "group_limitation": "Photographer-disjoint development split, not verified scene or deployment-site independence",
+        "label_semantics": "Glasses is generic eyewear, not certified safety eyewear. Object presence does not establish compliance.",
+        "label_map_source": "https://github.com/ahmadmughees/SH17dataset/blob/master/sh17.yaml",
+        "correction": "Corrected README display-order assumption to authoritative YOLO numeric class IDs before usable training; sh17-g1 aborted and preserved"
+      }
+    },
+    {
+      "dataset": "dangerous-items-development-v1",
+      "classes": [
+        {
+          "class": "firearm",
+          "labeled_instances": {
+            "train": 114,
+            "validation": 26,
+            "calibration": 18,
+            "test": 33
+          },
+          "training_short_side_pixels_at_256": {
+            "median": 55.68000000000001,
+            "fraction_below_stride_8": 0.008771929824561403
+          },
+          "missing_splits": []
+        },
+        {
+          "class": "knife",
+          "labeled_instances": {
+            "train": 120,
+            "validation": 28,
+            "calibration": 18,
+            "test": 34
+          },
+          "training_short_side_pixels_at_256": {
+            "median": 62.404205495818395,
+            "fraction_below_stride_8": 0.008333333333333333
+          },
+          "missing_splits": []
+        },
+        {
+          "class": "machete",
+          "labeled_instances": {
+            "train": 112,
+            "validation": 27,
+            "calibration": 17,
+            "test": 34
+          },
+          "training_short_side_pixels_at_256": {
+            "median": 64.64000000000001,
+            "fraction_below_stride_8": 0.0
+          },
+          "missing_splits": []
+        },
+        {
+          "class": "baseball_bat",
+          "labeled_instances": {
+            "train": 97,
+            "validation": 23,
+            "calibration": 16,
+            "test": 26
+          },
+          "training_short_side_pixels_at_256": {
+            "median": 66.13333333333334,
+            "fraction_below_stride_8": 0.0
+          },
+          "missing_splits": []
+        }
+      ],
+      "synthetic": false,
+      "provenance": {
+        "source": "https://zenodo.org/records/13786228",
+        "archive_sha256": "9c6749a3e36b6935fc468de9b1fb639b16c4caef2c21f5328a44ff210d3e1aa8",
+        "source_independence_verified": false,
+        "selection": "Deterministic VOC subset capped at 160 images per label signature",
+        "group_limitation": "Publisher camera, sequence, subject and original-image identities are unavailable; split groups are unique-image placeholders only",
+        "label_mapping": "Publisher Gun and Rifle map to firearm; Knife, Machete and Baseball Bat remain distinct",
+        "acceptance_limitation": "Development metrics only; independent site acceptance is required"
+      }
+    },
+    {
+      "dataset": "dfire-development-v1",
+      "classes": [
+        {
+          "class": "smoke",
+          "labeled_instances": {
+            "train": 225,
+            "validation": 61,
+            "calibration": 57,
+            "test": 52
+          },
+          "training_short_side_pixels_at_256": {
+            "median": 71.68,
+            "fraction_below_stride_8": 0.02666666666666667
+          },
+          "missing_splits": []
+        },
+        {
+          "class": "fire",
+          "labeled_instances": {
+            "train": 403,
+            "validation": 72,
+            "calibration": 64,
+            "test": 120
+          },
+          "training_short_side_pixels_at_256": {
+            "median": 12.800000000000011,
+            "fraction_below_stride_8": 0.2853598014888337
+          },
+          "missing_splits": []
+        }
+      ],
+      "synthetic": false,
+      "provenance": {
+        "source": "https://github.com/gaia-solutions-on-demand/DFireDataset",
+        "archive_sha256": "65d81b602991261b47ddc71281e99108362a30336a448e1f8d21352c825c6d83",
+        "source_independence_verified": false,
+        "group_method": "Filename bands per source family, 32 omitted images between bands",
+        "limitation": "No camera/session identities; correlated scenes may remain. Development metrics only. Independent site acceptance required."
+      }
+    },
+    {
+      "dataset": "pennfudan",
+      "classes": [
+        {
+          "class": "person",
+          "labeled_instances": {
+            "train": 245,
+            "validation": 59,
+            "calibration": 45,
+            "test": 58
+          },
+          "training_short_side_pixels_at_256": {
+            "median": 45.67634854771785,
+            "fraction_below_stride_8": 0.0
+          },
+          "missing_splits": []
+        }
+      ],
+      "synthetic": false,
+      "provenance": {
+        "source_page": "https://www.cis.upenn.edu/~jshi/ped_html/",
+        "archive_url": "https://www.cis.upenn.edu/~jshi/ped_html/PennFudanPed.zip",
+        "archive_sha256": "9095a9613c95586f1c7f2a327d454833d16e0f5e17e5f83d35027ffd315b48e2",
+        "archive_bytes": 53723336,
+        "acquired_at": "2026-09-27T17:16:05.096887+00:00",
+        "publisher_image_count": 170,
+        "publisher_instance_count": 345,
+        "decoded_instance_count": 423,
+        "license_status": "restricted-copyright-notice-no-standard-license-grant",
+        "upstream_reference": "Object Detection Combining Recognition and Segmentation, ACCV 2007",
+        "rights_notice_file": "PennFudanPed/readme.txt",
+        "rights_notice_sha256": "5bcd7fb0ca14c088b85b63caf3ac3ef663263c47677fc930cca5754dc2d94f9a",
+        "annotation_count_note": "Archive readme explains 78 additional small/occluded pedestrians beyond the website's original 345; released masks contain 423 instances."
+      }
+    }
+  ]
+}

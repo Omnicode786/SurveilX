@@ -34,14 +34,23 @@ def make_capture(client):
     capture.frame = generated_frame(0, 1)
     capture.sequence = 1
     capture.timestamp = time.time()
+    capture.buffer.append((capture.timestamp, capture.frame.copy()))
     return api.runtime, capture
 
 
 def test_no_worker_leak_duplicate_frame_or_stale_secondary_result(client):
     runtime, capture = make_capture(client)
+    from surveilx.database import Incident, transaction
+    from sqlalchemy import select
+
     assert capture.thread.ident is None
     runtime.infer(capture)
     assert capture.outputs and capture.outputs[0]["label"] == "synthetic_entity"
+    with transaction() as session:
+        logged = session.scalar(
+            select(Incident).where(Incident.event_type == "synthetic_detection_sequence")
+        )
+        assert logged and logged.details["observed_labels"] == ["synthetic_entity"]
     count = len(runtime.latencies)
     runtime.infer(capture)
     assert len(runtime.latencies) == count
@@ -49,6 +58,12 @@ def test_no_worker_leak_duplicate_frame_or_stale_secondary_result(client):
     capture.sequence += 1
     runtime.infer(capture)
     assert capture.secondary_result is None
+    with transaction() as session:
+        assert len(
+            session.scalars(
+                select(Incident).where(Incident.event_type == "synthetic_detection_sequence")
+            ).all()
+        ) == 1
 
 
 def test_secondary_failure_keeps_primary_detections(client):

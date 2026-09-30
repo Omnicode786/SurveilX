@@ -1,5 +1,8 @@
+import io
+import json
 import time
 from types import SimpleNamespace
+import zipfile
 
 
 def login(client):
@@ -41,9 +44,18 @@ def test_incident_transitions_feedback_and_evidence(client):
     from surveilx.incidents import create_incident
     from surveilx.vision import generated_frame
 
-    key = save_bundle([(time.time(), generated_frame(0, 1))], {"synthetic": True})
+    key = save_bundle(
+        [(time.time(), generated_frame(0, 1))],
+        {"synthetic": True, "observed_labels": ["synthetic_entity"]},
+    )
     with transaction() as session:
-        incident = create_incident(session, camera["id"], key, {"synthetic": True}, True)
+        incident = create_incident(
+            session,
+            camera["id"],
+            key,
+            {"synthetic": True, "observed_labels": ["synthetic_entity"]},
+            True,
+        )
         incident_id = incident.id
     assert client.post(f"/api/incidents/{incident_id}/resolve").status_code == 409
     assert client.post(f"/api/incidents/{incident_id}/acknowledge").status_code == 200
@@ -51,6 +63,15 @@ def test_incident_transitions_feedback_and_evidence(client):
     assert client.post(f"/api/incidents/{incident_id}/dismiss").status_code == 409
     evidence = client.get(f"/api/incidents/{incident_id}/evidence")
     assert evidence.status_code == 200 and evidence.content.startswith(b"PK")
+    with zipfile.ZipFile(io.BytesIO(evidence.content)) as bundle:
+        assert "frames/0000-" in next(name for name in bundle.namelist() if name.startswith("frames/"))
+        assert any(name.startswith("review_frames/") for name in bundle.namelist())
+        metadata = json.loads(bundle.read("metadata.json"))
+        assert metadata["frame_title"] == "Detected: synthetic entity"
+        assert metadata["evidence_format"] == 2
+    listing = client.get(f"/api/incidents/{incident_id}/frames").json()
+    review = client.get(listing["frames"][0]["review_url"])
+    assert review.status_code == 200 and review.content.startswith(b"\xff\xd8")
     feedback = client.post("/api/feedback", json={"incident_id": incident_id, "label": "true_event"}).json()
     assert client.post(f"/api/feedback/{feedback['id']}/review").status_code == 409
     assert any(a["action"] == "evidence_accessed" for a in client.get("/api/audit").json())

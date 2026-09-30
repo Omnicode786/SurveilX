@@ -11,7 +11,7 @@ from pathlib import Path
 import cv2
 import numpy as np
 import torch
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import DataLoader, Dataset, WeightedRandomSampler
 
 from surveilx.accelerators import torch_device
 from training.detector_model import SVADetector, box_iou, decode_detections, detection_loss
@@ -126,6 +126,18 @@ class DetectionImages(Dataset):
 def collate_detection(batch):
     images, context, zones, targets = zip(*batch)
     return torch.stack(images), torch.stack(context), torch.stack(zones), list(targets)
+
+
+def class_balanced_weights(samples, classes, maximum=4.0):
+    """Bounded inverse-square-root image frequency, computed on training samples only."""
+    if any(sample["split"] != "train" for sample in samples):
+        raise ValueError("Sampling frequencies must only use the training split")
+    counts = np.zeros(classes, dtype=np.int64)
+    for sample in samples:
+        counts[list(set(sample["labels"]))] += 1
+    reference = max(int(counts.max()), 1)
+    factors = np.minimum(np.sqrt(reference / np.maximum(counts, 1)), maximum)
+    return [max((float(factors[label]) for label in sample["labels"]), default=1.0) for sample in samples]
 
 
 def match_predictions(predictions, targets, iou_threshold=0.5):
@@ -327,9 +339,13 @@ def train(
     learning_rate=0.001,
     threads=4,
     initialize_from=None,
+    balanced_sampling=False,
+    patience=None,
 ):
     if epochs < 1 or batch_size < 1 or image_size < 64 or image_size % 32:
         raise ValueError("epochs/batch_size must be positive; image_size must be a multiple of 32 >=64")
+    if not np.isfinite(learning_rate) or learning_rate <= 0 or (patience is not None and patience < 1):
+        raise ValueError("Learning rate and optional patience must be positive")
     manifest_path, output = Path(manifest_path).resolve(), Path(output).resolve()
     manifest, counts, asset_hashes = validate_detection_manifest(manifest_path)
     if output.exists() and any(p.name != "process.log" for p in output.iterdir()):
@@ -346,14 +362,21 @@ def train(
         previous = Path(initialize_from).resolve()
         previous_manifest = json.loads((previous / "manifest.json").read_text(encoding="utf-8"))
         if (
-            previous_manifest.get("classes") != manifest["classes"]
+            previous_manifest.get("task") != "detection"
+            or previous_manifest.get("domain") != manifest.get("domain")
+            or previous_manifest.get("classes") != manifest["classes"]
             or previous_manifest.get("model_config") != model.config
         ):
-            raise ValueError("Continuation requires identical class order and architecture")
+            raise ValueError("Continuation requires identical task, domain, class order and architecture")
         if digest(previous / "weights.pt") != previous_manifest["weights_sha256"]:
             raise ValueError("Continuation checkpoint checksum mismatch")
         model.load_state_dict(torch.load(previous / "weights.pt", map_location=device, weights_only=True))
         initialization = previous_manifest["weights_sha256"]
+    training_samples = [s for s in manifest["samples"] if s["split"] == "train"]
+    sampler = WeightedRandomSampler(
+        class_balanced_weights(training_samples, len(manifest["classes"])),
+        len(training_samples), replacement=True, generator=torch.Generator().manual_seed(seed),
+    ) if balanced_sampling else None
     loaders = {
         split: DataLoader(
             DetectionImages(
@@ -363,7 +386,8 @@ def train(
                 augment=split == "train",
             ),
             batch_size=batch_size,
-            shuffle=split == "train",
+            shuffle=split == "train" and sampler is None,
+            sampler=sampler if split == "train" else None,
             num_workers=0,
             collate_fn=collate_detection,
         )
@@ -374,6 +398,14 @@ def train(
         optimizer, T_max=epochs, eta_min=learning_rate * 0.05
     )
     started, history, best, best_epoch = time.perf_counter(), [], (-1.0, -float("inf")), 0
+    selection = {"split": "validation", "selected": "candidate"}
+    if initialize_from:
+        predictions, targets, validation = predict(model, loaders["validation"], device, measure_loss=True)
+        parent_map = evaluate_detections(predictions, targets, len(manifest["classes"]))["map50"] or 0
+        best = (parent_map, -validation["loss"])
+        selection.update(parent_map50=parent_map, selected="parent")
+        torch.save(model.state_dict(), output / "weights.pt")
+    stale = 0
     run_config = {
         "epochs": epochs,
         "seed": seed,
@@ -382,6 +414,8 @@ def train(
         "learning_rate": learning_rate,
         "threads": threads,
         "initialization": initialization,
+        "balanced_sampling": balanced_sampling,
+        "patience": patience,
     }
     (output / "config.json").write_text(
         json.dumps({**run_config, "model": model.config}, indent=2), encoding="utf-8"
@@ -404,7 +438,11 @@ def train(
         score = (metrics["map50"] or 0, -validation["loss"])
         if score > best:
             best, best_epoch = score, epoch + 1
+            stale = 0
+            selection["selected"] = "candidate"
             torch.save(model.state_dict(), output / "weights.pt")
+        else:
+            stale += 1
         row = {
             "epoch": epoch + 1,
             "train_loss": float(np.mean(losses)),
@@ -416,6 +454,8 @@ def train(
         (output / "history.json").write_text(json.dumps(history, indent=2), encoding="utf-8")
         print(json.dumps(row), flush=True)
         scheduler.step()
+        if patience and stale >= patience:
+            break
     model.load_state_dict(torch.load(output / "weights.pt", map_location=device, weights_only=True))
     predictions, targets, _ = predict(model, loaders["calibration"], device)
     calibration = fit_detection_calibration(predictions, targets)
@@ -444,6 +484,8 @@ def train(
         "dataset_counts": counts,
         "parameters": sum(p.numel() for p in model.parameters()),
         "best_epoch": best_epoch,
+        "epochs_completed": len(history),
+        "validation_selection": {**selection, "selected_map50": best[0]},
         "calibration": calibration,
         "calibrated": calibration["status"] == "fitted",
         "metrics": metrics,
@@ -486,6 +528,8 @@ def main():
         training.add_argument(f"--{flag}", type=int, default=default)
     training.add_argument("--learning-rate", type=float, default=0.001)
     training.add_argument("--initialize-from")
+    training.add_argument("--balanced-sampling", action="store_true")
+    training.add_argument("--patience", type=int)
     args = vars(parser.parse_args())
     args.pop("command")
     args["manifest_path"] = args.pop("manifest")

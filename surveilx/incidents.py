@@ -28,7 +28,14 @@ def transition(session, incident, state, actor, note=""):
 
 
 def create_incident(session, camera_id, evidence_key, details, synthetic=False):
-    event_type = "synthetic_zone_entry" if synthetic else "zone_occupancy"
+    requested_type = details.get("event_type")
+    event_type = (
+        f"{'synthetic_' if synthetic else ''}{requested_type}"
+        if requested_type
+        else "synthetic_zone_entry"
+        if synthetic
+        else "zone_occupancy"
+    )
     policy = details.get("policy_observation")
     if policy:
         event_type = f"{'synthetic_' if synthetic else ''}rule:{policy['rule_id']}:{policy['kind']}"

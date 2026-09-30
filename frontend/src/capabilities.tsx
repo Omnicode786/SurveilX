@@ -34,7 +34,15 @@ type Generation = {
   state: string;
   config?: { epochs?: number };
   error?: string;
-  jobs: { architecture: string; state: string; completed_epochs: number }[];
+  jobs: {
+    architecture: string; version: string; state: string; completed_epochs: number; epochs?: number;
+    error?: string;
+    comparison?: {
+      metric: string; before: number; after: number; delta: number;
+      classes: { class: string; metric: string; before: number | null; after: number | null; delta: number | null }[];
+    };
+    coverage?: { class: string; labeled_instances: Record<string, number> }[];
+  }[];
 };
 
 export function CapabilitiesPanel({
@@ -113,12 +121,35 @@ export function CapabilitiesPanel({
                 {run.generation} · {run.state.replaceAll("_", " ")}
               </h3>
               {run.jobs.map((job) => (
-                <p key={job.architecture}>
-                  {job.architecture}: {job.state}
+                <div key={job.version || job.architecture}>
+                <p>
+                  {job.version || job.architecture}: {job.state.replaceAll("_", " ")}
                   {job.completed_epochs > 0
-                    ? ` · ${job.completed_epochs}/${run.config?.epochs ?? "?"} epochs recorded`
+                    ? ` · ${job.completed_epochs}/${job.epochs ?? run.config?.epochs ?? "?"} epochs recorded`
                     : ""}
                 </p>
+                {job.comparison && <>
+                  <p>Development {job.comparison.metric === "map50" ? "AP50" : "accuracy"}: {job.comparison.before.toFixed(4)} → {job.comparison.after.toFixed(4)} ({job.comparison.delta >= 0 ? "+" : ""}{job.comparison.delta.toFixed(4)}). Independent acceptance pending.</p>
+                  <details>
+                    <summary>Class results and label coverage</summary>
+                    <div className="table-panel"><table>
+                      <thead><tr><th>Detection / event</th><th>Metric</th><th>Parent</th><th>Candidate</th><th>Change</th><th>Train labels</th><th>Test labels</th></tr></thead>
+                      <tbody>{job.comparison.classes.map((item) => {
+                        const counts = job.coverage?.find((row) => row.class === item.class)?.labeled_instances;
+                        return <tr key={item.class}>
+                          <td>{item.class.replaceAll("_", " ")}</td><td>{item.metric}</td>
+                          <td>{item.before?.toFixed(4) ?? "Unavailable"}</td>
+                          <td>{item.after?.toFixed(4) ?? "Not evaluated"}</td>
+                          <td>{item.delta == null ? "—" : `${item.delta >= 0 ? "+" : ""}${item.delta.toFixed(4)}`}</td>
+                          <td>{counts?.train ?? "—"}</td><td>{counts?.test ?? "—"}</td>
+                        </tr>;
+                      })}</tbody>
+                    </table></div>
+                    <p>Classes without test labels cannot establish detection accuracy. Checkpoints are chosen using validation; these test results do not control selection.</p>
+                  </details>
+                </>}
+                {job.error && <p role="alert">{job.error}</p>}
+                </div>
               ))}
               {run.error && <p role="alert">{run.error}</p>}
             </div>

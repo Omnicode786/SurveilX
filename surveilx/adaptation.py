@@ -79,13 +79,16 @@ class AnnotationInput(BaseModel):
         return self
 
 
-def evidence_frames(incident, observation=0):
+def evidence_frames(incident, observation=0, review=False):
     keys = [incident.evidence_key, *incident.details.get("additional_evidence", [])]
     if observation >= len(keys) or not keys[observation]:
         raise ValueError("Evidence observation is missing or expired")
     payload = read_bundle(keys[observation])
     with zipfile.ZipFile(io.BytesIO(payload)) as archive:
-        names = sorted(n for n in archive.namelist() if n.startswith("frames/") and n.endswith(".jpg"))
+        prefix = "review_frames/" if review else "frames/"
+        names = sorted(n for n in archive.namelist() if n.startswith(prefix) and n.endswith(".jpg"))
+        if review and not names:
+            names = sorted(n for n in archive.namelist() if n.startswith("frames/") and n.endswith(".jpg"))
         frames = [archive.read(n) for n in names]
     return keys[observation], hashlib.sha256(payload).hexdigest(), names, frames
 

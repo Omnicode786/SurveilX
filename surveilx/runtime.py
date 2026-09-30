@@ -49,6 +49,8 @@ class Capture:
         self.buffer = deque(maxlen=30)
         self.candidate_since = None
         self.last_incident = 0.0
+        self.last_detection_log = 0.0
+        self.last_detection_signature = ()
         self.previous_gray = None
         self.entity_history = deque(maxlen=64)
         self.expert_states = {}
@@ -465,6 +467,7 @@ class Runtime:
             for zone in capture.zones:
                 left, top, right, bottom = zone
                 occupied |= left <= center[0] <= right and top <= center[1] <= bottom
+        evidence_saved = False
         if not occupied:
             capture.candidate_since = None
             if not scene_expert:
@@ -501,6 +504,7 @@ class Runtime:
                 }
             )
             capture.last_incident = now
+            evidence_saved = True
         for observation in capture.policy_engine.evaluate(outputs, now, capture.expert_key):
             details = {
                 "detections": outputs,
@@ -525,6 +529,7 @@ class Runtime:
                     "synthetic": capture.synthetic,
                 }
             )
+            evidence_saved = True
         event_key = (event_slot, getattr(expert, "version", None))
         for observation in capture.policy_engine.evaluate_event(capture.secondary_result, now, event_key):
             details = {
@@ -551,6 +556,40 @@ class Runtime:
                     "synthetic": capture.synthetic,
                 }
             )
+            evidence_saved = True
+        signature = tuple(sorted({item["label"] for item in outputs}))
+        if evidence_saved and signature:
+            capture.last_detection_log = now
+        if signature and not evidence_saved and (
+            signature != capture.last_detection_signature
+            or now - capture.last_detection_log >= max(1.0, settings.detection_log_seconds)
+        ):
+            details = {
+                "event_type": "detection_sequence",
+                "detections": outputs,
+                "model": detector.name,
+                "model_version": getattr(detector, "version", None),
+                "expert_slot": selected_key,
+                "calibration": capture.calibration,
+                "synthetic": capture.synthetic,
+                "captured_at": captured_at,
+                "observed_labels": list(signature),
+                "secondary_evidence": capture.secondary_result,
+                "interpretation": "Detected objects recorded for later review; no threat conclusion is implied",
+            }
+            with capture.lock:
+                frames = list(capture.buffer)
+            evidence = save_bundle(frames, details)
+            self.persist_event(
+                {
+                    "camera_id": capture.id,
+                    "evidence_key": evidence,
+                    "details": details,
+                    "synthetic": capture.synthetic,
+                }
+            )
+            capture.last_detection_log = now
+        capture.last_detection_signature = signature
         with transaction() as session:
             session.add(
                 Record(

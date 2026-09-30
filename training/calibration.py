@@ -32,6 +32,18 @@ def metrics(logits, labels, temperature=1.0):
         if mask.any():
             ece += mask.mean() * abs(confidence[mask].mean() - correct[mask].mean())
     one_hot = np.eye(probs.shape[1])[labels]
+    confusion = np.zeros((probs.shape[1], probs.shape[1]), dtype=int)
+    np.add.at(confusion, (labels, probs.argmax(1)), 1)
+    per_class = []
+    for index in range(probs.shape[1]):
+        tp = int(confusion[index, index])
+        support, predicted = int(confusion[index].sum()), int(confusion[:, index].sum())
+        per_class.append({
+            "class_id": index, "support": support,
+            "precision": tp / predicted if predicted else 0.0,
+            "recall": tp / support if support else None,
+            "f1": 2 * tp / (support + predicted) if support + predicted else None,
+        })
     coverage = []
     for threshold in [0.5, 0.6, 0.7, 0.8, 0.9, 0.95]:
         keep = confidence >= threshold
@@ -48,6 +60,10 @@ def metrics(logits, labels, temperature=1.0):
         "brier": float(np.square(probs - one_hot).sum(1).mean()),
         "risk_coverage": coverage,
         "samples": len(labels),
+        "confusion_matrix": confusion.tolist(),
+        "per_class": per_class,
+        "balanced_accuracy": float(np.mean([c["recall"] for c in per_class if c["support"]])),
+        "macro_f1": float(np.mean([c["f1"] for c in per_class if c["support"]])),
     }
 
 

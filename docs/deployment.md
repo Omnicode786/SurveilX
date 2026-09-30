@@ -39,7 +39,7 @@ Docker is unavailable on the current host, so container and PostgreSQL execution
 - Detector failure falls back to the CPU baseline. Missing SVA-Net remains unavailable, not simulated.
 - Failed incident database writes create encrypted spool files; evidence keys deduplicate replay.
 - In-app notifications persist with incidents; provider integrations need configured delivery workers before use.
-- Evidence expires according to retention policy. The prototype retains audit metadata; telemetry partitioning/retention needs deployment sizing.
+- Evidence expires according to `SURVEILX_RETENTION_DAYS`. Positive object sequences are recorded no more often than `SURVEILX_DETECTION_LOG_SECONDS` for an unchanged label set unless a configured incident rule records them first. The prototype retains audit metadata; telemetry partitioning and retention need deployment sizing.
 - Run exactly one worker. Scaling requires external camera leases, cross-process notifications and shared rate limiting.
 - Use TLS and secure cookies for remote access, restrict camera networks and storage IAM, protect data/key filesystem ACLs, and test restore procedures. Local source paths are confined to data/media; RTSP credentials are encrypted at rest.
 

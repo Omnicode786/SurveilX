@@ -57,6 +57,47 @@
 .detected-item span {
   color: #819175;
 }
+.evidence-sequence {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 18px;
+  margin: 18px 0;
+  background: var(--surface);
+}
+.evidence-sequence h3,
+.evidence-sequence p {
+  margin: 0 0 6px;
+}
+.evidence-sequence p,
+.evidence-sequence small {
+  color: var(--muted);
+}
+.evidence-strip {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(220px, 32%);
+  gap: 10px;
+  overflow-x: auto;
+  padding: 12px 0;
+  scroll-snap-type: x proximity;
+}
+.evidence-strip figure {
+  margin: 0;
+  scroll-snap-align: start;
+}
+.evidence-strip img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 6px;
+  background: #10201d;
+}
+.evidence-strip figcaption {
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 11px;
+}
 * {
   box-sizing: border-box;
 }

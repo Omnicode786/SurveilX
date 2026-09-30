@@ -1,9 +1,13 @@
+import { useEffect, useState } from "react";
+
 type Detection = {
   label: string;
   score: number;
   track_id?: number;
   box?: number[];
 };
+
+type Row = Record<string, any>;
 
 export function entityName(label: string) {
   return label === "synthetic_entity"
@@ -86,6 +90,57 @@ export function DetectionDetails({
           ? "Calibration estimates box/class correctness in the evaluation domain."
           : "Raw scores are not calibrated probabilities."}{" "}
         An object detection alone does not establish a threat.
+      </small>
+    </section>
+  );
+}
+
+export function EvidenceSequence({
+  incidentId,
+  title,
+  request,
+}: {
+  incidentId: string;
+  title: string;
+  request: (path: string) => Promise<Row>;
+}) {
+  const [sequence, setSequence] = useState<Row | null>(null);
+  const [error, setError] = useState("");
+  useEffect(() => {
+    let current = true;
+    setSequence(null);
+    setError("");
+    request(`/incidents/${incidentId}/frames`)
+      .then((value) => current && setSequence(value))
+      .catch((reason) => current && setError(String(reason)));
+    return () => {
+      current = false;
+    };
+  }, [incidentId, request]);
+  if (error) return <p className="error">Recorded sequence could not be loaded.</p>;
+  if (!sequence) return <p role="status">Loading recorded sequence…</p>;
+  return (
+    <section className="evidence-sequence">
+      <div>
+        <h3>Recorded detection sequence</h3>
+        <p>{title || "Detected sequence · review required"}</p>
+      </div>
+      <div className="evidence-strip">
+        {(sequence.frames || []).map((frame: Row) => (
+          <figure key={frame.index}>
+            <img
+              src={frame.review_url || frame.url}
+              alt={`${title || "Detected sequence"}, frame ${frame.index + 1}`}
+              loading="lazy"
+            />
+            <figcaption>Frame {frame.index + 1}</figcaption>
+          </figure>
+        ))}
+      </div>
+      <small>
+        Frames and the titled review clip are encrypted at rest and expire with
+        the configured evidence-retention policy. Raw frames remain separate for
+        reviewed annotation.
       </small>
     </section>
   );

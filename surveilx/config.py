@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     coverage_seconds: float = 5.0
     confirmation_seconds: float = 2.0
     cooldown_seconds: float = 60.0
+    detection_log_seconds: float = 60.0
     retention_days: int = 7
     detector_path: str = ""
     s3_bucket: str = ""

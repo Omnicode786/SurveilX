@@ -26,7 +26,12 @@ import {
   X,
 } from "lucide-react";
 import "./styles.css";
-import { DetectionDetails, EventDetails, detectionSummary } from "./detections";
+import {
+  DetectionDetails,
+  EventDetails,
+  EvidenceSequence,
+  detectionSummary,
+} from "./detections";
 import { AcceptancePanel, AnnotationEditor, LearningPanel } from "./learning";
 import { CapabilitiesPanel } from "./capabilities";
 import { PolicyPanel } from "./policies";
@@ -1160,6 +1165,19 @@ function App() {
                 selected.secondary_evidence
               }
             />
+            {selected.event_type &&
+              selected.evidence_key &&
+              user.role !== "viewer" && (
+                <EvidenceSequence
+                  incidentId={selected.id}
+                  title={`Detected: ${(
+                    selected.details?.observed_labels || []
+                  )
+                    .map((label: string) => label.replaceAll("_", " "))
+                    .join(", ") || "review required"}`}
+                  request={api}
+                />
+              )}
             {page === "cameras" && (
               <PolicyPanel
                 cameraId={selected.id}

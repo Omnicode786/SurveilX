@@ -5,7 +5,7 @@ Status as of 2026-09-30. This table distinguishes implemented code, executed evi
 | Phase | Implemented and exercised | Remaining work |
 |---|---|---|
 | 0 — Literature and novelty | Primary-source map, component provenance, concrete objectives and equations | Systematic exhaustive review and independently validated novelty claims |
-| 1 — Infrastructure | Four generated streams, camera CRUD, local media/RTSP capture code, SQLite, encrypted filesystem evidence, authentication/RBAC, UI, WebSockets, incidents, in-app alerts, audit | Actual RTSP fault tests; PostgreSQL/S3 execution; external delivery workers; distributed leases/rate limiting |
+| 1 — Infrastructure | Four generated streams, camera CRUD, local media/RTSP capture code, SQLite, encrypted filesystem evidence, authentication/RBAC, UI, WebSockets, incidents, in-app alerts, audit; bounded positive-detection sequence logs with titled review frames/clips and raw annotation frames | Actual RTSP fault tests; PostgreSQL/S3 execution; external delivery workers; distributed leases/rate limiting |
 | 2 — Baseline | HOG detector, synthetic fixture, IoU tracker, persistent-zone and configured site rules; pretrained YOLO11n fine-tuning and held-out AP50 | Tracking ID metrics, real event baselines and multi-domain evaluation |
 | 3 — ASIE / RAIC | Camera environment configuration, motion/brightness state, CPU/RAM/telemetry governor, workload hysteresis | Learned semantic environment inference, evaluated contextual risk costs, calibrated energy optimization |
 | 4 — YOLO-RAI | Backbone adapters, real pedestrian fine-tuning, independent calibration and test evaluation; runtime adapter | Supervised scene/zone risk conditioning, calibrated resolution variants, robust uncertainty under shift |

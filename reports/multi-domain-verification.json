@@ -2,9 +2,9 @@
   "date": "2026-09-30",
   "scope": "Multi-domain generation recovery, real fall-event path, scene-event incidents, lineage-safe continuation, bounded runtime memory and live API verification",
   "full_python_suite": {
-    "passed": 75,
+    "passed": 80,
     "warnings": 1,
-    "seconds": 111.29,
+    "seconds": 110.81,
     "warning": "Starlette TestClient httpx deprecation"
   },
   "ruff": "passed",
@@ -53,13 +53,42 @@
     "source": "Zenodo record 13786228 Dangerous Items",
     "license": "CC BY 4.0",
     "expected_archive_bytes": 357834955,
-    "acquisition": "resuming",
+    "archive_sha256": "9c6749a3e36b6935fc468de9b1fb639b16c4caef2c21f5328a44ff210d3e1aa8",
+    "acquisition": "verified",
     "importer": "implemented and unit-tested",
-    "training_ready": false
+    "dataset_images": 666,
+    "split_counts": {
+      "train": 399,
+      "validation": 96,
+      "calibration": 65,
+      "test": 106
+    },
+    "training": "dangerous-items-g1 completed",
+    "scratch_model_id": "98d9edec-7b7d-461b-a22c-70599be79a82",
+    "scratch_map50": 0.009776429310929638,
+    "adapted_model_id": "a90a498a-55fe-49d5-968f-e73b15045fbd",
+    "adapted_map50": 0.21297910674922105,
+    "adapted_precision": 0.3076923076923077,
+    "adapted_recall": 0.28346456692913385,
+    "firearm_ap50": 0.14558027438948964,
+    "active": false,
+    "production_accepted": false
+  },
+  "detection_sequence_logging": {
+    "encrypted": true,
+    "raw_frames": true,
+    "titled_review_frames": true,
+    "raw_and_review_clips": true,
+    "bounded_interval_seconds": 60,
+    "retention_days": 7,
+    "live_detection_sequences": 4,
+    "latest_sequence_frames": 6,
+    "review_frame_http_status": 200,
+    "visual_evidence": "reports/detection-sequence-preview.jpg"
   },
   "limitations": [
     "PPE and fall development accuracy is inadequate for deployment",
-    "Firearm acquisition and annotation audit are incomplete",
+    "Firearm generation and independent evaluation are incomplete",
     "Fighting, theft and collision lack trained real-data candidates",
     "No new hazard or event candidate is active or independently accepted",
     "CUDA, TensorRT, FPGA, Jetson and Raspberry Pi execution remain unverified on hardware",

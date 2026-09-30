@@ -18,8 +18,8 @@ from training.models import SVANet, SVASceneNet
 
 
 class Clips(Dataset):
-    def __init__(self, root, samples, scene=False):
-        self.root, self.samples, self.scene = root, samples, scene
+    def __init__(self, root, samples, scene=False, augment=False):
+        self.root, self.samples, self.scene, self.augment = root, samples, scene, augment
 
     def __len__(self):
         return len(self.samples)
@@ -27,8 +27,12 @@ class Clips(Dataset):
     def __getitem__(self, index):
         item = self.samples[index]
         with np.load(self.root / item["file"], allow_pickle=False) as data:
+            clip = data["clip"].astype("float32")
+            if self.augment:
+                # One transform for the complete clip preserves motion and label direction.
+                clip = np.clip(clip * random.uniform(0.85, 1.15) + random.uniform(-0.04, 0.04), 0, 1)
             return (
-                torch.from_numpy(data["clip"].astype("float32")),
+                torch.from_numpy(clip),
                 torch.empty((len(data["clip"]), 0, 4))
                 if self.scene
                 else torch.from_numpy(data["boxes"].astype("float32")),
@@ -47,16 +51,21 @@ def predict(model, loader, device):
     return np.concatenate(logits), np.asarray(labels)
 
 
-def train(manifest_path, output, epochs=5, seed=42, ablation="full", initialize_from=None):
+def train(manifest_path, output, epochs=5, seed=42, ablation="full", initialize_from=None,
+          finetune_all=False, learning_rate=0.002, augment=False, patience=None, threads=4):
+    if epochs < 1 or threads < 1 or not np.isfinite(learning_rate) or learning_rate <= 0:
+        raise ValueError("Epochs, threads and learning rate must be positive")
+    if patience is not None and patience < 1:
+        raise ValueError("Optional patience must be positive")
     manifest_path, output = Path(manifest_path).resolve(), Path(output).resolve()
     manifest, counts = validate_manifest(manifest_path)
-    if (output / "manifest.json").exists():
+    if output.exists() and any(p.name != "process.log" for p in output.iterdir()):
         raise ValueError("Run already exists; choose a new output version")
     output.mkdir(parents=True, exist_ok=True)
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
-    torch.set_num_threads(min(4, torch.get_num_threads()))
+    torch.set_num_threads(min(threads, torch.get_num_threads()))
     device = torch_device()
     flags = {
         "use_motion": ablation != "no_motion",
@@ -75,7 +84,8 @@ def train(manifest_path, output, epochs=5, seed=42, ablation="full", initialize_
         previous = Path(initialize_from).resolve()
         previous_manifest = json.loads((previous / "manifest.json").read_text(encoding="utf-8"))
         if (
-            previous_manifest.get("task") != "event"
+            previous_manifest.get("task", previous_manifest.get("calibration_task")) != "event"
+            or previous_manifest.get("domain") != manifest.get("domain")
             or previous_manifest.get("classes") != manifest["classes"]
             or previous_manifest.get("representation", "entity_clip")
             != manifest.get("representation", "entity_clip")
@@ -88,20 +98,30 @@ def train(manifest_path, output, epochs=5, seed=42, ablation="full", initialize_
             raise ValueError("Continuation checkpoint checksum mismatch")
         model.load_state_dict(torch.load(previous / "weights.pt", map_location=device, weights_only=True))
         initialization = previous_manifest["weights_sha256"]
-        for name, parameter in model.named_parameters():
-            parameter.requires_grad_(name.startswith(("context.", "event_head.")))
+        if not finetune_all:
+            for name, parameter in model.named_parameters():
+                parameter.requires_grad_(name.startswith(("context.", "event_head.")))
     loaders = {
         split: DataLoader(
-            Clips(manifest_path.parent, [s for s in manifest["samples"] if s["split"] == split], scene=scene),
+            Clips(manifest_path.parent, [s for s in manifest["samples"] if s["split"] == split],
+                  scene=scene, augment=augment and split == "train"),
             batch_size=8,
             shuffle=split == "train",
             num_workers=0,
         )
         for split in counts
     }
-    optimizer = torch.optim.AdamW([p for p in model.parameters() if p.requires_grad], lr=0.002)
+    optimizer = torch.optim.AdamW([p for p in model.parameters() if p.requires_grad], lr=learning_rate)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs, eta_min=learning_rate * 0.05)
     started = time.perf_counter()
     best, history = float("inf"), []
+    best_epoch, stale = 0, 0
+    parent_loss = None
+    if initialize_from:
+        logits, labels = predict(model, loaders["validation"], device)
+        best = F.cross_entropy(torch.tensor(logits), torch.tensor(labels)).item()
+        parent_loss = best
+        torch.save(model.state_dict(), output / "weights.pt")
     for epoch in range(epochs):
         model.train()
         losses = []
@@ -110,6 +130,8 @@ def train(manifest_path, output, epochs=5, seed=42, ablation="full", initialize_
             result = model(clip.to(device), boxes.to(device), context.to(device))
             # Only labeled event loss; unlabeled entity/relation heads are not falsely supervised.
             loss = F.cross_entropy(result["event"], label.to(device))
+            if not torch.isfinite(loss):
+                raise RuntimeError("Non-finite event loss; candidate is not successful")
             loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
             optimizer.step()
@@ -120,8 +142,15 @@ def train(manifest_path, output, epochs=5, seed=42, ablation="full", initialize_
             {"epoch": epoch + 1, "train_loss": float(np.mean(losses)), "validation_loss": val_loss}
         )
         if val_loss < best:
-            best = val_loss
+            best, best_epoch, stale = val_loss, epoch + 1, 0
             torch.save(model.state_dict(), output / "weights.pt")
+        else:
+            stale += 1
+        (output / "history.json").write_text(json.dumps(history, indent=2))
+        print(json.dumps(history[-1]), flush=True)
+        scheduler.step()
+        if patience and stale >= patience:
+            break
     model.load_state_dict(torch.load(output / "weights.pt", map_location=device, weights_only=True))
     calibration_logits, calibration_labels = predict(model, loaders["calibration"], device)
     temperature = fit_temperature(calibration_logits, calibration_labels)
@@ -157,6 +186,12 @@ def train(manifest_path, output, epochs=5, seed=42, ablation="full", initialize_
         "history": history,
         "seed": seed,
         "epochs": epochs,
+        "epochs_completed": len(history),
+        "best_epoch": best_epoch,
+        "validation_selection": {"split": "validation", "parent_loss": parent_loss,
+                                 "selected_loss": best, "selected": "parent" if best_epoch == 0 else "candidate"},
+        "training": {"learning_rate": learning_rate, "augment": augment,
+                     "finetune_all": finetune_all, "patience": patience, "threads": threads},
         "ablation": ablation,
         "architecture": flags,
         "initialization": initialization,
@@ -196,6 +231,11 @@ def main():
         default="full",
     )
     training.add_argument("--initialize-from")
+    training.add_argument("--finetune-all", action="store_true")
+    training.add_argument("--learning-rate", type=float, default=0.002)
+    training.add_argument("--augment", action="store_true")
+    training.add_argument("--patience", type=int)
+    training.add_argument("--threads", type=int, default=4)
     args = parser.parse_args()
     if args.command == "generate":
         print(generate(args.directory, args.count, args.seed))
@@ -203,7 +243,8 @@ def main():
         print(
             json.dumps(
                 train(
-                    args.manifest, args.output, args.epochs, args.seed, args.ablation, args.initialize_from
+                    args.manifest, args.output, args.epochs, args.seed, args.ablation, args.initialize_from,
+                    args.finetune_all, args.learning_rate, args.augment, args.patience, args.threads
                 ),
                 indent=2,
             )

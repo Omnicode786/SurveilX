@@ -4,6 +4,7 @@ import re
 import time
 from contextlib import asynccontextmanager
 from pathlib import Path
+from typing import Literal
 
 import cv2
 from argon2.exceptions import VerifyMismatchError
@@ -431,6 +432,7 @@ def incident_frames(
                     "index": i,
                     "name": name,
                     "url": f"/api/incidents/{incident_id}/frames/{i}?observation={observation}",
+                    "review_url": f"/api/incidents/{incident_id}/frames/{i}?observation={observation}&view=review",
                 }
                 for i, name in enumerate(names)
             ],
@@ -439,13 +441,17 @@ def incident_frames(
 
 @app.get("/api/incidents/{incident_id}/frames/{index}")
 def incident_frame(
-    incident_id: str, index: int, observation: int = Query(default=0, ge=0, le=99), user=Depends(current_user)
+    incident_id: str,
+    index: int,
+    observation: int = Query(default=0, ge=0, le=99),
+    view: Literal["raw", "review"] = "raw",
+    user=Depends(current_user),
 ):
     require(user, "operator", "researcher")
     with transaction() as session:
         incident = session.get(Incident, incident_id) or missing()
         try:
-            _, _, _, frames = evidence_frames(incident, observation)
+            _, _, _, frames = evidence_frames(incident, observation, review=view == "review")
         except (ValueError, OSError) as exc:
             raise HTTPException(409, str(exc)) from None
         if not 0 <= index < len(frames):
@@ -569,51 +575,12 @@ def controller(user=Depends(current_user)):
 
 @app.get("/api/generations")
 def generation_status(user=Depends(current_user)):
-    import psutil
+    from surveilx.generations import read_generation
 
     result = []
     for path in sorted((settings.data_dir / "generations").glob("*/status.json")):
         try:
-            journal = json.loads(path.read_text(encoding="utf-8"))
-            state = journal.get("state", "unknown")
-            if state == "running":
-                try:
-                    command = psutil.Process(journal["pid"]).cmdline()
-                    if "scripts.train_domain_generation" not in command or path.parent.name not in command:
-                        state = "interrupted"
-                except (psutil.NoSuchProcess, KeyError):
-                    state = "interrupted"
-                except psutil.AccessDenied:
-                    state = "process_unverified"
-            jobs = []
-            for architecture, job in journal.get("jobs", {}).items():
-                version = job.get("version", "")
-                history = []
-                if re.fullmatch(r"[a-zA-Z0-9_-]{1,100}", version):
-                    history_path = settings.data_dir / "runs" / version / "history.json"
-                    if history_path.exists():
-                        try:
-                            history = json.loads(history_path.read_text(encoding="utf-8"))
-                        except (ValueError, OSError):
-                            pass  # A writer may currently be replacing epoch progress.
-                jobs.append(
-                    {
-                        "architecture": architecture,
-                        "version": version,
-                        "state": job.get("state"),
-                        "model_id": job.get("model_id"),
-                        "completed_epochs": len(history),
-                    }
-                )
-            result.append(
-                {
-                    "generation": path.parent.name,
-                    "state": state,
-                    "config": journal.get("config", {}),
-                    "jobs": jobs,
-                    "error": journal.get("error"),
-                }
-            )
+            result.append(read_generation(path, settings.data_dir))
         except (ValueError, OSError, TypeError):
             result.append({"generation": path.parent.name, "state": "unreadable", "jobs": []})
     return result
