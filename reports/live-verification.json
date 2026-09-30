@@ -1,5 +1,5 @@
 {
-  "timestamp": 1790497939.2455614,
+  "timestamp": 1790539365.8104837,
   "four_generated_streams": true,
   "frames_advance": true,
   "jpeg_streams": true,
@@ -7,16 +7,16 @@
   "acknowledgement": true,
   "feedback": true,
   "websocket": true,
-  "incidents_persisted": 20,
+  "incidents_persisted": 72,
   "runtime": {
     "hardware": {
       "os": "Windows",
       "architecture": "AMD64",
       "cores": 6,
       "ram_gb": 15.795906066894531,
-      "available_gb": 4.92291259765625,
-      "cpu_percent": 71.4,
-      "memory_percent": 68.8,
+      "available_gb": 6.639301300048828,
+      "cpu_percent": 26.5,
+      "memory_percent": 58.0,
       "gpu": {
         "name": "NVIDIA GeForce MX130",
         "memory_mb": 2048.0,
@@ -26,12 +26,12 @@
         "power_w": null
       },
       "temperature_c": null,
-      "battery_percent": 27,
+      "battery_percent": 9,
       "plugged_in": false
     },
     "power": {
       "level": "economy",
-      "reason": "Hardware capacity and sustained measured headroom",
+      "reason": "Reduced workload: load, latency, thermal or battery pressure",
       "resolution": 320,
       "budget_ms": 200,
       "capture_fps": 5,
@@ -47,12 +47,20 @@
       ],
       "deferred": [],
       "estimated_ms": 40,
-      "policy": "deadline-first-cold-start-v1"
+      "epoch_budget_ms": 200,
+      "available_credit_ms": 1000,
+      "credit_remaining_ms": 960,
+      "reserved_for": null,
+      "policy": "deadline-first-bounded-credit-v2"
     },
-    "heartbeat": 1790497938.608501,
+    "heartbeat": 1790539365.2105238,
     "error": null,
-    "mean_latency_ms": 1.6062966139972361,
-    "p95_latency_ms": 2.4527000006855793,
+    "active_models": {
+      "event": null,
+      "detection": null
+    },
+    "mean_latency_ms": 1.6785480916354127,
+    "p95_latency_ms": 2.132550000169431,
     "cameras": [
       {
         "id": "b7e1a49c-7f91-4cc0-a014-bf45c115fa80",
@@ -62,27 +70,27 @@
         "environment": "parking",
         "priority": 1,
         "capture_fps_target": 5,
-        "frames": 669,
-        "dropped_frames": 557,
+        "frames": 162,
+        "dropped_frames": 128,
         "reconnects": 0,
-        "latency_ms": 1.44,
+        "latency_ms": 1.06,
         "model": "synthetic-color-fixture",
-        "service_age_seconds": 0.64,
-        "last_frame": 1790497939.1465995,
+        "service_age_seconds": 0.59,
+        "last_frame": 1790539365.6484587,
         "detections": [
           {
             "box": [
-              0.2875,
+              0.459375,
               0.3888888888888889,
-              0.3453125,
+              0.5171875,
               0.6138888888888889
             ],
             "label": "synthetic_entity",
             "score": 1.0,
-            "track_id": 83
+            "track_id": 24
           }
         ],
-        "motion": 0.006944444444444444,
+        "motion": 0.003472222222222222,
         "brightness": 0.10193695533769064,
         "calibration": "uncalibrated",
         "secondary_evidence": null,
@@ -96,28 +104,28 @@
         "environment": "office",
         "priority": 2,
         "capture_fps_target": 5,
-        "frames": 668,
-        "dropped_frames": 556,
+        "frames": 161,
+        "dropped_frames": 127,
         "reconnects": 0,
-        "latency_ms": 1.61,
+        "latency_ms": 1.26,
         "model": "synthetic-color-fixture",
-        "service_age_seconds": 0.66,
-        "last_frame": 1790497939.1675549,
+        "service_age_seconds": 0.59,
+        "last_frame": 1790539365.6484587,
         "detections": [
           {
             "box": [
-              0.3953125,
+              0.56875,
               0.3888888888888889,
-              0.453125,
+              0.6265625,
               0.6138888888888889
             ],
             "label": "synthetic_entity",
             "score": 1.0,
-            "track_id": 83
+            "track_id": 25
           }
         ],
         "motion": 0.006944444444444444,
-        "brightness": 0.10200674019607843,
+        "brightness": 0.10125782952069717,
         "calibration": "uncalibrated",
         "secondary_evidence": null,
         "risk": "no active zone observation"
@@ -130,31 +138,31 @@
         "environment": "warehouse",
         "priority": 3,
         "capture_fps_target": 5,
-        "frames": 670,
-        "dropped_frames": 558,
+        "frames": 162,
+        "dropped_frames": 128,
         "reconnects": 0,
-        "latency_ms": 1.65,
+        "latency_ms": 1.31,
         "model": "synthetic-color-fixture",
-        "service_age_seconds": 0.66,
-        "last_frame": 1790497939.065551,
+        "service_age_seconds": 0.61,
+        "last_frame": 1790539365.7581394,
         "detections": [
           {
             "box": [
-              0.5296875,
+              0.69375,
               0.3888888888888889,
-              0.5875,
+              0.7515625,
               0.6138888888888889
             ],
             "label": "synthetic_entity",
             "score": 1.0,
-            "track_id": 83
+            "track_id": 27
           }
         ],
         "motion": 0.003472222222222222,
-        "brightness": 0.09940767973856209,
+        "brightness": 0.10207652505446624,
         "calibration": "uncalibrated",
         "secondary_evidence": null,
-        "risk": "no active zone observation"
+        "risk": "review"
       },
       {
         "id": "1fa24695-cae6-4f9a-b7d6-7aa6fd3fd21a",
@@ -164,28 +172,28 @@
         "environment": "retail",
         "priority": 1,
         "capture_fps_target": 5,
-        "frames": 669,
-        "dropped_frames": 558,
+        "frames": 162,
+        "dropped_frames": 129,
         "reconnects": 0,
-        "latency_ms": 1.58,
+        "latency_ms": 1.41,
         "model": "synthetic-color-fixture",
-        "service_age_seconds": 0.64,
-        "last_frame": 1790497939.1675549,
+        "service_age_seconds": 0.59,
+        "last_frame": 1790539365.7997046,
         "detections": [
           {
             "box": [
-              0.6390625,
+              0.8109375,
               0.3888888888888889,
-              0.696875,
+              0.86875,
               0.6138888888888889
             ],
             "label": "synthetic_entity",
             "score": 1.0,
-            "track_id": 78
+            "track_id": 23
           }
         ],
         "motion": 0.003472222222222222,
-        "brightness": 0.1011233660130719,
+        "brightness": 0.10015659041394336,
         "calibration": "uncalibrated",
         "secondary_evidence": null,
         "risk": "review"

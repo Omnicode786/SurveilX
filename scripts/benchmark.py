@@ -8,7 +8,7 @@ import numpy as np
 
 from surveilx.controller import Candidate, Scheduler
 from surveilx.hardware import probe
-from surveilx.vision import HOGDetector, Tracker, generated_frame
+from surveilx.vision import Detection, HOGDetector, Tracker, generated_frame
 
 
 def benchmark():
@@ -19,9 +19,13 @@ def benchmark():
     profiler.enable()
     for _ in range(25):
         start = time.perf_counter()
-        detections = detector.infer(frame, 320)
+        detector.infer(frame, 320)
         samples["native_hog_ms"].append((time.perf_counter() - start) * 1000)
         start = time.perf_counter()
+        detections = [
+            Detection([i % 8 / 8, i // 8 / 4, i % 8 / 8 + 0.06, i // 8 / 4 + 0.12], "person", 0.9)
+            for i in range(32)
+        ]
         tracker.update(detections)
         samples["python_tracker_ms"].append((time.perf_counter() - start) * 1000)
         start = time.perf_counter()
@@ -33,7 +37,7 @@ def benchmark():
     with (output / "native-profile.txt").open("w") as stream:
         pstats.Stats(profiler, stream=stream).sort_stats("cumulative").print_stats(20)
     result = {
-        "scope": "Microbenchmark on generated image; not detector accuracy or live end-to-end performance",
+        "scope": "HOG on generated image; tracker with 32 synthetic boxes; four-camera scheduler. Not accuracy or end-to-end performance",
         "hardware": probe().json(),
         "iterations": 25,
         "results": {

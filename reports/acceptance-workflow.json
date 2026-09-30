@@ -1,0 +1,112 @@
+{
+  "evaluation": {
+    "id": "f1ae9a7c-621b-47ad-90aa-9aea1cc0d2de",
+    "kind": "acceptance",
+    "timestamp": 1790613589.7688823,
+    "payload": {
+      "state": "completed",
+      "model_id": "28fed94b-9049-443e-98d8-36a5df24f0e5",
+      "baseline_model_id": null,
+      "dataset": "acceptance-generated-20260928",
+      "policy": {
+        "min_samples": 100,
+        "min_groups": 5,
+        "min_per_class": 20,
+        "min_ap50": 0.8,
+        "min_recall_lower": 0.8,
+        "min_precision_lower": 0.8,
+        "min_accuracy_lower": 0.8,
+        "max_ece": 0.08,
+        "max_wall_ms": 500,
+        "max_regression": 0.02
+      },
+      "requested_by": "233a0227-eeb7-465a-b465-b8608a433b74",
+      "request_sha256": "f9d185e0817fa1255a464485e62149d28b205f51a00ab41d1aa7ebfc5d46d35a",
+      "weights_sha256": "8e78498ee70b693924857dc9b5f4e8750a988f92a1515a2cdf14ab597e4e8c29",
+      "started": 1790613589.776133,
+      "report": {
+        "schema_version": 1,
+        "weights_sha256": "8e78498ee70b693924857dc9b5f4e8750a988f92a1515a2cdf14ab597e4e8c29",
+        "artifact_manifest_sha256": "fa99e36fbb2e9f4c1d201af450aeacf24b103627f8cb9ef68e4f0d781b283bf1",
+        "dataset_sha256": "b53d177011b723702d4eb8466125a208783c0dff1641413389eb00389e8584fe",
+        "request_sha256": "f9d185e0817fa1255a464485e62149d28b205f51a00ab41d1aa7ebfc5d46d35a",
+        "reference_sha256": [
+          "a504b5ca8765f65b3475b28dad81dd5b769b8e76ee6bee2646ece7e7c1813fd8"
+        ],
+        "baseline_weights_sha256": null,
+        "policy": {
+          "min_samples": 100,
+          "min_groups": 5,
+          "min_per_class": 20,
+          "min_ap50": 0.8,
+          "min_recall_lower": 0.8,
+          "min_precision_lower": 0.8,
+          "min_accuracy_lower": 0.8,
+          "max_ece": 0.08,
+          "max_wall_ms": 500,
+          "max_regression": 0.02
+        },
+        "metrics": {
+          "accuracy": 1.0,
+          "ece": 0.0,
+          "brier": 1.3485176449553603e-78,
+          "risk_coverage": [
+            {
+              "threshold": 0.5,
+              "coverage": 1.0,
+              "error": 0.0
+            },
+            {
+              "threshold": 0.6,
+              "coverage": 1.0,
+              "error": 0.0
+            },
+            {
+              "threshold": 0.7,
+              "coverage": 1.0,
+              "error": 0.0
+            },
+            {
+              "threshold": 0.8,
+              "coverage": 1.0,
+              "error": 0.0
+            },
+            {
+              "threshold": 0.9,
+              "coverage": 1.0,
+              "error": 0.0
+            },
+            {
+              "threshold": 0.95,
+              "coverage": 1.0,
+              "error": 0.0
+            }
+          ],
+          "samples": 100,
+          "per_class_support": [
+            50,
+            50
+          ],
+          "accuracy_lower_95": 0.963005192523998,
+          "wall_ms_per_sample": 35.8318300000974,
+          "independent_groups": 100
+        },
+        "baseline_metrics": null,
+        "task": "event",
+        "domain": "synthetic-motion",
+        "synthetic": true,
+        "passed": true,
+        "failures": [],
+        "deployment_eligible": false,
+        "limitations": [
+          "Group and exact-content checks do not prove absence of near-duplicates",
+          "Per-detection Wilson intervals assume independent trials; clustered scenes weaken this assumption",
+          "Wall time includes preprocessing/loading, and model initialization for detection; not a sustained-stream deadline guarantee",
+          "Dataset-level acceptance does not establish threat detection or performance on other domains"
+        ]
+      },
+      "finished": 1790613637.9748108
+    }
+  },
+  "synthetic_approval_http_status": 409
+}

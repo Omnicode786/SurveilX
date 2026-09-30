@@ -22,7 +22,7 @@ Generated samples are small, colored moving shapes with slow/fast-motion labels.
 
 ## Import your own video data
 
-Use `python -m training.import_data annotations.json data/datasets/site-v1`. Keep referenced videos beside or below the annotation file. Each sample specifies eight frame indices and two persistent entity boxes per frame. This model version has a deliberately narrow two-entity contract. More entities, missing-entity masks, dense detection and interaction labels require a later architecture/data version.
+Use `python -m training.import_data annotations.json data/datasets/site-v1`. Keep referenced videos beside or below the annotation file. By default, each sample specifies eight frame indices and two persistent entity boxes per frame. A version can declare another frame/entity/image-size contract; see [dataset adapters](dataset-adapters.md). Missing-entity masks and supervised relation labels remain unsupported.
 
 ```json
 {
@@ -49,16 +49,18 @@ Alternatively provide `manifest.json` plus `.npz` files directly under `data/dat
 
 ## Feedback and later generations
 
-Operators can submit true-event, false-positive, ambiguous and missed-event labels. Another user must review the label. Feedback is a dataset candidate, not an automatic correct training target. Export/reannotate the evidence into the clip contract; reject ambiguous or unlabeled tasks. A model cannot discover reliable ground truth solely from its own predictions.
+Operators can submit true-event, false-positive, ambiguous and missed-event labels. Another user must review the label. The evidence annotation editor adds object boxes, persistent tracks and video-event labels; a second person reviews these before dataset assembly. **Reviewed learning** builds new versions with train-only approved evidence, bounded replay and unchanged evaluation splits, and can automatically train/calibrate candidates after an approval threshold. See the [complete workflow and limits](reviewed-learning.md).
 
-For adapter-only updates, pass `--initialize-from data/runs/previous/weights.pt`; only context and event-head parameters update. Include representative old-domain samples in the new training manifest. The tool does not silently add replay data: record which samples were included, and evaluate old-domain retention separately. Never add validation/calibration/test samples to replay training.
+For event-model adapter-only updates from the CLI, pass `--initialize-from data/runs/previous/weights.pt`; only context and event-head parameters update. CLI continuation uses the samples supplied in its manifest. Dashboard automatic generations currently retrain their selected architecture with explicitly recorded replay rather than automatically continuing previous weights. Evaluate old-domain retention separately. Never add validation/calibration/test samples to replay training.
 
-SVA-Net currently trains its event head with categorical cross entropy; entity-state and relation heads are present but untrained because those labels have not been provided. They must not be interpreted as trustworthy output. The YOLO risk conditioner is an experimental module, not a completed validated YOLO-RAI detector.
+SVA-Net currently trains its event head with categorical cross entropy; entity-state and relation heads are present but untrained because those labels have not been provided. They must not be interpreted as trustworthy output. The modified YOLO detector is integrated and trained on pedestrian boxes with neutral context; supervised risk conditioning is not validated. See the [real-image benchmark](detection-benchmark.md).
 
 ## Deployment acceptance
 
 Perfect accuracy is not a valid acceptance promise. Define minimum recall, maximum false alarms/hour, abstention coverage, critical-event miss tolerance and latency for the intended site before evaluation. Use confidence intervals, adequate rare-event sample counts, independent evaluation and operator review. A low ECE alone is insufficient: an uninformative 50/50 classifier can be well calibrated.
 
+**Model acceptance** runs frozen-model evaluations on an independent dataset and checks training ancestry for group/content overlap. Its current automated criteria cover support, source diversity, AP50/accuracy, Wilson lower bounds, ECE, wall time and optional baseline regression. It does not yet measure false alarms/hour. A passing real-domain report requires explicit approval, scoped canary activation and production promotion. Changes to accepted weights or calibration invalidate artifact approval.
+
 ## Dataset acquisition plan
 
-COCO may supervise object localization; MOT/CityFlow may evaluate tracking; UCF-Crime and other surveillance-event datasets may supervise their own event taxonomies. Do not merge them into one label space without a mapping. Dataset downloads, license acceptance, custom footage collection and real annotation have not been performed here. Audit each dataset's license, subject permissions, taxonomy, camera domains, weak versus dense labels and leakage before import.
+Penn-Fudan has been downloaded and converted for local pedestrian-detection evaluation, with provenance and rights limitations in [dataset notes](datasets.md). COCO-format boxes can be imported; MOT/CityFlow tracking and UCF-Crime event annotations require task-specific adaptation. Do not merge datasets into one label space without a mapping. Custom footage collection and real event annotation have not been performed here. Audit each source's license, permissions, taxonomy, weak versus dense labels and leakage before import.

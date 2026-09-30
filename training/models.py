@@ -17,6 +17,47 @@ class ContextAdapter(nn.Module):
         return entities * (1 + scale[:, None]) + shift[:, None]
 
 
+class SVASceneNet(nn.Module):
+    """Whole-clip classification for video labels; no entity boxes or frame labels are invented."""
+
+    def __init__(
+        self, classes=2, use_motion=True, use_context=True, use_temporal=True, use_interactions=False
+    ):
+        super().__init__()
+        if use_interactions:
+            raise ValueError("Scene clips do not supervise entity interactions")
+        self.use_motion, self.use_context, self.use_temporal = use_motion, use_context, use_temporal
+        self.encoder = nn.Sequential(
+            nn.Conv2d(3, 32, 5, 2, 2),
+            nn.GroupNorm(4, 32),
+            nn.SiLU(),
+            nn.Conv2d(32, 64, 3, 2, 1),
+            nn.GroupNorm(8, 64),
+            nn.SiLU(),
+            nn.AdaptiveAvgPool2d(1),
+        )
+        self.motion = nn.Linear(64, 64, bias=False)
+        self.context = ContextAdapter(4, 64)
+        self.temporal = nn.GRU(64, 64, batch_first=True)
+        self.event_head = nn.Linear(64, classes)
+
+    def forward(self, clip, boxes=None, context=None):
+        batch, frames, channels, height, width = clip.shape
+        features = self.encoder(clip.reshape(batch * frames, channels, height, width)).reshape(
+            batch, frames, 64
+        )
+        if self.use_motion:
+            difference = torch.cat(
+                [torch.zeros_like(features[:, :1]), features[:, 1:] - features[:, :-1]], dim=1
+            )
+            features = features + self.motion(difference)
+        if self.use_context and context is not None:
+            features = self.context(features, context)
+        if self.use_temporal:
+            features, _ = self.temporal(features)
+        return {"event": self.event_head(features.mean(dim=1))}
+
+
 class SVANet(nn.Module):
     def __init__(
         self,
@@ -79,23 +120,3 @@ class SVANet(nn.Module):
             "relations": self.relation_head(relations),
             "embeddings": summary,
         }
-
-
-class RiskConditioner(nn.Module):
-    """Experimental YOLO feature adapter. Integration/training against a detector is separate."""
-
-    def __init__(self, channels, context_dim=4):
-        super().__init__()
-        self.condition = nn.Linear(context_dim, channels * 2)
-        self.zone_gate = nn.Conv2d(1, channels, 1)
-        nn.init.zeros_(self.condition.weight)
-        nn.init.zeros_(self.condition.bias)
-        nn.init.zeros_(self.zone_gate.weight)
-        nn.init.zeros_(self.zone_gate.bias)
-
-    def forward(self, features, context, zone_map):
-        scale, shift = self.condition(context).chunk(2, -1)
-        zones = F.interpolate(zone_map, features.shape[-2:], mode="bilinear", align_corners=False)
-        return (
-            features * (1 + scale[:, :, None, None] + self.zone_gate(zones).tanh()) + shift[:, :, None, None]
-        )

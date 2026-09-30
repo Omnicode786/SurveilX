@@ -1,6 +1,6 @@
 # SurveilX-Edge engineering specification
 
-The paper (Phase 11) is excluded. This repository separates executable prototype capabilities from experiments that require real data and target devices. No trained SVA-Net, calibrated threat estimator, novelty claim, or measured energy saving is implied by the architecture.
+The paper (Phase 11) is excluded. This repository separates executable prototype capabilities from experiments that require real data and target devices. Actual training results are recorded in run manifests and the [detection benchmark](detection-benchmark.md). The architecture itself implies no calibrated threat estimator, novelty claim or measured energy saving.
 
 ## Decisions from prior art
 
@@ -16,7 +16,8 @@ Chameleon already adapts model configuration; Reducto already filters redundant 
 | SVA-Net | Clip, entity boxes, context → entity states, relations, event logits | Scheduled; tensor-dependent | Offline supervised multi-task prototype | Temporal reasoning lives here |
 | Arbitration | Available calibrated evidence → accept/abstain/conflict | Per inference; O(number of outputs) | Held-out temperature | Combines evidence; never allocates |
 | Risk/events | Observations, zones, persistence → reviewable incident | Per result | Configurable operational rules, not threat probabilities | Owns lifecycle and deduplication |
-| Adaptation | Reviewed labels → dataset candidates and candidate models | Offline | Replay-based training | Cannot replace production weights |
+| Adaptation | Independently reviewed labels → versioned train-only evidence, replay and calibrated candidate models | Offline, opt-in approval-count trigger | Selected architecture retraining | Cannot replace production weights |
+| Acceptance | Frozen candidate and independent data → metrics, policy decision and artifact-bound approval | Offline | No fitting on acceptance data | Separate approval, canary and promotion |
 
 ## Mathematical contract
 
@@ -54,6 +55,8 @@ flowchart LR
 ## SVA-Net hypothesis
 
 A small shared spatial encoder samples spatial entity features using supplied boxes for every clip frame. Temporal depthwise convolution preserves entity histories; pairwise relative geometry and entity embeddings form interaction messages. Context modulates entities through a learned affine adapter. Entity-state and interaction heads plus a pooled event head share representations. This is a custom research implementation assembled from established primitives, not proven architectural novelty. Box proposals come from an independent detector or labeled boxes; SVA-Net is not yet an independent object detector. Ablate motion, context, interactions and temporal convolution separately. Do not deploy random initialization as incident evidence.
+
+The separate `training/detector_model.py` implements SVA-Detector from random initialization with multiscale box/class/objectness heads. It supplies a trainable detection stage alongside the event model. See [mathematical foundations](mathematical-foundations.md) for the implemented objectives and [dataset adapters](dataset-adapters.md) for supported supervision.
 
 ## Storage and service boundaries
 

@@ -13,6 +13,8 @@ from training.datasets import digest, validate_manifest
 def convert(annotation_path, output):
     annotation_path, output = Path(annotation_path).resolve(), Path(output).resolve()
     annotations = json.loads(annotation_path.read_text(encoding="utf-8"))
+    contract = annotations.get("input_contract", {"frames": 8, "entities": 2, "image_size": 64})
+    size = contract["image_size"]
     if output.exists():
         raise ValueError("Use a new, nonexistent dataset version directory")
     output.mkdir(parents=True)
@@ -29,12 +31,12 @@ def convert(annotation_path, output):
                 ok, image = capture.read()
                 if not ok:
                     raise ValueError(f"Unreadable frame {frame_number} in sample {index}")
-                image = cv2.cvtColor(cv2.resize(image, (64, 64)), cv2.COLOR_BGR2RGB)
+                image = cv2.cvtColor(cv2.resize(image, (size, size)), cv2.COLOR_BGR2RGB)
                 clip.append(image.transpose(2, 0, 1).astype("float32") / 255)
         finally:
             capture.release()
-        if len(clip) != 8:
-            raise ValueError("This model version uses exactly 8 frames per clip")
+        if len(clip) != contract["frames"]:
+            raise ValueError("Frame indices must match input_contract.frames")
         file = f"sample-{index:06d}.npz"
         np.savez_compressed(
             output / file,
@@ -53,9 +55,12 @@ def convert(annotation_path, output):
         )
     manifest = {
         "schema_version": 1,
+        "task": "event",
+        "input_contract": contract,
         "name": output.name,
         "synthetic": False,
         "domain": annotations["domain"],
+        "capability_ids": annotations.get("capability_ids", []),
         "classes": annotations["classes"],
         "license": annotations["license"],
         "samples": samples,

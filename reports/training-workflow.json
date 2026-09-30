@@ -1,0 +1,9 @@
+{
+  "job_id": "22e4ace3-4ac7-4d59-8205-ddf05debab6a",
+  "state": "completed",
+  "dataset": "pennfudan",
+  "architecture": "scratch",
+  "candidate_registered": true,
+  "checkpoint_exists": true,
+  "scope": "One-epoch browser-triggered integration run; not a model-selection result"
+}

@@ -1,38 +1,38 @@
 {
-  "scope": "Microbenchmark on generated image; not detector accuracy or live end-to-end performance",
+  "scope": "HOG on generated image; tracker with 32 synthetic boxes; four-camera scheduler. Not accuracy or end-to-end performance",
   "hardware": {
     "os": "Windows",
     "architecture": "AMD64",
     "cores": 6,
     "ram_gb": 15.795906066894531,
-    "available_gb": 5.9746246337890625,
-    "cpu_percent": 63.4,
-    "memory_percent": 62.2,
+    "available_gb": 6.306324005126953,
+    "cpu_percent": 59.5,
+    "memory_percent": 60.1,
     "gpu": {
       "name": "NVIDIA GeForce MX130",
       "memory_mb": 2048.0,
       "used_mb": 23.0,
       "utilization": 0.0,
-      "temperature_c": 0.0,
+      "temperature_c": null,
       "power_w": null
     },
-    "temperature_c": 0,
-    "battery_percent": 32,
+    "temperature_c": null,
+    "battery_percent": 91,
     "plugged_in": false
   },
   "iterations": 25,
   "results": {
     "native_hog_ms": {
-      "mean": 14.790111999864166,
-      "p95": 19.071419999818314
+      "mean": 12.65449599828571,
+      "p95": 12.810860000899991
     },
     "python_tracker_ms": {
-      "mean": 0.02710800003114855,
-      "p95": 0.05142000027262836
+      "mean": 15.189700000337325,
+      "p95": 17.950039997231215
     },
     "python_scheduler_ms": {
-      "mean": 0.09324400012701517,
-      "p95": 0.1626400002351147
+      "mean": 0.12048000004142523,
+      "p95": 0.18035999382846055
     }
   },
   "decision": "OpenCV/PyTorch native kernels plus Python orchestration; no custom C++ without a measured bottleneck"

@@ -1,0 +1,46 @@
+{
+  "date": "2026-09-28",
+  "full_suite": {
+    "passed": 47,
+    "failed": 0,
+    "duration_seconds": 95.66,
+    "warning": "FastAPI TestClient httpx deprecation"
+  },
+  "followup_export_regressions": {
+    "passed": 2,
+    "failed": 0,
+    "reason": "Content-addressed replay paths across generations"
+  },
+  "lint": "passed",
+  "frontend_build": "passed",
+  "browser": {
+    "live_detection_labels": "verified",
+    "training_architecture_selector": "verified",
+    "training_job_completion": "verified",
+    "mobile_viewport": {
+      "width": 390,
+      "page_width": 375,
+      "horizontal_overflow": false
+    },
+    "viewport_restored": true,
+    "annotation_editor": "verified frame loading and coordinate box addition; no human review fabricated",
+    "acceptance_result": "verified completed report and synthetic production restriction",
+    "acceptance_mobile_viewport": {
+      "width": 390,
+      "page_width": 375,
+      "horizontal_overflow": false
+    }
+  },
+  "synthetic_acceptance": {
+    "samples": 100,
+    "numeric_gate": "passed",
+    "production_eligible": false,
+    "approval_http_status": 409
+  },
+  "detector_acceptance": {
+    "scratch_ap50": 0.624879434872418,
+    "adapted_yolo_ap50": 0.8645020364793782,
+    "independence_guard": "rejected reused benchmark"
+  },
+  "limitations": "docs/phase-status.md"
+}

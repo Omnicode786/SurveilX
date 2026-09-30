@@ -1,0 +1,10 @@
+{
+  "ap50_unchanged": true,
+  "map50": 0.624879434872418,
+  "timing": {
+    "loss": null,
+    "mean_batch_amortized_latency_ms": 70.56431249975503,
+    "latency_scope": "forward+decode+NMS; excludes file loading and host-to-device copy"
+  },
+  "scope": "Native-NMS recheck on original exploratory test; no model training or threshold changes"
+}

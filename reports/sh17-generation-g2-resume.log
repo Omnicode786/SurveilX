@@ -1,0 +1,49 @@
+{
+  "config": {
+    "dataset": "sh17-development-v1",
+    "dataset_sha256": "6b64e6a38baef86ba48c77a33af82fb0c381858bffd66c869a8b2bd46874c7ae",
+    "epochs": 5,
+    "threads": 3
+  },
+  "jobs": {
+    "scratch": {
+      "state": "completed",
+      "version": "sh17-g2-scratch",
+      "model_id": "662b09eb-8cba-4e8e-be70-63b4032764a0"
+    },
+    "yolo-rai": {
+      "state": "completed",
+      "version": "sh17-g2-yolo-rai",
+      "log": "data\\generations\\sh17-g2\\yolo-rai.log",
+      "command": [
+        "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX\\.venv\\Scripts\\python.exe",
+        "-m",
+        "training.yolo_pipeline",
+        "train",
+        "data\\datasets\\sh17-development-v1\\manifest.json",
+        "data\\runs\\sh17-g2-yolo-rai",
+        "--epochs",
+        "5",
+        "--threads",
+        "3",
+        "--resume-checkpoint",
+        "data\\runs\\sh17-g2-yolo-rai\\fit\\weights\\last.pt"
+      ],
+      "started": 1790768898.4800448,
+      "resumed": true,
+      "model_id": "6db697d8-5956-4a73-bf3f-0c2cabb69674",
+      "finished": 1790769104.614159
+    }
+  },
+  "counts": {
+    "train": 163,
+    "validation": 29,
+    "calibration": 25,
+    "test": 39
+  },
+  "created": 1790690178.4607239,
+  "state": "completed",
+  "pid": 15332,
+  "updated": 1790768898.3030775,
+  "finished": 1790769104.6179297
+}

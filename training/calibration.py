@@ -26,8 +26,9 @@ def metrics(logits, labels, temperature=1.0):
     correct = probs.argmax(1) == labels
     confidence = probs.max(1)
     ece = 0.0
-    for lower in np.linspace(0, 0.9, 10):
-        mask = (confidence > lower) & (confidence <= lower + 0.100001)
+    bins = np.minimum((confidence * 10).astype(int), 9)
+    for index in range(10):
+        mask = bins == index
         if mask.any():
             ece += mask.mean() * abs(confidence[mask].mean() - correct[mask].mean())
     one_hot = np.eye(probs.shape[1])[labels]

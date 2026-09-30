@@ -29,12 +29,24 @@ def transition(session, incident, state, actor, note=""):
 
 def create_incident(session, camera_id, evidence_key, details, synthetic=False):
     event_type = "synthetic_zone_entry" if synthetic else "zone_occupancy"
+    policy = details.get("policy_observation")
+    if policy:
+        event_type = f"{'synthetic_' if synthetic else ''}rule:{policy['rule_id']}:{policy['kind']}"
+    # A database commit may succeed before spool unlink. Both original and grouped
+    # evidence keys must be idempotent, including observations of resolved incidents.
+    for incident in session.scalars(select(Incident).where(Incident.camera_id == camera_id)).all():
+        if evidence_key == incident.evidence_key or evidence_key in incident.details.get(
+            "additional_evidence", []
+        ):
+            return incident
+    now = time.time()
     existing = session.scalar(
         select(Incident)
         .where(
             Incident.camera_id == camera_id,
-                Incident.event_type == event_type,
-                Incident.evidence_key.is_not(None),
+            Incident.event_type == event_type,
+            Incident.evidence_key.is_not(None),
+            Incident.created >= now - 300,
             Incident.state.in_(
                 ["VERIFYING", "CONFIRMED", "ALERTED", "ACKNOWLEDGED", "IN_PROGRESS", "ESCALATED"]
             ),
@@ -42,8 +54,8 @@ def create_incident(session, camera_id, evidence_key, details, synthetic=False):
         .order_by(Incident.created.desc())
         .limit(1)
     )
-    if existing:
-        existing.updated = time.time()
+    if existing and len(existing.details.get("additional_evidence", [])) < 99:
+        existing.updated = now
         # Keep the original bundle and retain a reference to later observations.
         previous = existing.details
         bundles = previous.get("additional_evidence", [])
@@ -52,6 +64,7 @@ def create_incident(session, camera_id, evidence_key, details, synthetic=False):
         existing.details = previous | {
             "additional_evidence": bundles,
             "observations": previous.get("observations", 1) + 1,
+            "latest_observation": details,
         }
         audit(session, "runtime", "observation_grouped", existing.id, evidence_key=evidence_key)
         return existing

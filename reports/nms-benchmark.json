@@ -1,0 +1,13 @@
+{
+  "mean_ms": {
+    "python": 90.80961200001184,
+    "native": 1.4685799996368587
+  },
+  "same_retained_indices": true,
+  "boxes": 600,
+  "maximum_retained": 100,
+  "iterations": 25,
+  "device": "cpu",
+  "torch": "2.14.0+cpu",
+  "scope": "NMS microbenchmark only; not total detector acceleration"
+}

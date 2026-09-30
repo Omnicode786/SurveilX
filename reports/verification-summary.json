@@ -1,0 +1,29 @@
+{
+  "automated_tests": 47,
+  "test_report": "reports/adaptation-verification.json",
+  "frontend_build": "passed",
+  "dependency_check": "passed",
+  "browser": {
+    "live_detection_labels": "verified",
+    "training_architecture_selector": "verified",
+    "training_job_completion": "verified",
+    "mobile_viewport": {
+      "width": 390,
+      "page_width": 375,
+      "horizontal_overflow": false
+    },
+    "viewport_restored": true,
+    "annotation_editor": "verified frame loading and coordinate box addition; no human review fabricated",
+    "acceptance_result": "verified completed report and synthetic production restriction",
+    "acceptance_mobile_viewport": {
+      "width": 390,
+      "page_width": 375,
+      "horizontal_overflow": false
+    }
+  },
+  "native_nms_ap50_parity": true,
+  "paper": "excluded",
+  "limitations_document": "docs/phase-status.md",
+  "acceptance_report": "reports/acceptance-workflow.json",
+  "detector_acceptance_smoke": "reports/acceptance-detector-smoke.json"
+}

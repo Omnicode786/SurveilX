@@ -1,0 +1,61 @@
+{
+  "config": {
+    "dataset": "dfire-development-v1",
+    "dataset_sha256": "e40caae7d021a7fb26325c064dc92550d567136589bac16d1cf341ba2647b503",
+    "epochs": 3,
+    "threads": 3
+  },
+  "jobs": {
+    "scratch": {
+      "state": "completed",
+      "version": "dfire-g1-scratch",
+      "log": "data\\generations\\dfire-g1\\scratch.log",
+      "command": [
+        "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX\\.venv\\Scripts\\python.exe",
+        "-m",
+        "training.detection_pipeline",
+        "train",
+        "data\\datasets\\dfire-development-v1\\manifest.json",
+        "data\\runs\\dfire-g1-scratch",
+        "--epochs",
+        "3",
+        "--threads",
+        "3"
+      ],
+      "started": 1790685673.246505,
+      "model_id": "3602f4fa-a245-438a-9434-1d49b7c6c25c",
+      "finished": 1790686098.8350966
+    },
+    "yolo-rai": {
+      "state": "completed",
+      "version": "dfire-g1-yolo-rai",
+      "log": "data\\generations\\dfire-g1\\yolo-rai.log",
+      "command": [
+        "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX\\.venv\\Scripts\\python.exe",
+        "-m",
+        "training.yolo_pipeline",
+        "train",
+        "data\\datasets\\dfire-development-v1\\manifest.json",
+        "data\\runs\\dfire-g1-yolo-rai",
+        "--epochs",
+        "3",
+        "--threads",
+        "3"
+      ],
+      "started": 1790686098.843203,
+      "model_id": "7ecfa4f1-d1e3-4fd4-879b-607f6334c351",
+      "finished": 1790686550.9663706
+    }
+  },
+  "counts": {
+    "train": 384,
+    "validation": 96,
+    "calibration": 96,
+    "test": 96
+  },
+  "created": 1790685673.2411084,
+  "state": "completed",
+  "pid": 8616,
+  "updated": 1790685673.2411084,
+  "finished": 1790686550.9663706
+}

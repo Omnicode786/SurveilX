@@ -26,7 +26,10 @@ import {
   X,
 } from "lucide-react";
 import "./styles.css";
-import { DetectionDetails, detectionSummary } from "./detections";
+import { DetectionDetails, EventDetails, detectionSummary } from "./detections";
+import { AcceptancePanel, AnnotationEditor, LearningPanel } from "./learning";
+import { CapabilitiesPanel } from "./capabilities";
+import { PolicyPanel } from "./policies";
 
 type Row = Record<string, any>;
 async function api(path: string, method = "GET", body?: unknown) {
@@ -40,10 +43,13 @@ async function api(path: string, method = "GET", body?: unknown) {
     const data = await response
       .json()
       .catch(() => ({ detail: "Request failed" }));
-    throw new Error(
-      typeof data.detail === "string"
-        ? data.detail
-        : JSON.stringify(data.detail),
+    throw Object.assign(
+      new Error(
+        typeof data.detail === "string"
+          ? data.detail
+          : JSON.stringify(data.detail),
+      ),
+      { status: response.status },
     );
   }
   return response.json();
@@ -57,8 +63,11 @@ const navigation = [
   ["controllers", "Controller", Radio],
   ["hardware", "Hardware", Cpu],
   ["models", "Model registry", Box],
+  ["capabilities", "Task coverage", Shield],
   ["datasets", "Datasets", Database],
   ["experiments", "Experiments", FlaskConical],
+  ["learning", "Reviewed learning", Activity],
+  ["acceptance", "Model acceptance", Check],
   ["audit", "Audit trail", Terminal],
   ["users", "Team", Users],
   ["settings", "Settings", Settings],
@@ -101,6 +110,7 @@ function App() {
     [filter, setFilter] = useState(""),
     [busy, setBusy] = useState(false);
   const [tick, setTick] = useState(0);
+  const [deploymentSlot, setDeploymentSlot] = useState("default");
   useEffect(() => {
     api("/auth/me")
       .then(setUser)
@@ -149,6 +159,13 @@ function App() {
       }
     } catch (e) {
       setError((e as Error).message);
+      if ((e as Error & { status?: number }).status === 401) {
+        setUser(null);
+        setRows([]);
+        setIncidents([]);
+        setStatus({ cameras: [], power: {}, hardware: {} });
+        setConnected(false);
+      }
     }
   }, [user, page]);
   useEffect(() => {
@@ -285,7 +302,11 @@ function App() {
     }
     if (modal === "training") {
       path = "/experiments";
-      body = { dataset: values.dataset, epochs: Number(values.epochs) };
+      body = {
+        dataset: values.dataset,
+        epochs: Number(values.epochs),
+        architecture: values.architecture,
+      };
     }
     if (modal === "user") {
       path = "/users";
@@ -463,10 +484,10 @@ function App() {
         </div>
         <p className="nav-label">COMMAND CENTER</p>
         <nav>
-          {navigation.map(([id, label, Icon], index) => (
+          {navigation.map(([id, label, Icon]) => (
             <React.Fragment key={id}>
-              {index === 7 && <p className="nav-label">INTELLIGENCE LAB</p>}
-              {index === 11 && <p className="nav-label">WORKSPACE</p>}
+              {id === "models" && <p className="nav-label">INTELLIGENCE LAB</p>}
+              {id === "users" && <p className="nav-label">WORKSPACE</p>}
               <button
                 className={page === id ? "active" : ""}
                 onClick={() => go(id)}
@@ -825,7 +846,19 @@ function App() {
               </div>
             </>
           )}
-          {!["overview", "cameras", "hardware"].includes(page) && (
+          {page === "learning" && <LearningPanel request={api} user={user} />}
+          {page === "capabilities" && <CapabilitiesPanel request={api} />}
+          {page === "acceptance" && (
+            <AcceptancePanel request={api} user={user} />
+          )}
+          {![
+            "overview",
+            "cameras",
+            "hardware",
+            "learning",
+            "capabilities",
+            "acceptance",
+          ].includes(page) && (
             <>
               <div className="toolbar">
                 <div className="search">
@@ -973,6 +1006,8 @@ function App() {
                               <td>
                                 <strong>
                                   {row.name ||
+                                    row.payload?.result?.name ||
+                                    row.payload?.dataset ||
                                     row.action ||
                                     row.payload?.action ||
                                     relative(row.timestamp) ||
@@ -1018,10 +1053,10 @@ function App() {
                   <p>
                     Place a versioned dataset in{" "}
                     <code>data/datasets/your-name/</code> with a{" "}
-                    <code>manifest.json</code> and normalized NPZ clips. Define
-                    independent train, validation, calibration, and test
-                    camera/session groups. The validator checks shapes,
-                    checksums, taxonomy, and split leakage.
+                    <code>manifest.json</code> and labeled images or normalized
+                    NPZ clips. Define independent train, validation,
+                    calibration, and test camera/session groups. The validator
+                    checks shapes, checksums, taxonomy, and split leakage.
                   </p>
                   <p>
                     See <code>docs/data-and-training.md</code> for the import
@@ -1072,8 +1107,7 @@ function App() {
             {selected.event_type && (
               <>
                 <p>
-                  Uncalibrated observations require review. This event does not
-                  establish a threat.
+                  This observation requires review before an incident decision.
                 </p>
                 <div className="action-row">
                   {["acknowledge", "resolve", "dismiss", "escalate"].map(
@@ -1095,6 +1129,11 @@ function App() {
                   <button onClick={() => setModal("feedback")}>
                     Add label
                   </button>
+                  {user.role !== "viewer" && selected.evidence_key && (
+                    <button onClick={() => setModal("annotation")}>
+                      Annotate evidence
+                    </button>
+                  )}
                   {selected.evidence_key && (
                     <a
                       className="button"
@@ -1110,17 +1149,75 @@ function App() {
               <DetectionDetails
                 detections={selected.details?.detections || selected.detections}
                 model={selected.details?.model || selected.model}
+                calibration={
+                  selected.details?.calibration || selected.calibration
+                }
               />
             )}
-            <Json data={selected} />
+            <EventDetails
+              evidence={
+                selected.details?.secondary_evidence ||
+                selected.secondary_evidence
+              }
+            />
+            {page === "cameras" && (
+              <PolicyPanel
+                cameraId={selected.id}
+                request={api}
+                editable={["admin", "operator"].includes(user.role)}
+              />
+            )}
+            <details>
+              <summary>Technical record</summary>
+              <Json data={selected} />
+            </details>
             {page === "models" && user.role === "admin" && (
               <div className="action-row">
+                <label>
+                  Specialist slot{" "}
+                  <input
+                    aria-label="Specialist slot"
+                    value={deploymentSlot}
+                    maxLength={48}
+                    pattern="[a-zA-Z0-9_-]+"
+                    onChange={(event) => setDeploymentSlot(event.target.value)}
+                  />
+                </label>
+                <button
+                  onClick={() => {
+                    setSelected(null);
+                    go("acceptance");
+                  }}
+                >
+                  Evaluate acceptance
+                </button>
+                {selected.stage === "canary" &&
+                  selected.manifest?.deployment_eligible && (
+                    <button
+                      disabled={busy}
+                      onClick={async () => {
+                        const result = await perform(
+                          `/models/${selected.id}/deploy`,
+                          {
+                            stage: "production",
+                            slot:
+                              Object.entries(status.active_models || {})
+                                .find(([, id]) => id === selected.id)?.[0]
+                                .split(":")[1] || "default",
+                          },
+                        );
+                        if (result) setSelected(result);
+                      }}
+                    >
+                      Promote to production
+                    </button>
+                  )}
                 <button
                   disabled={busy}
                   onClick={async () => {
                     const result = await perform(
                       `/models/${selected.id}/deploy`,
-                      { stage: "canary" },
+                      { stage: "canary", slot: deploymentSlot },
                     );
                     if (result) setSelected(result);
                   }}
@@ -1145,7 +1242,20 @@ function App() {
           </section>
         </div>
       )}
-      {modal && (
+      {modal === "annotation" && selected && (
+        <AnnotationEditor
+          incident={selected}
+          request={api}
+          close={() => setModal("")}
+          done={() => {
+            setModal("");
+            setSelected(null);
+            setNotice("Annotation submitted for independent review.");
+            go("learning");
+          }}
+        />
+      )}
+      {modal && modal !== "annotation" && (
         <div className="modal-backdrop">
           <form
             className="dialog"
@@ -1214,7 +1324,14 @@ function App() {
                 <div className="form-row">
                   <label>
                     Environment
-                    <select name="environment">
+                    <input
+                      name="environment"
+                      list="environment-domains"
+                      defaultValue="custom"
+                      required
+                      maxLength={100}
+                    />
+                    <datalist id="environment-domains">
                       {[
                         "custom",
                         "parking",
@@ -1227,7 +1344,7 @@ function App() {
                       ].map((x) => (
                         <option key={x}>{x}</option>
                       ))}
-                    </select>
+                    </datalist>
                   </label>
                   <label>
                     Priority
@@ -1286,6 +1403,18 @@ function App() {
             )}
             {modal === "training" && (
               <>
+                <label>
+                  Model architecture
+                  <select name="architecture" defaultValue="auto">
+                    <option value="auto">Automatic for dataset type</option>
+                    <option value="scratch">
+                      Custom SVA model from scratch
+                    </option>
+                    <option value="yolo_rai">
+                      YOLO with scene/zone adapters
+                    </option>
+                  </select>
+                </label>
                 <label>
                   Dataset directory name
                   <input name="dataset" required placeholder="generated-v1" />

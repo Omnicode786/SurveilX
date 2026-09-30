@@ -23,8 +23,8 @@ def import_bundle(payload, destination):
                     raise ValueError("Unsafe archive path")
                 if item.is_dir():
                     continue
-                if path.suffix not in {".json", ".npz"}:
-                    raise ValueError("Dataset bundles may contain only JSON and NPZ files")
+                if path.suffix.lower() not in {".json", ".npz", ".png", ".jpg", ".jpeg"}:
+                    raise ValueError("Dataset bundles may contain JSON, NPZ, PNG and JPEG files")
                 path.parent.mkdir(parents=True, exist_ok=True)
                 with archive.open(item) as source, path.open("wb") as target:
                     shutil.copyfileobj(source, target)

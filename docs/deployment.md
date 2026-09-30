@@ -46,3 +46,5 @@ Docker is unavailable on the current host, so container and PostgreSQL execution
 ## Python and C++ decision
 
 OpenCV decoding, resizing, image operations and HOG execute in native code. PyTorch tensor kernels and ONNX Runtime execute in native CPU/accelerator libraries. Python owns application logic. Profile the full pipeline before creating a custom extension; a second native tracker or scheduler is unjustified without measured bottlenecks. The repository records microbenchmarks separately from end-to-end camera measurements. No custom C++ code is claimed or needed merely to satisfy a language preference.
+
+The scratch detector's NMS was a measured Python bottleneck. It now uses TorchVision's native suppression kernel when available, with a Python fallback for unsupported builds/devices. `python -m scripts.benchmark_nms` records a seeded 600-box comparison and verifies retained-index parity; `reports/nms-benchmark.json` records the actual host result. This speedup applies to NMS, not the full detector. The tracker microbenchmark now uses 32 boxes rather than an empty detection list.

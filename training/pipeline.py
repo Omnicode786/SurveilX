@@ -14,12 +14,12 @@ from torch.utils.data import DataLoader, Dataset
 from surveilx.accelerators import torch_device
 from training.calibration import fit_temperature, metrics
 from training.datasets import digest, generate, validate_manifest
-from training.models import SVANet
+from training.models import SVANet, SVASceneNet
 
 
 class Clips(Dataset):
-    def __init__(self, root, samples):
-        self.root, self.samples = root, samples
+    def __init__(self, root, samples, scene=False):
+        self.root, self.samples, self.scene = root, samples, scene
 
     def __len__(self):
         return len(self.samples)
@@ -29,7 +29,9 @@ class Clips(Dataset):
         with np.load(self.root / item["file"], allow_pickle=False) as data:
             return (
                 torch.from_numpy(data["clip"].astype("float32")),
-                torch.from_numpy(data["boxes"].astype("float32")),
+                torch.empty((len(data["clip"]), 0, 4))
+                if self.scene
+                else torch.from_numpy(data["boxes"].astype("float32")),
                 torch.from_numpy(data["context"].astype("float32")),
                 item["label"],
             )
@@ -62,14 +64,35 @@ def train(manifest_path, output, epochs=5, seed=42, ablation="full", initialize_
         "use_interactions": ablation != "no_interactions",
         "use_temporal": ablation != "no_temporal",
     }
-    model = SVANet(classes=len(manifest["classes"]), **flags).to(device)
+    scene = manifest.get("representation") == "scene_clip"
+    if scene:
+        if ablation == "no_interactions":
+            raise ValueError("Scene clips have no entity interaction head to ablate")
+        flags["use_interactions"] = False
+    model = (SVASceneNet if scene else SVANet)(classes=len(manifest["classes"]), **flags).to(device)
+    initialization = "random"
     if initialize_from:
-        model.load_state_dict(torch.load(initialize_from, map_location=device, weights_only=True))
+        previous = Path(initialize_from).resolve()
+        previous_manifest = json.loads((previous / "manifest.json").read_text(encoding="utf-8"))
+        if (
+            previous_manifest.get("task") != "event"
+            or previous_manifest.get("classes") != manifest["classes"]
+            or previous_manifest.get("representation", "entity_clip")
+            != manifest.get("representation", "entity_clip")
+            or previous_manifest.get("input_contract", {"frames": 8, "entities": 2, "image_size": 64})
+            != manifest.get("input_contract", {"frames": 8, "entities": 2, "image_size": 64})
+            or previous_manifest.get("architecture") != flags
+        ):
+            raise ValueError("Continuation requires identical event classes, representation, contract and architecture")
+        if digest(previous / "weights.pt") != previous_manifest.get("weights_sha256"):
+            raise ValueError("Continuation checkpoint checksum mismatch")
+        model.load_state_dict(torch.load(previous / "weights.pt", map_location=device, weights_only=True))
+        initialization = previous_manifest["weights_sha256"]
         for name, parameter in model.named_parameters():
             parameter.requires_grad_(name.startswith(("context.", "event_head.")))
     loaders = {
         split: DataLoader(
-            Clips(manifest_path.parent, [s for s in manifest["samples"] if s["split"] == split]),
+            Clips(manifest_path.parent, [s for s in manifest["samples"] if s["split"] == split], scene=scene),
             batch_size=8,
             shuffle=split == "train",
             num_workers=0,
@@ -114,10 +137,14 @@ def train(manifest_path, output, epochs=5, seed=42, ablation="full", initialize_
         commit = None
     artifact = {
         "schema_version": 1,
-        "name": "sva-net-entity-prototype",
+        "task": "event",
+        "input_contract": manifest.get("input_contract", {"frames": 8, "entities": 2, "image_size": 64}),
+        "name": "sva-scene-clip-prototype" if scene else "sva-net-entity-prototype",
+        "representation": "scene_clip" if scene else "entity_clip",
         "stage": "candidate",
         "synthetic": manifest.get("synthetic", False),
         "domain": manifest["domain"],
+        "capability_ids": manifest.get("capability_ids", []),
         "classes": manifest["classes"],
         "dataset_sha256": digest(manifest_path),
         "weights_sha256": digest(output / "weights.pt"),
@@ -132,6 +159,7 @@ def train(manifest_path, output, epochs=5, seed=42, ablation="full", initialize_
         "epochs": epochs,
         "ablation": ablation,
         "architecture": flags,
+        "initialization": initialization,
         "device": device,
         "torch": torch.__version__,
         "python": platform.python_version(),

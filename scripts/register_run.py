@@ -1,7 +1,6 @@
 import argparse
 import json
 import re
-from pathlib import Path
 
 from sqlalchemy import select
 
@@ -25,7 +24,9 @@ def register(version):
         model = ModelVersion(name=manifest["name"], version=version, manifest=manifest)
         session.add(model)
         session.flush()
-        session.add(Record(kind="experiment", payload={"state":"completed", "version":version,"result":manifest}))
+        session.add(
+            Record(kind="experiment", payload={"state": "completed", "version": version, "result": manifest})
+        )
         audit(session, "local-cli", "candidate_registered", model.id)
         return model.id
 

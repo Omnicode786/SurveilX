@@ -1,0 +1,71 @@
+{
+  "scope": "Inference integration only; reused Penn-Fudan test data cannot authorize production",
+  "independence_rejection": "Acceptance source groups overlap training or earlier evaluation data",
+  "deployment_eligible": false,
+  "results": [
+    {
+      "version": "scratch-pennfudan-v1",
+      "weights_sha256": "c8e182914f17976ef6108946f5d3d502f403321c24e4fc1feab6ad33f983a2e6",
+      "metrics": {
+        "map50": 0.624879434872418,
+        "precision": 0.3805309734513274,
+        "recall": 0.7413793103448276,
+        "f1": 0.5029239766081871,
+        "true_positives": 43,
+        "false_positives": 70,
+        "false_negatives": 15,
+        "ground_truth": 58,
+        "score_threshold": 0.07218139863910958,
+        "iou_threshold": 0.5,
+        "per_class": [
+          {
+            "class_id": 0,
+            "ground_truth": 58,
+            "ap50": 0.624879434872418
+          }
+        ],
+        "ap_definition": "101-point interpolated precision at IoU 0.50, class-aware one-to-one matching",
+        "ece": 0.00682307121981729,
+        "samples": 28,
+        "recall_lower_95": 0.616223691866412,
+        "precision_lower_95": 0.296335004208579,
+        "per_class_support": [
+          58
+        ],
+        "wall_ms_per_sample": 226.3505928572808
+      }
+    },
+    {
+      "version": "yolo-rai-pennfudan-v1",
+      "weights_sha256": "780fa43e17bd39f5cf62298999f7f94b909985e985a2a3343dea5feafac1a884",
+      "metrics": {
+        "map50": 0.8645020364793782,
+        "precision": 0.8909090909090909,
+        "recall": 0.8448275862068966,
+        "f1": 0.8672566371681416,
+        "true_positives": 49,
+        "false_positives": 6,
+        "false_negatives": 9,
+        "ground_truth": 58,
+        "score_threshold": 0.13405404177722333,
+        "iou_threshold": 0.5,
+        "per_class": [
+          {
+            "class_id": 0,
+            "ground_truth": 58,
+            "ap50": 0.8645020364793782
+          }
+        ],
+        "ap_definition": "101-point interpolated precision at IoU 0.50, class-aware one-to-one matching",
+        "ece": 0.006150876123537435,
+        "samples": 28,
+        "recall_lower_95": 0.730657769412127,
+        "precision_lower_95": 0.7817420620476804,
+        "per_class_support": [
+          58
+        ],
+        "wall_ms_per_sample": 305.93665714280047
+      }
+    }
+  ]
+}

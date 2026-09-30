@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "C:\Users\muzam\OneDrive\Desktop\Programming\SurveilX\scripts\prepare_urfall.py", line 145, in <module>
+    print(prepare(parser.parse_args().output))
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\muzam\OneDrive\Desktop\Programming\SurveilX\scripts\prepare_urfall.py", line 137, in prepare
+    validate_manifest(pending)
+  File "C:\Users\muzam\OneDrive\Desktop\Programming\SurveilX\training\datasets.py", line 23, in validate_manifest
+    validate_profiles(manifest)
+  File "C:\Users\muzam\OneDrive\Desktop\Programming\SurveilX\surveilx\task_profiles.py", line 182, in validate_profiles
+    raise ValueError(f"Unknown task profile: {key}")
+ValueError: Unknown task profile: fall_detection

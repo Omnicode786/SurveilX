@@ -1,0 +1,202 @@
+.learning-workspace {
+  display: grid;
+  gap: 22px;
+}
+.learning-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+.learning-form {
+  min-width: 0;
+}
+.learning-form label {
+  display: grid;
+  gap: 8px;
+  margin: 16px 0;
+  font-size: 12px;
+  font-weight: 600;
+}
+.learning-form label.check {
+  display: flex;
+  align-items: center;
+}
+.learning-form input:not([type="checkbox"]),
+.learning-form select,
+.learning-form textarea {
+  width: 100%;
+  min-width: 0;
+  padding: 11px;
+  border: 1px solid var(--border, #ddd);
+  border-radius: 7px;
+  background: var(--surface, #fff);
+  color: inherit;
+  font: inherit;
+}
+.learning-form fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.learning-form fieldset:disabled {
+  opacity: 0.65;
+}
+.learning-form p {
+  line-height: 1.7;
+}
+.learning-form details {
+  margin: 20px 0;
+}
+.learning-form summary,
+.acceptance-report summary {
+  cursor: pointer;
+  font-size: 13px;
+}
+.learning-form .primary {
+  margin-top: 16px;
+}
+.learning-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 28px;
+  padding: 16px 20px;
+  background: #eef2f8;
+  color: #3e5674;
+  border-radius: 9px;
+  font-size: 12px;
+}
+.learning-error {
+  padding: 14px 18px;
+  background: #fff0ee;
+  color: #932a27;
+  border-radius: 8px;
+  overflow-wrap: anywhere;
+}
+.learning-notice {
+  padding: 14px 18px;
+  background: #edf7f2;
+  color: #236648;
+  border-radius: 8px;
+}
+.learning-empty {
+  padding: 32px 12px;
+  color: #738093;
+  text-align: center;
+  font-size: 13px;
+}
+.learning-records {
+  display: grid;
+  gap: 8px;
+  margin-top: 20px;
+}
+.learning-record {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  text-align: left;
+  padding: 16px;
+  width: 100%;
+}
+.learning-record strong,
+.learning-record small {
+  display: block;
+}
+.learning-record small {
+  margin-top: 6px;
+  color: #738093;
+}
+.annotation-canvas {
+  position: relative;
+  overflow: hidden;
+  background: #151e2d;
+  border-radius: 8px;
+}
+.annotation-canvas.editable {
+  touch-action: none;
+  cursor: crosshair;
+}
+.annotation-canvas img {
+  display: block;
+  width: 100%;
+  height: auto;
+  user-select: none;
+}
+.annotation-canvas svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.annotation-canvas rect {
+  fill: #489dff22;
+  stroke: #64c0ff;
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+.annotation-canvas text {
+  fill: white;
+  stroke: #142a43;
+  stroke-width: 2;
+  paint-order: stroke;
+  font-size: 24px;
+  font-family: sans-serif;
+}
+.annotation-boxes > div {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  margin: 8px 0;
+  font-size: 12px;
+}
+.coordinate-fields {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+  align-items: center;
+  gap: 8px;
+}
+.acceptance-report {
+  padding: 22px 0;
+  border-top: 1px solid #e6eaf0;
+}
+.acceptance-report:first-of-type {
+  margin-top: 20px;
+}
+.acceptance-metrics {
+  display: flex;
+  gap: 28px;
+  flex-wrap: wrap;
+  padding: 20px 0;
+  font-size: 12px;
+  color: #68788b;
+}
+.acceptance-metrics strong {
+  display: block;
+  font-size: 23px;
+  color: #25344a;
+  margin-top: 6px;
+}
+.acceptance-report pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 11px;
+  max-height: 380px;
+  overflow: auto;
+}
+@media (max-width: 760px) {
+  .learning-grid {
+    grid-template-columns: 1fr;
+  }
+  .coordinate-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .learning-form .form-row {
+    flex-wrap: wrap;
+  }
+  .annotation-boxes > div {
+    flex-wrap: wrap;
+  }
+}

@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "C:\Users\muzam\OneDrive\Desktop\Programming\SurveilX\scripts\train_domain_generation.py", line 127, in <module>
+    print(json.dumps(run(**vars(args)), indent=2))
+                     ^^^^^^^^^^^^^^^^^
+  File "C:\Users\muzam\OneDrive\Desktop\Programming\SurveilX\scripts\train_domain_generation.py", line 102, in run
+    raise RuntimeError(f"{architecture} failed with code {result.returncode}; inspect {log_path}")
+RuntimeError: scratch failed with code 15; inspect data\generations\sh17-g1\scratch.log

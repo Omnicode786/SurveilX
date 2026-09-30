@@ -1,0 +1,171 @@
+{
+  "runs": [
+    {
+      "version": "scratch-pennfudan-v1",
+      "architecture": "sva-detector",
+      "dataset_sha256": "8c32d21e21fe7945e4480d5a38d5110ae25ad338e60db50ca1a8bf6826a66d4c",
+      "weights_sha256": "c8e182914f17976ef6108946f5d3d502f403321c24e4fc1feab6ad33f983a2e6",
+      "parameters": 1402014,
+      "epochs": 10,
+      "metrics": {
+        "map50": 0.624879434872418,
+        "precision": 0.3805309734513274,
+        "recall": 0.7413793103448276,
+        "f1": 0.5029239766081871,
+        "true_positives": 43,
+        "false_positives": 70,
+        "false_negatives": 15,
+        "ground_truth": 58,
+        "score_threshold": 0.07218139863910958,
+        "iou_threshold": 0.5,
+        "per_class": [
+          {
+            "class_id": 0,
+            "ground_truth": 58,
+            "ap50": 0.624879434872418
+          }
+        ],
+        "ap_definition": "101-point interpolated precision at IoU 0.50, class-aware one-to-one matching"
+      },
+      "calibration": {
+        "temperature": 0.48894426816771636,
+        "bias": -0.5,
+        "threshold": 0.07218139863910958,
+        "status": "fitted",
+        "samples": 1600,
+        "task": "detection_correctness_at_iou_0.50",
+        "split": "calibration",
+        "nll": 0.05992805235190865,
+        "calibration_f1": 0.40707964601769914
+      },
+      "raw_test_reliability": {
+        "samples": 2800,
+        "ece": 0.0928490467449384,
+        "brier": 0.020523504186438096,
+        "nll": 0.12459240559018424,
+        "scope": "Retained predictions at score floor .001; does not penalize missed objects"
+      },
+      "calibrated_test_reliability": {
+        "samples": 2800,
+        "ece": 0.006823071875765168,
+        "brier": 0.010339166336912254,
+        "nll": 0.04229426582475277,
+        "scope": "Retained predictions at score floor .001; does not penalize missed objects"
+      }
+    },
+    {
+      "version": "yolo-baseline-pennfudan-v1",
+      "architecture": "yolo_baseline",
+      "dataset_sha256": "8c32d21e21fe7945e4480d5a38d5110ae25ad338e60db50ca1a8bf6826a66d4c",
+      "weights_sha256": "c4e384d2b351bfca28397800db684fda595b94b90328e266b19b9b0c4bbd5a42",
+      "parameters": 2590035,
+      "epochs": 5,
+      "metrics": {
+        "map50": 0.8492905949359332,
+        "precision": 0.765625,
+        "recall": 0.8448275862068966,
+        "f1": 0.8032786885245901,
+        "true_positives": 49,
+        "false_positives": 15,
+        "false_negatives": 9,
+        "ground_truth": 58,
+        "score_threshold": 0.12496028608147194,
+        "iou_threshold": 0.5,
+        "per_class": [
+          {
+            "class_id": 0,
+            "ground_truth": 58,
+            "ap50": 0.8492905949359332
+          }
+        ],
+        "ap_definition": "101-point interpolated precision at IoU 0.50, class-aware one-to-one matching"
+      },
+      "calibration": {
+        "temperature": 0.5467799543793053,
+        "bias": 6.0,
+        "threshold": 0.12496028608147194,
+        "status": "fitted",
+        "samples": 1600,
+        "task": "detection_correctness_at_iou_0.50",
+        "split": "calibration",
+        "nll": 0.04587432769880292,
+        "calibration_f1": 0.7816091954022989
+      },
+      "raw_test_reliability": {
+        "samples": 2800,
+        "ece": 0.011577215157199783,
+        "brier": 0.01070169307129768,
+        "nll": 0.0416058995610557,
+        "scope": "Retained predictions at score floor .001; does not penalize missed objects"
+      },
+      "calibrated_test_reliability": {
+        "samples": 2800,
+        "ece": 0.0050260133716842825,
+        "brier": 0.004435220257335004,
+        "nll": 0.022746036560246874,
+        "scope": "Retained predictions at score floor .001; does not penalize missed objects"
+      }
+    },
+    {
+      "version": "yolo-rai-pennfudan-v1",
+      "architecture": "yolo_rai",
+      "dataset_sha256": "8c32d21e21fe7945e4480d5a38d5110ae25ad338e60db50ca1a8bf6826a66d4c",
+      "weights_sha256": "780fa43e17bd39f5cf62298999f7f94b909985e985a2a3343dea5feafac1a884",
+      "parameters": 2620790,
+      "epochs": 5,
+      "metrics": {
+        "map50": 0.8645020364793782,
+        "precision": 0.8909090909090909,
+        "recall": 0.8448275862068966,
+        "f1": 0.8672566371681416,
+        "true_positives": 49,
+        "false_positives": 6,
+        "false_negatives": 9,
+        "ground_truth": 58,
+        "score_threshold": 0.13405404177722333,
+        "iou_threshold": 0.5,
+        "per_class": [
+          {
+            "class_id": 0,
+            "ground_truth": 58,
+            "ap50": 0.8645020364793782
+          }
+        ],
+        "ap_definition": "101-point interpolated precision at IoU 0.50, class-aware one-to-one matching"
+      },
+      "calibration": {
+        "temperature": 0.5467799543793053,
+        "bias": 6.0,
+        "threshold": 0.13405404177722333,
+        "status": "fitted",
+        "samples": 1600,
+        "task": "detection_correctness_at_iou_0.50",
+        "split": "calibration",
+        "nll": 0.040389871723774284,
+        "calibration_f1": 0.825
+      },
+      "raw_test_reliability": {
+        "samples": 2800,
+        "ece": 0.014873395137214435,
+        "brier": 0.014586708886934694,
+        "nll": 0.0535624388210713,
+        "scope": "Retained predictions at score floor .001; does not penalize missed objects"
+      },
+      "calibrated_test_reliability": {
+        "samples": 2800,
+        "ece": 0.006150876123537435,
+        "brier": 0.004435755706926903,
+        "nll": 0.022653288480793777,
+        "scope": "Retained predictions at score floor .001; does not penalize missed objects"
+      }
+    }
+  ],
+  "scope": "Single-seed Penn-Fudan pedestrian detection; 28 test images",
+  "scratch_higher_ap50_in_this_run": false,
+  "limitations": [
+    "Unequal initialization: YOLO inherits external pretraining",
+    "Different training objectives/augmentation and epochs",
+    "No multi-seed confidence interval or independent-domain acceptance",
+    "Timing from concurrent training jobs is not a fair speed benchmark"
+  ]
+}

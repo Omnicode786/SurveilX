@@ -12,6 +12,8 @@ from training.models import SVANet
 def export(run):
     run = Path(run)
     metadata = json.loads((run / "manifest.json").read_text())
+    if metadata.get("representation") == "scene_clip":
+        raise ValueError("Scene-clip ONNX export is not yet validated; use the PyTorch scene runtime")
     model = SVANet(classes=len(metadata["classes"]), **metadata["architecture"])
     model.load_state_dict(torch.load(run / "weights.pt", map_location="cpu", weights_only=True))
     model.eval()
@@ -25,7 +27,9 @@ def export(run):
             return self.inner(clips, boxes, context)["event"]
 
     wrapper = EventExport(model)
-    args = (torch.rand(1, 8, 3, 64, 64), torch.rand(1, 8, 2, 4), torch.rand(1, 4))
+    contract = metadata.get("input_contract", {"frames": 8, "entities": 2, "image_size": 64})
+    frames, entities, size = contract["frames"], contract["entities"], contract["image_size"]
+    args = (torch.rand(1, frames, 3, size, size), torch.rand(1, frames, entities, 4), torch.rand(1, 4))
     target = run / "event.onnx"
     torch.onnx.export(
         wrapper,
