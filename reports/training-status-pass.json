@@ -1,0 +1,1913 @@
+{
+  "checked": 1791130148.1252668,
+  "g4a_state": "completed",
+  "g4b_state": "running",
+  "active_job": "cuda-g4-fire-yolo",
+  "runner": 9652,
+  "launcher": 21260,
+  "completed_candidates": [
+    {
+      "version": "cuda-g4-ppe-yolo",
+      "comparison": {
+        "metric": "map50",
+        "before": 0.3056344096780553,
+        "after": 0.32234350933382755,
+        "delta": 0.016709099655772275,
+        "classes": [
+          {
+            "class": "person",
+            "metric": "ap50",
+            "before": 0.7532891579389426,
+            "after": 0.7450936930099573,
+            "delta": -0.008195464928985263,
+            "details": {
+              "class_id": 0,
+              "ground_truth": 245,
+              "ap50": 0.7450936930099573
+            }
+          },
+          {
+            "class": "ear",
+            "metric": "ap50",
+            "before": 0.35183540174664935,
+            "after": 0.3541596565718889,
+            "delta": 0.002324254825239569,
+            "details": {
+              "class_id": 1,
+              "ground_truth": 124,
+              "ap50": 0.3541596565718889
+            }
+          },
+          {
+            "class": "earmuffs",
+            "metric": "ap50",
+            "before": 0.012401240124012402,
+            "after": 0.05039878133740742,
+            "delta": 0.03799754121339502,
+            "details": {
+              "class_id": 2,
+              "ground_truth": 13,
+              "ap50": 0.05039878133740742
+            }
+          },
+          {
+            "class": "face",
+            "metric": "ap50",
+            "before": 0.5386488918773321,
+            "after": 0.5526922652735603,
+            "delta": 0.014043373396228187,
+            "details": {
+              "class_id": 3,
+              "ground_truth": 101,
+              "ap50": 0.5526922652735603
+            }
+          },
+          {
+            "class": "face_guard",
+            "metric": "ap50",
+            "before": 0.08410630536737884,
+            "after": 0.1529438658151529,
+            "delta": 0.06883756044777406,
+            "details": {
+              "class_id": 4,
+              "ground_truth": 6,
+              "ap50": 0.1529438658151529
+            }
+          },
+          {
+            "class": "face_mask",
+            "metric": "ap50",
+            "before": 0.5070135094056203,
+            "after": 0.5720056775350089,
+            "delta": 0.06499216812938857,
+            "details": {
+              "class_id": 5,
+              "ground_truth": 42,
+              "ap50": 0.5720056775350089
+            }
+          },
+          {
+            "class": "foot",
+            "metric": "ap50",
+            "before": 0.030803080308030802,
+            "after": 0.03865165666497456,
+            "delta": 0.007848576356943759,
+            "details": {
+              "class_id": 6,
+              "ground_truth": 60,
+              "ap50": 0.03865165666497456
+            }
+          },
+          {
+            "class": "tools",
+            "metric": "ap50",
+            "before": 0.012302040228571178,
+            "after": 0.023986327504855295,
+            "delta": 0.011684287276284117,
+            "details": {
+              "class_id": 7,
+              "ground_truth": 84,
+              "ap50": 0.023986327504855295
+            }
+          },
+          {
+            "class": "glasses",
+            "metric": "ap50",
+            "before": 0.12524500323271076,
+            "after": 0.1104033258883365,
+            "delta": -0.014841677344374263,
+            "details": {
+              "class_id": 8,
+              "ground_truth": 62,
+              "ap50": 0.1104033258883365
+            }
+          },
+          {
+            "class": "gloves",
+            "metric": "ap50",
+            "before": 0.2382148512997466,
+            "after": 0.22154017410907936,
+            "delta": -0.01667467719066723,
+            "details": {
+              "class_id": 9,
+              "ground_truth": 92,
+              "ap50": 0.22154017410907936
+            }
+          },
+          {
+            "class": "helmet",
+            "metric": "ap50",
+            "before": 0.6298733948967818,
+            "after": 0.5836223283761711,
+            "delta": -0.04625106652061073,
+            "details": {
+              "class_id": 10,
+              "ground_truth": 42,
+              "ap50": 0.5836223283761711
+            }
+          },
+          {
+            "class": "hands",
+            "metric": "ap50",
+            "before": 0.5212712084055924,
+            "after": 0.5211992503291522,
+            "delta": -7.195807644022612e-05,
+            "details": {
+              "class_id": 11,
+              "ground_truth": 205,
+              "ap50": 0.5211992503291522
+            }
+          },
+          {
+            "class": "head",
+            "metric": "ap50",
+            "before": 0.6615330288649547,
+            "after": 0.6536665114744756,
+            "delta": -0.007866517390479055,
+            "details": {
+              "class_id": 12,
+              "ground_truth": 226,
+              "ap50": 0.6536665114744756
+            }
+          },
+          {
+            "class": "medical_suit",
+            "metric": "ap50",
+            "before": 0.23803594697247155,
+            "after": 0.2862561061011341,
+            "delta": 0.048220159128662565,
+            "details": {
+              "class_id": 13,
+              "ground_truth": 44,
+              "ap50": 0.2862561061011341
+            }
+          },
+          {
+            "class": "shoes",
+            "metric": "ap50",
+            "before": 0.14544799279830517,
+            "after": 0.14792316704199424,
+            "delta": 0.0024751742436890656,
+            "details": {
+              "class_id": 14,
+              "ground_truth": 105,
+              "ap50": 0.14792316704199424
+            }
+          },
+          {
+            "class": "safety_suit",
+            "metric": "ap50",
+            "before": 0.026063986995714494,
+            "after": 0.025144892538034296,
+            "delta": -0.0009190944576801981,
+            "details": {
+              "class_id": 15,
+              "ground_truth": 6,
+              "ap50": 0.025144892538034296
+            }
+          },
+          {
+            "class": "safety_vest",
+            "metric": "ap50",
+            "before": 0.3196999240641244,
+            "after": 0.44015197910388537,
+            "delta": 0.12045205503976097,
+            "details": {
+              "class_id": 16,
+              "ground_truth": 45,
+              "ap50": 0.44015197910388537
+            }
+          }
+        ],
+        "validation_selection": {
+          "candidate_map50": 0.3646224674308254,
+          "selected": "candidate",
+          "split": "validation",
+          "parent_map50": 0.3445908386909599
+        },
+        "test_is_selection_criterion": false,
+        "independent_acceptance": false,
+        "evaluation_dataset_sha256": "612b1197c555d4dce77f41772ee39834718ba588cb95c1616bce6023e064dd6c",
+        "parent_re_evaluated": false
+      }
+    },
+    {
+      "version": "cuda-g4-weapons-yolo",
+      "comparison": {
+        "metric": "map50",
+        "before": 0.5040670865327479,
+        "after": 0.5053979629824668,
+        "delta": 0.001330876449718854,
+        "classes": [
+          {
+            "class": "firearm",
+            "metric": "ap50",
+            "before": 0.5277667882709235,
+            "after": 0.4796279492985376,
+            "delta": -0.04813883897238591,
+            "details": {
+              "class_id": 0,
+              "ground_truth": 33,
+              "ap50": 0.4796279492985376
+            }
+          },
+          {
+            "class": "knife",
+            "metric": "ap50",
+            "before": 0.44530955740717554,
+            "after": 0.37980947523105557,
+            "delta": -0.06550008217611997,
+            "details": {
+              "class_id": 1,
+              "ground_truth": 34,
+              "ap50": 0.37980947523105557
+            }
+          },
+          {
+            "class": "machete",
+            "metric": "ap50",
+            "before": 0.43405715950841517,
+            "after": 0.5116436620380235,
+            "delta": 0.0775865025296083,
+            "details": {
+              "class_id": 2,
+              "ground_truth": 34,
+              "ap50": 0.5116436620380235
+            }
+          },
+          {
+            "class": "baseball_bat",
+            "metric": "ap50",
+            "before": 0.6091348409444772,
+            "after": 0.6505107653622505,
+            "delta": 0.04137592441777327,
+            "details": {
+              "class_id": 3,
+              "ground_truth": 26,
+              "ap50": 0.6505107653622505
+            }
+          }
+        ],
+        "validation_selection": {
+          "candidate_map50": 0.5597870955386586,
+          "selected": "candidate",
+          "split": "validation",
+          "parent_map50": 0.5100655198314953
+        },
+        "test_is_selection_criterion": false,
+        "independent_acceptance": false,
+        "evaluation_dataset_sha256": "772a80081dd508952124989f0f94c0a4174e95e611afc9c85f4229b4945ffca6",
+        "parent_re_evaluated": false
+      }
+    }
+  ],
+  "model_registry": [
+    {
+      "id": "061d40a6-d0d3-43cd-a65a-bac173d17c5f",
+      "name": "YOLO11n scene/zone adapter",
+      "version": "cuda-g4-ppe-yolo",
+      "stage": "candidate",
+      "manifest": {
+        "schema_version": 1,
+        "task": "detection",
+        "architecture": "yolo_rai",
+        "name": "YOLO11n scene/zone adapter",
+        "stage": "candidate",
+        "classes": [
+          "person",
+          "ear",
+          "earmuffs",
+          "face",
+          "face_guard",
+          "face_mask",
+          "foot",
+          "tools",
+          "glasses",
+          "gloves",
+          "helmet",
+          "hands",
+          "head",
+          "medical_suit",
+          "shoes",
+          "safety_suit",
+          "safety_vest"
+        ],
+        "domain": "ppe-development",
+        "capability_ids": [
+          "ppe_objects"
+        ],
+        "synthetic": false,
+        "dataset_counts": {
+          "train": 631,
+          "validation": 147,
+          "calibration": 117,
+          "test": 124
+        },
+        "dataset_sha256": "612b1197c555d4dce77f41772ee39834718ba588cb95c1616bce6023e064dd6c",
+        "weights_sha256": "a91be2378ff92954aaafeb0813ee6ed727dc1704a764d06a3cceda71dd73d5ca",
+        "config": {
+          "image_size": 512,
+          "epochs": 30,
+          "batch_size": 8,
+          "seed": 42,
+          "base": "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX\\data\\runs\\accuracy-ppe-g3-yolo\\weights.pt",
+          "learning_rate": 0.0003,
+          "patience": 8,
+          "threads": 3,
+          "training_geometry": "square_matches_runtime"
+        },
+        "initialization": "d4f40651c03b52b36ddfd5a01b80af80ab651ea5886de8af383d81dc6adc6d57",
+        "validation_selection": {
+          "candidate_map50": 0.3646224674308254,
+          "selected": "candidate",
+          "split": "validation",
+          "parent_map50": 0.3445908386909599
+        },
+        "calibration": {
+          "temperature": 0.9562659894962549,
+          "bias": 0.25,
+          "threshold": 0.2952708268740272,
+          "status": "fitted",
+          "samples": 10557,
+          "task": "detection_correctness_at_iou_0.50",
+          "split": "calibration",
+          "nll": 0.15158323188829706,
+          "calibration_f1": 0.4958553127354936
+        },
+        "calibrated": true,
+        "metrics": {
+          "map50": 0.32234350933382755,
+          "precision": 0.6557377049180327,
+          "recall": 0.3994673768308921,
+          "f1": 0.4964832436905254,
+          "true_positives": 600,
+          "false_positives": 315,
+          "false_negatives": 902,
+          "ground_truth": 1502,
+          "score_threshold": 0.2952708268740272,
+          "iou_threshold": 0.5,
+          "per_class": [
+            {
+              "class_id": 0,
+              "ground_truth": 245,
+              "ap50": 0.7450936930099573
+            },
+            {
+              "class_id": 1,
+              "ground_truth": 124,
+              "ap50": 0.3541596565718889
+            },
+            {
+              "class_id": 2,
+              "ground_truth": 13,
+              "ap50": 0.05039878133740742
+            },
+            {
+              "class_id": 3,
+              "ground_truth": 101,
+              "ap50": 0.5526922652735603
+            },
+            {
+              "class_id": 4,
+              "ground_truth": 6,
+              "ap50": 0.1529438658151529
+            },
+            {
+              "class_id": 5,
+              "ground_truth": 42,
+              "ap50": 0.5720056775350089
+            },
+            {
+              "class_id": 6,
+              "ground_truth": 60,
+              "ap50": 0.03865165666497456
+            },
+            {
+              "class_id": 7,
+              "ground_truth": 84,
+              "ap50": 0.023986327504855295
+            },
+            {
+              "class_id": 8,
+              "ground_truth": 62,
+              "ap50": 0.1104033258883365
+            },
+            {
+              "class_id": 9,
+              "ground_truth": 92,
+              "ap50": 0.22154017410907936
+            },
+            {
+              "class_id": 10,
+              "ground_truth": 42,
+              "ap50": 0.5836223283761711
+            },
+            {
+              "class_id": 11,
+              "ground_truth": 205,
+              "ap50": 0.5211992503291522
+            },
+            {
+              "class_id": 12,
+              "ground_truth": 226,
+              "ap50": 0.6536665114744756
+            },
+            {
+              "class_id": 13,
+              "ground_truth": 44,
+              "ap50": 0.2862561061011341
+            },
+            {
+              "class_id": 14,
+              "ground_truth": 105,
+              "ap50": 0.14792316704199424
+            },
+            {
+              "class_id": 15,
+              "ground_truth": 6,
+              "ap50": 0.025144892538034296
+            },
+            {
+              "class_id": 16,
+              "ground_truth": 45,
+              "ap50": 0.44015197910388537
+            }
+          ],
+          "ap_definition": "101-point interpolated precision at IoU 0.50, class-aware one-to-one matching"
+        },
+        "uncalibrated_metrics": {
+          "map50": 0.32234350933382755,
+          "precision": 0.6511879049676026,
+          "recall": 0.4014647137150466,
+          "f1": 0.49670510708401977,
+          "true_positives": 603,
+          "false_positives": 323,
+          "false_negatives": 899,
+          "ground_truth": 1502,
+          "score_threshold": 0.25,
+          "iou_threshold": 0.5,
+          "per_class": [
+            {
+              "class_id": 0,
+              "ground_truth": 245,
+              "ap50": 0.7450936930099573
+            },
+            {
+              "class_id": 1,
+              "ground_truth": 124,
+              "ap50": 0.3541596565718889
+            },
+            {
+              "class_id": 2,
+              "ground_truth": 13,
+              "ap50": 0.05039878133740742
+            },
+            {
+              "class_id": 3,
+              "ground_truth": 101,
+              "ap50": 0.5526922652735603
+            },
+            {
+              "class_id": 4,
+              "ground_truth": 6,
+              "ap50": 0.1529438658151529
+            },
+            {
+              "class_id": 5,
+              "ground_truth": 42,
+              "ap50": 0.5720056775350089
+            },
+            {
+              "class_id": 6,
+              "ground_truth": 60,
+              "ap50": 0.03865165666497456
+            },
+            {
+              "class_id": 7,
+              "ground_truth": 84,
+              "ap50": 0.023986327504855295
+            },
+            {
+              "class_id": 8,
+              "ground_truth": 62,
+              "ap50": 0.1104033258883365
+            },
+            {
+              "class_id": 9,
+              "ground_truth": 92,
+              "ap50": 0.22154017410907936
+            },
+            {
+              "class_id": 10,
+              "ground_truth": 42,
+              "ap50": 0.5836223283761711
+            },
+            {
+              "class_id": 11,
+              "ground_truth": 205,
+              "ap50": 0.5211992503291522
+            },
+            {
+              "class_id": 12,
+              "ground_truth": 226,
+              "ap50": 0.6536665114744756
+            },
+            {
+              "class_id": 13,
+              "ground_truth": 44,
+              "ap50": 0.2862561061011341
+            },
+            {
+              "class_id": 14,
+              "ground_truth": 105,
+              "ap50": 0.14792316704199424
+            },
+            {
+              "class_id": 15,
+              "ground_truth": 6,
+              "ap50": 0.025144892538034296
+            },
+            {
+              "class_id": 16,
+              "ground_truth": 45,
+              "ap50": 0.44015197910388537
+            }
+          ],
+          "ap_definition": "101-point interpolated precision at IoU 0.50, class-aware one-to-one matching"
+        },
+        "raw_test_reliability": {
+          "samples": 11133,
+          "ece": 0.011674380945326617,
+          "brier": 0.04061632142765225,
+          "nll": 0.15634193914433625,
+          "scope": "Retained predictions at score floor .001; does not penalize missed objects"
+        },
+        "calibrated_test_reliability": {
+          "samples": 11133,
+          "ece": 0.009547177169752731,
+          "brier": 0.04052764300430379,
+          "nll": 0.1555876223840828,
+          "scope": "Retained predictions at score floor .001; does not penalize missed objects"
+        },
+        "prediction_timing": [
+          {
+            "preprocess": 8.683299995027483,
+            "inference": 187.60860000475077,
+            "postprocess": 9.169500001007691
+          },
+          {
+            "preprocess": 8.808599995973054,
+            "inference": 154.69709999888437,
+            "postprocess": 5.5447000049753115
+          },
+          {
+            "preprocess": 8.976600001915358,
+            "inference": 182.6459000003524,
+            "postprocess": 8.511499996529892
+          },
+          {
+            "preprocess": 8.93050000013318,
+            "inference": 188.61820000165608,
+            "postprocess": 10.265400000207592
+          },
+          {
+            "preprocess": 8.724999999685679,
+            "inference": 188.83910000295145,
+            "postprocess": 9.100299997953698
+          },
+          {
+            "preprocess": 8.86220000393223,
+            "inference": 135.073099998408,
+            "postprocess": 5.0026999961119145
+          },
+          {
+            "preprocess": 8.8744000022416,
+            "inference": 188.5919999986072,
+            "postprocess": 9.36809999984689
+          },
+          {
+            "preprocess": 8.651399999507703,
+            "inference": 174.9889999991865,
+            "postprocess": 5.2567999955499545
+          },
+          {
+            "preprocess": 8.723999999347143,
+            "inference": 147.57250000548083,
+            "postprocess": 5.216099998506252
+          },
+          {
+            "preprocess": 8.869299999787472,
+            "inference": 188.96790000144392,
+            "postprocess": 9.504899993771687
+          },
+          {
+            "preprocess": 9.114599997701589,
+            "inference": 181.80610000126762,
+            "postprocess": 5.153099999006372
+          },
+          {
+            "preprocess": 8.736699994187802,
+            "inference": 188.91460000304505,
+            "postprocess": 8.338200001162477
+          },
+          {
+            "preprocess": 8.878000000549946,
+            "inference": 189.07410000247182,
+            "postprocess": 8.731499998248182
+          },
+          {
+            "preprocess": 8.74669999757316,
+            "inference": 183.54729999555275,
+            "postprocess": 5.217699996137526
+          },
+          {
+            "preprocess": 8.980499995232094,
+            "inference": 136.79780000529718,
+            "postprocess": 6.0864999977638945
+          },
+          {
+            "preprocess": 8.965400003944524,
+            "inference": 188.67319999844767,
+            "postprocess": 9.636199996748473
+          },
+          {
+            "preprocess": 8.904499998607207,
+            "inference": 143.13859999674605,
+            "postprocess": 5.236199998762459
+          },
+          {
+            "preprocess": 8.892300000297837,
+            "inference": 132.94459999451647,
+            "postprocess": 5.335599998943508
+          },
+          {
+            "preprocess": 8.858000001055188,
+            "inference": 142.65919999888865,
+            "postprocess": 5.3703000012319535
+          },
+          {
+            "preprocess": 8.925699999963399,
+            "inference": 188.33369999629213,
+            "postprocess": 8.631199998490047
+          },
+          {
+            "preprocess": 8.85530000232393,
+            "inference": 188.88419999711914,
+            "postprocess": 9.785000002011657
+          },
+          {
+            "preprocess": 9.336000002804212,
+            "inference": 183.66450000030454,
+            "postprocess": 7.89729999814881
+          },
+          {
+            "preprocess": 9.139499998127576,
+            "inference": 188.85690000024624,
+            "postprocess": 8.213400004024152
+          },
+          {
+            "preprocess": 8.842100003676023,
+            "inference": 161.82110000227112,
+            "postprocess": 5.013699999835808
+          },
+          {
+            "preprocess": 8.87230000080308,
+            "inference": 178.14399999770103,
+            "postprocess": 8.093600001302548
+          },
+          {
+            "preprocess": 8.864600000379141,
+            "inference": 189.0620999984094,
+            "postprocess": 8.452300004137214
+          },
+          {
+            "preprocess": 8.879500004695728,
+            "inference": 188.49230000341777,
+            "postprocess": 9.107200006837957
+          },
+          {
+            "preprocess": 8.708000001206528,
+            "inference": 180.70559999614488,
+            "postprocess": 5.462399996758904
+          },
+          {
+            "preprocess": 8.897900006559212,
+            "inference": 187.96190000284696,
+            "postprocess": 8.525299999746494
+          },
+          {
+            "preprocess": 8.884400005626958,
+            "inference": 188.17280000075698,
+            "postprocess": 9.135200001765043
+          },
+          {
+            "preprocess": 8.862199996656273,
+            "inference": 155.67379999993136,
+            "postprocess": 5.558500000915956
+          },
+          {
+            "preprocess": 8.842700000968762,
+            "inference": 188.45040000451263,
+            "postprocess": 8.973599993623793
+          },
+          {
+            "preprocess": 8.839699999953154,
+            "inference": 129.23529999534367,
+            "postprocess": 5.061399999249261
+          },
+          {
+            "preprocess": 8.888199998182245,
+            "inference": 189.20749999961117,
+            "postprocess": 9.15510000049835
+          },
+          {
+            "preprocess": 8.962499996414408,
+            "inference": 189.1810000015539,
+            "postprocess": 10.045499999250751
+          },
+          {
+            "preprocess": 8.88660000055097,
+            "inference": 146.6883000030066,
+            "postprocess": 5.7093000068562105
+          },
+          {
+            "preprocess": 8.902800000214484,
+            "inference": 137.4976000006427,
+            "postprocess": 5.3446000019903295
+          },
+          {
+            "preprocess": 8.843099996738601,
+            "inference": 127.38209999952232,
+            "postprocess": 5.691599995770957
+          },
+          {
+            "preprocess": 8.974700001999736,
+            "inference": 147.4993000010727,
+            "postprocess": 4.880300002696458
+          },
+          {
+            "preprocess": 2.339999999094289,
+            "inference": 31.84770000370918,
+            "postprocess": 5.061900003056508
+          },
+          {
+            "preprocess": 2.4865999948815443,
+            "inference": 41.87110000202665,
+            "postprocess": 5.5701000019325875
+          },
+          {
+            "preprocess": 2.269299999170471,
+            "inference": 31.176399999822024,
+            "postprocess": 5.786599998828024
+          },
+          {
+            "preprocess": 2.544900002249051,
+            "inference": 31.68770000047516,
+            "postprocess": 4.788600002939347
+          },
+          {
+            "preprocess": 2.303799999936018,
+            "inference": 31.35409999958938,
+            "postprocess": 4.943899999489076
+          },
+          {
+            "preprocess": 2.3164999947766773,
+            "inference": 32.58789999381406,
+            "postprocess": 5.063099997641984
+          },
+          {
+            "preprocess": 2.36869999935152,
+            "inference": 32.272000004013535,
+            "postprocess": 5.086600001959596
+          },
+          {
+            "preprocess": 2.358300000196323,
+            "inference": 32.3458999991999,
+            "postprocess": 5.058199996710755
+          },
+          {
+            "preprocess": 2.3342999993474223,
+            "inference": 32.51739999541314,
+            "postprocess": 5.123399998410605
+          },
+          {
+            "preprocess": 2.594899997347966,
+            "inference": 42.332500001066364,
+            "postprocess": 5.618000002868939
+          },
+          {
+            "preprocess": 2.3289000018849038,
+            "inference": 33.41220000584144,
+            "postprocess": 7.067099999403581
+          },
+          {
+            "preprocess": 2.335100005439017,
+            "inference": 31.497300005867146,
+            "postprocess": 4.928100002871361
+          },
+          {
+            "preprocess": 2.4664000011398457,
+            "inference": 41.91440000431612,
+            "postprocess": 5.478200000652578
+          },
+          {
+            "preprocess": 2.357299999857787,
+            "inference": 32.54419999575475,
+            "postprocess": 5.075799999758601
+          },
+          {
+            "preprocess": 2.4322999961441383,
+            "inference": 45.344300000579096,
+            "postprocess": 5.703599999833386
+          },
+          {
+            "preprocess": 2.3699000012129545,
+            "inference": 31.99750000203494,
+            "postprocess": 4.933700001856778
+          },
+          {
+            "preprocess": 2.365000000281725,
+            "inference": 31.734500000311527,
+            "postprocess": 4.847299998800736
+          },
+          {
+            "preprocess": 2.387000000453554,
+            "inference": 33.11270000267541,
+            "postprocess": 4.997600000933744
+          },
+          {
+            "preprocess": 2.251300000352785,
+            "inference": 31.318100001954008,
+            "postprocess": 4.913299999316223
+          },
+          {
+            "preprocess": 2.352499999688007,
+            "inference": 32.03899999789428,
+            "postprocess": 4.930999995849561
+          },
+          {
+            "preprocess": 2.3226999983307905,
+            "inference": 31.931699995766394,
+            "postprocess": 4.96489999932237
+          },
+          {
+            "preprocess": 2.500399998098146,
+            "inference": 33.44210000068415,
+            "postprocess": 5.113699997309595
+          },
+          {
+            "preprocess": 2.5243999989470467,
+            "inference": 42.257300003257114,
+            "postprocess": 5.6361000024480745
+          },
+          {
+            "preprocess": 2.457200003846083,
+            "inference": 38.40650000347523,
+            "postprocess": 4.562000001897104
+          },
+          {
+            "preprocess": 2.455299996654503,
+            "inference": 45.963800002937205,
+            "postprocess": 5.144299997482449
+          },
+          {
+            "preprocess": 2.221599999757018,
+            "inference": 32.07470000052126,
+            "postprocess": 5.017199997382704
+          },
+          {
+            "preprocess": 2.3053999975672923,
+            "inference": 32.3731999960728,
+            "postprocess": 5.110300000524148
+          },
+          {
+            "preprocess": 2.25759999739239,
+            "inference": 32.22539999842411,
+            "postprocess": 5.014700000174344
+          },
+          {
+            "preprocess": 2.315599995199591,
+            "inference": 31.676500002504326,
+            "postprocess": 5.19489999715006
+          },
+          {
+            "preprocess": 2.328799993847497,
+            "inference": 42.04069999832427,
+            "postprocess": 5.049100000178441
+          },
+          {
+            "preprocess": 2.5241000039386563,
+            "inference": 32.48090000124648,
+            "postprocess": 5.091000006359536
+          },
+          {
+            "preprocess": 2.6729999954113737,
+            "inference": 41.63169999810634,
+            "postprocess": 5.757800005085301
+          },
+          {
+            "preprocess": 2.3423999955412,
+            "inference": 31.49900000425987,
+            "postprocess": 4.79079999786336
+          },
+          {
+            "preprocess": 2.2793000025558285,
+            "inference": 33.96230000362266,
+            "postprocess": 4.855099999986123
+          },
+          {
+            "preprocess": 2.3283000045921654,
+            "inference": 32.83450000162702,
+            "postprocess": 5.112999999255408
+          },
+          {
+            "preprocess": 2.374999996391125,
+            "inference": 34.219400004076306,
+            "postprocess": 5.3743000025860965
+          },
+          {
+            "preprocess": 2.2503000000142492,
+            "inference": 33.718899998348206,
+            "postprocess": 5.11749999714084
+          },
+          {
+            "preprocess": 2.3311999975703657,
+            "inference": 33.15609999845037,
+            "postprocess": 4.854300001170486
+          },
+          {
+            "preprocess": 2.3919000013847835,
+            "inference": 33.94809999736026,
+            "postprocess": 4.71079999988433
+          },
+          {
+            "preprocess": 2.3538999957963824,
+            "inference": 31.57649999775458,
+            "postprocess": 5.04930000170134
+          },
+          {
+            "preprocess": 2.341599996725563,
+            "inference": 32.051600006525405,
+            "postprocess": 5.014199996367097
+          },
+          {
+            "preprocess": 2.491899998858571,
+            "inference": 39.7164999958477,
+            "postprocess": 5.452699995657895
+          },
+          {
+            "preprocess": 2.503800002159551,
+            "inference": 31.962699998985045,
+            "postprocess": 4.9702000032993965
+          },
+          {
+            "preprocess": 2.2939000045880675,
+            "inference": 32.71919999679085,
+            "postprocess": 4.952199997205753
+          },
+          {
+            "preprocess": 2.4734999969950877,
+            "inference": 36.08890000032261,
+            "postprocess": 4.773000000568572
+          },
+          {
+            "preprocess": 2.30800000281306,
+            "inference": 31.670299998950213,
+            "postprocess": 4.987000000255648
+          },
+          {
+            "preprocess": 2.555699997174088,
+            "inference": 41.48499999428168,
+            "postprocess": 5.576600000495091
+          },
+          {
+            "preprocess": 2.3177000039140694,
+            "inference": 31.798999996681232,
+            "postprocess": 5.034399997384753
+          },
+          {
+            "preprocess": 2.383600003668107,
+            "inference": 38.05830000055721,
+            "postprocess": 5.230100003245752
+          },
+          {
+            "preprocess": 2.561799999966752,
+            "inference": 34.449500002665445,
+            "postprocess": 4.963999999745283
+          },
+          {
+            "preprocess": 2.380400001129601,
+            "inference": 34.99790000205394,
+            "postprocess": 5.506500005139969
+          },
+          {
+            "preprocess": 2.3581999994348735,
+            "inference": 33.91630000260193,
+            "postprocess": 5.135899999004323
+          },
+          {
+            "preprocess": 2.4455999955534935,
+            "inference": 34.07799999695271,
+            "postprocess": 4.990299996279646
+          },
+          {
+            "preprocess": 2.3245999982464127,
+            "inference": 31.971100004739128,
+            "postprocess": 4.878400002780836
+          },
+          {
+            "preprocess": 2.312000004167203,
+            "inference": 32.359100005123764,
+            "postprocess": 5.033999994338956
+          },
+          {
+            "preprocess": 2.520800000638701,
+            "inference": 33.08489999471931,
+            "postprocess": 4.852400001254864
+          },
+          {
+            "preprocess": 2.525199997762684,
+            "inference": 33.336300002702046,
+            "postprocess": 5.189399998926092
+          },
+          {
+            "preprocess": 2.5100999991991557,
+            "inference": 41.72399999515619,
+            "postprocess": 5.672600003890693
+          },
+          {
+            "preprocess": 2.3703999977442436,
+            "inference": 33.554599998751655,
+            "postprocess": 5.198999999265652
+          },
+          {
+            "preprocess": 2.47539999691071,
+            "inference": 34.3222000010428,
+            "postprocess": 5.477400001836941
+          },
+          {
+            "preprocess": 2.4058999988483265,
+            "inference": 32.76429999823449,
+            "postprocess": 5.164900001545902
+          },
+          {
+            "preprocess": 2.523000002838671,
+            "inference": 39.06419999839272,
+            "postprocess": 5.771099997218698
+          },
+          {
+            "preprocess": 2.3929000017233193,
+            "inference": 33.11739999480778,
+            "postprocess": 5.265099993266631
+          },
+          {
+            "preprocess": 2.346699999179691,
+            "inference": 33.53139999671839,
+            "postprocess": 5.09559999773046
+          },
+          {
+            "preprocess": 2.652300005138386,
+            "inference": 32.41349999734666,
+            "postprocess": 6.382899999152869
+          },
+          {
+            "preprocess": 2.3677999997744337,
+            "inference": 48.327800002880394,
+            "postprocess": 5.389999998442363
+          },
+          {
+            "preprocess": 2.3769999970681965,
+            "inference": 38.20120000455063,
+            "postprocess": 5.501400002685841
+          },
+          {
+            "preprocess": 2.511799997591879,
+            "inference": 36.934399999154266,
+            "postprocess": 5.176299993763678
+          },
+          {
+            "preprocess": 2.473900000040885,
+            "inference": 32.59570000227541,
+            "postprocess": 4.898700004559942
+          },
+          {
+            "preprocess": 2.510699996491894,
+            "inference": 37.650000005669426,
+            "postprocess": 5.387899997003842
+          },
+          {
+            "preprocess": 2.4118000001180917,
+            "inference": 32.94070000265492,
+            "postprocess": 5.428099997516256
+          },
+          {
+            "preprocess": 2.5576999978511594,
+            "inference": 32.42550000140909,
+            "postprocess": 5.178699997486547
+          },
+          {
+            "preprocess": 2.4740000008023344,
+            "inference": 41.34609999891836,
+            "postprocess": 6.981500002439134
+          },
+          {
+            "preprocess": 2.3682999963057227,
+            "inference": 32.32890000072075,
+            "postprocess": 5.0859999973909
+          },
+          {
+            "preprocess": 2.471200001309626,
+            "inference": 38.57920000154991,
+            "postprocess": 5.3200000038486905
+          },
+          {
+            "preprocess": 2.528999997593928,
+            "inference": 42.65460000169696,
+            "postprocess": 5.858500000613276
+          },
+          {
+            "preprocess": 2.456399997754488,
+            "inference": 35.47910000634147,
+            "postprocess": 4.989399996702559
+          },
+          {
+            "preprocess": 2.3380999991786666,
+            "inference": 32.02620000229217,
+            "postprocess": 4.841699999815319
+          },
+          {
+            "preprocess": 2.4036999966483563,
+            "inference": 33.0309999990277,
+            "postprocess": 4.920999999740161
+          },
+          {
+            "preprocess": 2.4290999936056323,
+            "inference": 33.600399998249486,
+            "postprocess": 5.258899996988475
+          },
+          {
+            "preprocess": 2.3359999977401458,
+            "inference": 43.375399996875785,
+            "postprocess": 5.749800002377015
+          },
+          {
+            "preprocess": 2.3318999956245534,
+            "inference": 34.532300000137184,
+            "postprocess": 6.0244999986025505
+          },
+          {
+            "preprocess": 2.3485999990953133,
+            "inference": 31.254099994839635,
+            "postprocess": 5.202699998335447
+          },
+          {
+            "preprocess": 2.317300000868272,
+            "inference": 31.37159999459982,
+            "postprocess": 5.589500004134607
+          },
+          {
+            "preprocess": 2.281000000948552,
+            "inference": 31.342499998572748,
+            "postprocess": 4.743299999972805
+          }
+        ],
+        "device": "cuda",
+        "parameters": 2623910,
+        "duration_seconds": 3849.2266786000037,
+        "deployment_eligible": false,
+        "license": "Ultralytics AGPL-3.0 / Enterprise terms; dataset retains its own terms",
+        "context_supervision": "neutral context only; context training not implemented for YOLO batches",
+        "gate_reason": "Experimental candidate; independent domain and hardware acceptance required",
+        "outperforms_yolo": "not established"
+      }
+    },
+    {
+      "id": "cbe32979-6a6d-4a40-a62a-9f11874a3971",
+      "name": "YOLO11n scene/zone adapter",
+      "version": "cuda-g4-weapons-yolo",
+      "stage": "candidate",
+      "manifest": {
+        "schema_version": 1,
+        "task": "detection",
+        "architecture": "yolo_rai",
+        "name": "YOLO11n scene/zone adapter",
+        "stage": "candidate",
+        "classes": [
+          "firearm",
+          "knife",
+          "machete",
+          "baseball_bat"
+        ],
+        "domain": "dangerous-items-development",
+        "capability_ids": [
+          "firearm"
+        ],
+        "synthetic": false,
+        "dataset_counts": {
+          "train": 399,
+          "validation": 96,
+          "calibration": 65,
+          "test": 106
+        },
+        "dataset_sha256": "772a80081dd508952124989f0f94c0a4174e95e611afc9c85f4229b4945ffca6",
+        "weights_sha256": "5d22bdb19c756b9c4629a0262d52a8cf60f98d707f7aeeee9c3ccf6bd241124c",
+        "config": {
+          "image_size": 448,
+          "epochs": 30,
+          "batch_size": 8,
+          "seed": 42,
+          "base": "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX\\data\\runs\\accuracy-g3-weapons-yolo\\weights.pt",
+          "learning_rate": 0.0003,
+          "patience": 8,
+          "threads": 3,
+          "training_geometry": "square_matches_runtime"
+        },
+        "initialization": "c3c86f1a5025c1c983d65ad2322341a6b467351166ff9b4a638880124e68aed1",
+        "validation_selection": {
+          "candidate_map50": 0.5597870955386586,
+          "selected": "candidate",
+          "split": "validation",
+          "parent_map50": 0.5100655198314953
+        },
+        "calibration": {
+          "temperature": 1.3373293784088167,
+          "bias": -0.25,
+          "threshold": 0.40705003250394556,
+          "status": "fitted",
+          "samples": 677,
+          "task": "detection_correctness_at_iou_0.50",
+          "split": "calibration",
+          "nll": 0.13718843472207592,
+          "calibration_f1": 0.732824427480916
+        },
+        "calibrated": true,
+        "metrics": {
+          "map50": 0.5053979629824668,
+          "precision": 0.686046511627907,
+          "recall": 0.4645669291338583,
+          "f1": 0.5539906103286386,
+          "true_positives": 59,
+          "false_positives": 27,
+          "false_negatives": 68,
+          "ground_truth": 127,
+          "score_threshold": 0.40705003250394556,
+          "iou_threshold": 0.5,
+          "per_class": [
+            {
+              "class_id": 0,
+              "ground_truth": 33,
+              "ap50": 0.4796279492985376
+            },
+            {
+              "class_id": 1,
+              "ground_truth": 34,
+              "ap50": 0.37980947523105557
+            },
+            {
+              "class_id": 2,
+              "ground_truth": 34,
+              "ap50": 0.5116436620380235
+            },
+            {
+              "class_id": 3,
+              "ground_truth": 26,
+              "ap50": 0.6505107653622505
+            }
+          ],
+          "ap_definition": "101-point interpolated precision at IoU 0.50, class-aware one-to-one matching"
+        },
+        "uncalibrated_metrics": {
+          "map50": 0.5053979629824668,
+          "precision": 0.559322033898305,
+          "recall": 0.5196850393700787,
+          "f1": 0.5387755102040817,
+          "true_positives": 66,
+          "false_positives": 52,
+          "false_negatives": 61,
+          "ground_truth": 127,
+          "score_threshold": 0.25,
+          "iou_threshold": 0.5,
+          "per_class": [
+            {
+              "class_id": 0,
+              "ground_truth": 33,
+              "ap50": 0.4796279492985376
+            },
+            {
+              "class_id": 1,
+              "ground_truth": 34,
+              "ap50": 0.37980947523105557
+            },
+            {
+              "class_id": 2,
+              "ground_truth": 34,
+              "ap50": 0.5116436620380235
+            },
+            {
+              "class_id": 3,
+              "ground_truth": 26,
+              "ap50": 0.6505107653622505
+            }
+          ],
+          "ap_definition": "101-point interpolated precision at IoU 0.50, class-aware one-to-one matching"
+        },
+        "raw_test_reliability": {
+          "samples": 1400,
+          "ece": 0.01561020352761261,
+          "brier": 0.03572333635685318,
+          "nll": 0.13536962586697274,
+          "scope": "Retained predictions at score floor .001; does not penalize missed objects"
+        },
+        "calibrated_test_reliability": {
+          "samples": 1400,
+          "ece": 0.008203231187067235,
+          "brier": 0.034944879084298115,
+          "nll": 0.12990971485884345,
+          "scope": "Retained predictions at score floor .001; does not penalize missed objects"
+        },
+        "prediction_timing": [
+          {
+            "preprocess": 6.84470000123838,
+            "inference": 190.47120000323048,
+            "postprocess": 7.266599997819867
+          },
+          {
+            "preprocess": 7.293399998161476,
+            "inference": 42.31639999488834,
+            "postprocess": 5.067500002041925
+          },
+          {
+            "preprocess": 2.2038999959477223,
+            "inference": 35.03660000569653,
+            "postprocess": 4.898200000752695
+          },
+          {
+            "preprocess": 2.0615999965230003,
+            "inference": 33.94200000184355,
+            "postprocess": 4.8497999960090965
+          },
+          {
+            "preprocess": 2.012999997532461,
+            "inference": 34.00059999694349,
+            "postprocess": 5.1918999961344525
+          },
+          {
+            "preprocess": 2.035299999988638,
+            "inference": 33.329500001855195,
+            "postprocess": 4.74709999980405
+          },
+          {
+            "preprocess": 2.417700001387857,
+            "inference": 41.502200001559686,
+            "postprocess": 5.179799998586532
+          },
+          {
+            "preprocess": 2.0686999996542,
+            "inference": 36.50349999952596,
+            "postprocess": 5.265899999358226
+          },
+          {
+            "preprocess": 2.1066000044811517,
+            "inference": 32.860300001630094,
+            "postprocess": 4.958799996529706
+          },
+          {
+            "preprocess": 2.2427000003517605,
+            "inference": 33.40269999898737,
+            "postprocess": 4.785400000400841
+          },
+          {
+            "preprocess": 2.093900002364535,
+            "inference": 32.712300002458505,
+            "postprocess": 4.953999996359926
+          },
+          {
+            "preprocess": 2.0241000020178035,
+            "inference": 42.35009999683825,
+            "postprocess": 5.907500002649613
+          },
+          {
+            "preprocess": 2.4416999949608,
+            "inference": 48.22479999711504,
+            "postprocess": 6.768100000044797
+          },
+          {
+            "preprocess": 2.337500001885928,
+            "inference": 37.425700000312645,
+            "postprocess": 4.760999996506143
+          },
+          {
+            "preprocess": 2.256499996292405,
+            "inference": 44.1893999959575,
+            "postprocess": 6.0968000034336
+          },
+          {
+            "preprocess": 1.996400002099108,
+            "inference": 33.86009999667294,
+            "postprocess": 4.67969999590423
+          },
+          {
+            "preprocess": 2.048599999397993,
+            "inference": 32.6504999975441,
+            "postprocess": 4.719600001408253
+          },
+          {
+            "preprocess": 2.0308000021032058,
+            "inference": 34.03919999982463,
+            "postprocess": 4.832500002521556
+          },
+          {
+            "preprocess": 2.1481000003404915,
+            "inference": 33.199599994986784,
+            "postprocess": 4.987199994502589
+          },
+          {
+            "preprocess": 2.0334000000730157,
+            "inference": 33.25629999744706,
+            "postprocess": 4.78339999972377
+          },
+          {
+            "preprocess": 2.2688999961246736,
+            "inference": 32.81639999477193,
+            "postprocess": 4.806500000995584
+          },
+          {
+            "preprocess": 2.0143000001553446,
+            "inference": 33.37269999610726,
+            "postprocess": 5.164000001968816
+          },
+          {
+            "preprocess": 2.083799998217728,
+            "inference": 35.02840000146534,
+            "postprocess": 6.0837000055471435
+          },
+          {
+            "preprocess": 2.071599999908358,
+            "inference": 33.43999999924563,
+            "postprocess": 4.7477999978582375
+          },
+          {
+            "preprocess": 2.118299998983275,
+            "inference": 34.88170000491664,
+            "postprocess": 5.011900000681635
+          },
+          {
+            "preprocess": 2.057300000160467,
+            "inference": 33.23359999922104,
+            "postprocess": 4.896800004644319
+          },
+          {
+            "preprocess": 2.147500003047753,
+            "inference": 35.296100002597086,
+            "postprocess": 5.101399998238776
+          },
+          {
+            "preprocess": 2.2005999999237247,
+            "inference": 34.2848000000231,
+            "postprocess": 5.143399997905362
+          },
+          {
+            "preprocess": 2.241000001959037,
+            "inference": 33.57189999951515,
+            "postprocess": 6.359600003634114
+          },
+          {
+            "preprocess": 2.363700004934799,
+            "inference": 34.99839999858523,
+            "postprocess": 5.39310000021942
+          },
+          {
+            "preprocess": 2.0939999958500266,
+            "inference": 33.68200000113575,
+            "postprocess": 5.7986999963759445
+          },
+          {
+            "preprocess": 2.533699997002259,
+            "inference": 37.35669999878155,
+            "postprocess": 4.812400002265349
+          },
+          {
+            "preprocess": 2.068399997369852,
+            "inference": 33.534399997734,
+            "postprocess": 4.7198000029311515
+          },
+          {
+            "preprocess": 2.108699998643715,
+            "inference": 32.77680000610417,
+            "postprocess": 4.890500000328757
+          },
+          {
+            "preprocess": 2.0176000034553,
+            "inference": 33.72099999978673,
+            "postprocess": 4.921599997032899
+          },
+          {
+            "preprocess": 2.2639000017079525,
+            "inference": 33.01889999420382,
+            "postprocess": 4.763499993714504
+          },
+          {
+            "preprocess": 2.0465999987209216,
+            "inference": 34.05449999991106,
+            "postprocess": 4.701100006059278
+          },
+          {
+            "preprocess": 2.0220000005792826,
+            "inference": 33.290899998974055,
+            "postprocess": 4.949800000758842
+          },
+          {
+            "preprocess": 2.0641000010073185,
+            "inference": 33.49570000136737,
+            "postprocess": 4.6832000007270835
+          },
+          {
+            "preprocess": 2.1653000003425404,
+            "inference": 36.10889999981737,
+            "postprocess": 5.025699996622279
+          },
+          {
+            "preprocess": 2.0704999988083728,
+            "inference": 33.201599995663855,
+            "postprocess": 4.6708999943803065
+          },
+          {
+            "preprocess": 2.09760000143433,
+            "inference": 32.671399996615946,
+            "postprocess": 4.850699995586183
+          },
+          {
+            "preprocess": 2.035099998465739,
+            "inference": 33.37840000313008,
+            "postprocess": 4.831700003705919
+          },
+          {
+            "preprocess": 2.0173999946564436,
+            "inference": 33.087700001487974,
+            "postprocess": 5.409900004451629
+          },
+          {
+            "preprocess": 2.0593000008375384,
+            "inference": 34.68260000227019,
+            "postprocess": 5.154699996637646
+          },
+          {
+            "preprocess": 2.062400002614595,
+            "inference": 39.134099999500904,
+            "postprocess": 5.499200000485871
+          },
+          {
+            "preprocess": 2.4579999953857623,
+            "inference": 38.5526000027312,
+            "postprocess": 4.598499996063765
+          },
+          {
+            "preprocess": 2.2328999984893017,
+            "inference": 38.53299999900628,
+            "postprocess": 5.249300003924873
+          },
+          {
+            "preprocess": 2.3020000007818453,
+            "inference": 39.385700001730584,
+            "postprocess": 5.043099998147227
+          },
+          {
+            "preprocess": 2.0631000006687827,
+            "inference": 32.88579999934882,
+            "postprocess": 4.950099995767232
+          },
+          {
+            "preprocess": 2.2517000033985823,
+            "inference": 39.24589999951422,
+            "postprocess": 4.697100004705135
+          },
+          {
+            "preprocess": 2.061199993477203,
+            "inference": 32.957199997326825,
+            "postprocess": 4.868900003202725
+          },
+          {
+            "preprocess": 2.0308999955886975,
+            "inference": 33.15029999794206,
+            "postprocess": 4.845499999646563
+          },
+          {
+            "preprocess": 2.0444999972824007,
+            "inference": 32.93420000409242,
+            "postprocess": 4.757700000482146
+          },
+          {
+            "preprocess": 2.029300005233381,
+            "inference": 33.56099999655271,
+            "postprocess": 6.196800000907388
+          },
+          {
+            "preprocess": 2.0435000042198226,
+            "inference": 35.81700000358978,
+            "postprocess": 4.8457999946549535
+          },
+          {
+            "preprocess": 2.036400001088623,
+            "inference": 31.470699999772478,
+            "postprocess": 4.6316999942064285
+          },
+          {
+            "preprocess": 2.0091999977012165,
+            "inference": 34.74660000210861,
+            "postprocess": 5.89830000535585
+          },
+          {
+            "preprocess": 2.0072999977855943,
+            "inference": 32.77630000229692,
+            "postprocess": 4.782600000908133
+          },
+          {
+            "preprocess": 1.974700004211627,
+            "inference": 33.673099998850375,
+            "postprocess": 5.007799998566043
+          },
+          {
+            "preprocess": 2.1688000051653944,
+            "inference": 32.581799998297356,
+            "postprocess": 4.8391999953310005
+          },
+          {
+            "preprocess": 2.051000003120862,
+            "inference": 37.450199997692835,
+            "postprocess": 4.88999999652151
+          },
+          {
+            "preprocess": 2.3214000029838644,
+            "inference": 37.911500003247056,
+            "postprocess": 4.761399999551941
+          },
+          {
+            "preprocess": 2.364399995713029,
+            "inference": 44.78230000677286,
+            "postprocess": 5.96899999800371
+          },
+          {
+            "preprocess": 2.3758000024827197,
+            "inference": 48.73509999742964,
+            "postprocess": 5.222499996307306
+          },
+          {
+            "preprocess": 2.134700000169687,
+            "inference": 42.508700003963895,
+            "postprocess": 4.820499998459127
+          },
+          {
+            "preprocess": 2.133200003299862,
+            "inference": 33.67679999792017,
+            "postprocess": 5.127500000526197
+          },
+          {
+            "preprocess": 2.0337999958428554,
+            "inference": 35.071400001470465,
+            "postprocess": 5.353100001229905
+          },
+          {
+            "preprocess": 2.180900002713315,
+            "inference": 43.22569999931147,
+            "postprocess": 6.143400001747068
+          },
+          {
+            "preprocess": 1.9987999985460192,
+            "inference": 33.513499998662155,
+            "postprocess": 5.2577000024029985
+          },
+          {
+            "preprocess": 2.1789999955217354,
+            "inference": 38.05100000317907,
+            "postprocess": 4.660699996748008
+          },
+          {
+            "preprocess": 2.283400004671421,
+            "inference": 39.25699999672361,
+            "postprocess": 5.380000002332963
+          },
+          {
+            "preprocess": 2.4216000019805506,
+            "inference": 43.1758999984595,
+            "postprocess": 5.553399998461828
+          },
+          {
+            "preprocess": 2.049700000497978,
+            "inference": 34.14879999763798,
+            "postprocess": 4.718399999546818
+          },
+          {
+            "preprocess": 2.02500000159489,
+            "inference": 33.090099997934885,
+            "postprocess": 5.259400000795722
+          },
+          {
+            "preprocess": 2.057300000160467,
+            "inference": 33.14939999836497,
+            "postprocess": 5.032700006267987
+          },
+          {
+            "preprocess": 2.109600005496759,
+            "inference": 32.16179999435553,
+            "postprocess": 4.589299998770002
+          },
+          {
+            "preprocess": 2.2156999984872527,
+            "inference": 36.02580000006128,
+            "postprocess": 5.9041999993496574
+          },
+          {
+            "preprocess": 2.0571999993990175,
+            "inference": 38.06769999937387,
+            "postprocess": 6.066699999792036
+          },
+          {
+            "preprocess": 2.0791999995708466,
+            "inference": 38.49849999824073,
+            "postprocess": 6.960699996852782
+          },
+          {
+            "preprocess": 2.287100003741216,
+            "inference": 34.674700000323355,
+            "postprocess": 5.426499999884982
+          },
+          {
+            "preprocess": 2.2340999930747785,
+            "inference": 33.2194000002346,
+            "postprocess": 4.745399994135369
+          },
+          {
+            "preprocess": 1.9892999989679083,
+            "inference": 35.99470000335714,
+            "postprocess": 4.788000005646609
+          },
+          {
+            "preprocess": 2.0824000021093525,
+            "inference": 32.86009999283124,
+            "postprocess": 4.648699999961536
+          },
+          {
+            "preprocess": 2.0070999962626956,
+            "inference": 34.8087000020314,
+            "postprocess": 4.549600002064835
+          },
+          {
+            "preprocess": 2.036400001088623,
+            "inference": 33.09140000055777,
+            "postprocess": 4.669200003263541
+          },
+          {
+            "preprocess": 2.052800002275035,
+            "inference": 34.6512000032817,
+            "postprocess": 5.900100004510023
+          },
+          {
+            "preprocess": 2.0511000038823113,
+            "inference": 32.925300001807045,
+            "postprocess": 4.899100000329781
+          },
+          {
+            "preprocess": 2.014899997448083,
+            "inference": 33.27790000184905,
+            "postprocess": 5.118699999002274
+          },
+          {
+            "preprocess": 2.266700001200661,
+            "inference": 33.259299998462666,
+            "postprocess": 4.704799997853115
+          },
+          {
+            "preprocess": 2.157899994926993,
+            "inference": 44.53990000183694,
+            "postprocess": 5.36419999843929
+          },
+          {
+            "preprocess": 2.0344000004115514,
+            "inference": 32.82319999561878,
+            "postprocess": 4.739500000141561
+          },
+          {
+            "preprocess": 2.045399996859487,
+            "inference": 33.71270000207005,
+            "postprocess": 5.147200005012564
+          },
+          {
+            "preprocess": 2.0446999988052994,
+            "inference": 39.25650000019232,
+            "postprocess": 5.410400000982918
+          },
+          {
+            "preprocess": 2.1422999998321757,
+            "inference": 37.31770000013057,
+            "postprocess": 4.982600003131665
+          },
+          {
+            "preprocess": 2.3109000030672178,
+            "inference": 35.252500005299225,
+            "postprocess": 5.206000001635402
+          },
+          {
+            "preprocess": 2.1946999986539595,
+            "inference": 41.674300002341624,
+            "postprocess": 4.766600002767518
+          },
+          {
+            "preprocess": 2.0674999977927655,
+            "inference": 32.48329999769339,
+            "postprocess": 4.800800001248717
+          },
+          {
+            "preprocess": 2.033199998550117,
+            "inference": 33.16270000505028,
+            "postprocess": 4.757200003950857
+          },
+          {
+            "preprocess": 2.042200001596939,
+            "inference": 34.42389999690931,
+            "postprocess": 5.253499999525957
+          },
+          {
+            "preprocess": 2.006399998208508,
+            "inference": 32.7426999938325,
+            "postprocess": 4.629900002328213
+          },
+          {
+            "preprocess": 2.175300003727898,
+            "inference": 33.70320000249194,
+            "postprocess": 5.577299998549279
+          },
+          {
+            "preprocess": 2.0414000027813017,
+            "inference": 33.30170000117505,
+            "postprocess": 5.3270999997039326
+          },
+          {
+            "preprocess": 2.036400001088623,
+            "inference": 32.77920000255108,
+            "postprocess": 4.782099997100886
+          },
+          {
+            "preprocess": 2.044299995759502,
+            "inference": 39.37910000240663,
+            "postprocess": 5.20410000171978
+          },
+          {
+            "preprocess": 2.040700004727114,
+            "inference": 33.185900007083546,
+            "postprocess": 5.279500001051929
+          }
+        ],
+        "device": "cuda",
+        "parameters": 2621375,
+        "duration_seconds": 1787.9985643000036,
+        "deployment_eligible": false,
+        "license": "Ultralytics AGPL-3.0 / Enterprise terms; dataset retains its own terms",
+        "context_supervision": "neutral context only; context training not implemented for YOLO batches",
+        "gate_reason": "Experimental candidate; independent domain and hardware acceptance required",
+        "outperforms_yolo": "not established"
+      }
+    }
+  ],
+  "disk_free_bytes": 3074826240,
+  "action": "No intervention; preserve inactive candidates and continue existing queue"
+}

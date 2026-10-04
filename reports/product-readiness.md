@@ -9,13 +9,13 @@ A successful training run or aggregate score is not proof of reliable multi-doma
 | General objects | 0 | 0 | 0 | N/A |
 | People | 1 | 10 | 9 | N/A |
 | Fire and smoke | 2 | 8 | 0 | N/A |
-| Firearms | 1 | 8 | 0 | N/A |
+| Firearms | 1 | 9 | 0 | N/A |
 | Fighting | 1 | 2 | 2 | N/A |
 | Falls | 1 | 2 | 1 | N/A |
 | Possible theft events | 0 | 0 | 0 | N/A |
 | Traffic collisions | 0 | 0 | 0 | N/A |
 | Traffic rule review | N/A | N/A | N/A | wrong_way, calibrated_speed, signal_stop_line |
-| Protective equipment | 2 | 8 | 0 | N/A |
+| Protective equipment | 2 | 9 | 0 | N/A |
 | PPE compliance review | N/A | N/A | N/A | possible_missing_helmet, possible_missing_vest |
 | Industrial hazard review | N/A | N/A | N/A | restricted_zone, configured_proximity, machine_state, blocked_exit |
 

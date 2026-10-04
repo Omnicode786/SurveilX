@@ -8,7 +8,7 @@ Current scope also excludes complete acceleration deployment, full hardware acce
 |---|---|---|
 | Core application | Camera/stream management, dashboard, authentication/roles, named detections, tracking, incident review, encrypted titled frame/clip logs; grouped role-routed in-app alerts with priority overrides, acknowledgement and timed escalation | Real-camera and production database/storage/worker deployment validation |
 | Learning workflow | Generated/public/user data import, separate train/validation/calibration/test splits, reviewed annotations, scratch/adapted models, candidate training, calibration, lineage, acceptance/canary/rollback | More representative labels and independent site/participant acceptance datasets |
-| Model generations | Twelve-model accuracy campaign, PPE scratch retry and nine detector-profile jobs complete; later weapons/fire/PPE/fighting candidates evaluated; six new CUDA candidates running/queued | All-class 50% target remains unmet; current g4 results are not yet evaluated |
+| Model generations | Twelve-model accuracy campaign, PPE scratch retry and nine detector-profile jobs complete; later weapons/fire/PPE/fighting candidates evaluated; two new CUDA candidates complete and four running/queued | All-class 50% target remains unmet; current g4 results are not yet evaluated |
 | Event intelligence | Scene-video importer, temporal model/runtime, corrected persistence policies; real fall candidate; fighting model trained/calibrated/evaluated on 160 clips with paired-camera groups | Independent fighting evaluation and temporal label review; theft and collision data/training; broader fall evaluation |
 | Policies | Restricted zones, wrong-way, possible missing PPE, proximity, calibrated speed, signal stop-line, machine state and blocked exit | Site geometry, trained signal/state labels, real footage and operator validation |
 | Hardware | CPU and local CUDA training exercised; scratch/adapted YOLO/scene optimizer checks and measured batch tuning pass; live GPU memory/utilization displayed; DirectML exports preserve validation AP50; 11 provider/governor scenarios simulated | Physical FPGA/Jetson/Pi/AMD/Apple execution and accelerated deployment remain explicitly deferred |
@@ -21,14 +21,14 @@ AP50 is a detection metric, not the percentage of frames classified correctly.
 |---|---:|---|
 | Person / adapted YOLO | AP50 0.9427 | Narrow pedestrian development benchmark |
 | Person / scratch | AP50 0.7177 | Scratch does not outperform adapted YOLO |
-| Dangerous items / adapted YOLO | AP50 0.5041 | Aggregate point estimate passes; knife/machete remain below 0.50; uncertainty interval crosses 0.50 |
+| Dangerous items / adapted YOLO | AP50 0.5054 (latest g4) | Slight aggregate gain; firearm 0.4796 and knife 0.3798 regress below 0.50; parent results retained |
 | Fire/smoke / adapted YOLO | AP50 0.4785 | Fire 0.5156; smoke 0.4414 |
-| PPE / adapted YOLO | AP50 0.3056 | Helmet 0.6299; safety vest 0.3197; multiple rare classes weak |
+| PPE / adapted YOLO | AP50 0.3223 (latest g4) | Helmet 0.5836; safety vest 0.4402; several class regressions and rare classes remain weak |
 | Fighting scene model | 14/20 clips correct (0.70) | Both classes F1 0.70; group-bootstrap 95% interval 0.50-0.90; staged single-room weak labels |
 | PPE / scratch | AP50 0.0527 | Completed retry remains weak |
 | Fall scene model | 10/10 clips correct | Wilson 95% bound 0.7225–1.0 for ten all-correct groups, conditional on independence; shared-site uncertainty remains |
 
-All 50 completed artifact weight hashes passed the integrity audit; both interrupted scratch originals have complete replacements. Newly trained development candidates remain inactive and deployment-ineligible. Inherited general-object class coverage is separate from hazard/event recognition.
+All 52 completed artifact weight hashes passed the integrity audit; both interrupted scratch originals have complete replacements. Newly trained development candidates remain inactive and deployment-ineligible. Inherited general-object class coverage is separate from hazard/event recognition.
 
 ## Accuracy work that can proceed now
 
@@ -44,3 +44,5 @@ Latest application improvements cover finite stop-line crossings, uninterrupted 
 The local suite passed 174 tests, repository Ruff passed and the frontend build passed (`index-DelKl4Zt.js`). Notification policy and REST/live recipient filtering are exercised; external channels are unconfigured. See [notifications.md](notifications.md).
 
 The charger-powered MX130 batch-tuning report selected YOLO 8, scratch 4 and scene 8 within its reserved-memory rule. Actual YOLO training reaches 99% GPU utilization with approximately 400-450 MiB free VRAM. Heavy GPU jobs run serially. The larger D-Fire training set contains 1,284 images; original 96-image validation, calibration and test records remain unchanged. The g4a/g4b queues cover PPE, weapons, fire/smoke and scratch focal-classification ablations. Their pending results are not included in the completed-score table above.
+
+Latest status pass: g4a PPE/weapons runs completed; g4b fire/smoke YOLO is progressing, followed by three scratch trials. Completed g4 detection results above include class regressions and remain inactive. No intervention or additional training pass was started.

@@ -95,10 +95,11 @@
         "accuracy-g3-weapons-yolo-profiles-g1",
         "accuracy-g3b-weapons-scratch",
         "accuracy-g3b-weapons-scratch-profiles-g1",
+        "cuda-g4-weapons-yolo",
         "dangerous-items-g1-scratch",
         "dangerous-items-g1-yolo-rai"
       ],
-      "evaluated_candidates": 8,
+      "evaluated_candidates": 9,
       "all_class_point_target_candidates": [],
       "domain_reliability": "Not established by development metrics; requires reviewed independent domain evidence"
     },
@@ -182,10 +183,11 @@
         "accuracy-ppe-g3-yolo-profiles-g1",
         "accuracy-ppe-g3b-scratch",
         "accuracy-ppe-g3b-scratch-profiles-g1",
+        "cuda-g4-ppe-yolo",
         "sh17-g2-scratch",
         "sh17-g2-yolo-rai"
       ],
-      "evaluated_candidates": 8,
+      "evaluated_candidates": 9,
       "all_class_point_target_candidates": [],
       "domain_reliability": "Not established by development metrics; requires reviewed independent domain evidence"
     },
@@ -2268,6 +2270,224 @@
             "metric": "recall",
             "score": 0.7,
             "support": 10,
+            "target_met": true
+          }
+        ],
+        "independent_reliability_established": false,
+        "interpretation": "Held-out development point scores. Meeting 0.50 does not establish source independence, calibrated event recall or site reliability."
+      }
+    },
+    {
+      "version": "cuda-g4-ppe-yolo",
+      "task": "detection",
+      "domain": "ppe-development",
+      "capabilities": [
+        "ppe_objects"
+      ],
+      "weights_intact": true,
+      "dataset_resolved": true,
+      "dataset": "sh17-development-v2",
+      "source_provenance": {
+        "source": "https://github.com/ahmadmughees/SH17dataset",
+        "archive_etag": "\"2e9eb8708de4d1ca84246ed230ca66f8\"",
+        "source_independence_verified": false,
+        "selection": "Class-balanced label coverage; stable photographer group assignment; all previous samples keep their split",
+        "group_limitation": "Photographer-disjoint development split, not verified scene or deployment-site independence",
+        "label_semantics": "Glasses is generic eyewear, not certified safety eyewear. Object presence does not establish compliance.",
+        "label_map_source": "https://github.com/ahmadmughees/SH17dataset/blob/master/sh17.yaml",
+        "correction": "Corrected README display-order assumption to authoritative YOLO numeric class IDs before usable training; sh17-g1 aborted and preserved",
+        "parent_dataset_sha256": "6b64e6a38baef86ba48c77a33af82fb0c381858bffd66c869a8b2bd46874c7ae",
+        "source_index_sha256": "1d57ae7432c95da4600171c787eb3e2554368d8334bf181b01c82ecf7c79a46a",
+        "image_processing": "New images preserve aspect ratio with max side 1536 and JPEG quality 95; original source hashes retained",
+        "evaluation_change": "Expanded development holdouts; compare parent and child on this identical dataset, not old test scores"
+      },
+      "calibrated": true,
+      "inherited": false,
+      "development": {
+        "metric": "AP50",
+        "score": 0.32234350933382755,
+        "target": 0.5,
+        "aggregate_target_met": false,
+        "all_classes_target_met": false,
+        "per_class": [
+          {
+            "label": "person",
+            "metric": "AP50",
+            "score": 0.7450936930099573,
+            "support": 245,
+            "target_met": true
+          },
+          {
+            "label": "ear",
+            "metric": "AP50",
+            "score": 0.3541596565718889,
+            "support": 124,
+            "target_met": false
+          },
+          {
+            "label": "earmuffs",
+            "metric": "AP50",
+            "score": 0.05039878133740742,
+            "support": 13,
+            "target_met": false
+          },
+          {
+            "label": "face",
+            "metric": "AP50",
+            "score": 0.5526922652735603,
+            "support": 101,
+            "target_met": true
+          },
+          {
+            "label": "face_guard",
+            "metric": "AP50",
+            "score": 0.1529438658151529,
+            "support": 6,
+            "target_met": false
+          },
+          {
+            "label": "face_mask",
+            "metric": "AP50",
+            "score": 0.5720056775350089,
+            "support": 42,
+            "target_met": true
+          },
+          {
+            "label": "foot",
+            "metric": "AP50",
+            "score": 0.03865165666497456,
+            "support": 60,
+            "target_met": false
+          },
+          {
+            "label": "tools",
+            "metric": "AP50",
+            "score": 0.023986327504855295,
+            "support": 84,
+            "target_met": false
+          },
+          {
+            "label": "glasses",
+            "metric": "AP50",
+            "score": 0.1104033258883365,
+            "support": 62,
+            "target_met": false
+          },
+          {
+            "label": "gloves",
+            "metric": "AP50",
+            "score": 0.22154017410907936,
+            "support": 92,
+            "target_met": false
+          },
+          {
+            "label": "helmet",
+            "metric": "AP50",
+            "score": 0.5836223283761711,
+            "support": 42,
+            "target_met": true
+          },
+          {
+            "label": "hands",
+            "metric": "AP50",
+            "score": 0.5211992503291522,
+            "support": 205,
+            "target_met": true
+          },
+          {
+            "label": "head",
+            "metric": "AP50",
+            "score": 0.6536665114744756,
+            "support": 226,
+            "target_met": true
+          },
+          {
+            "label": "medical_suit",
+            "metric": "AP50",
+            "score": 0.2862561061011341,
+            "support": 44,
+            "target_met": false
+          },
+          {
+            "label": "shoes",
+            "metric": "AP50",
+            "score": 0.14792316704199424,
+            "support": 105,
+            "target_met": false
+          },
+          {
+            "label": "safety_suit",
+            "metric": "AP50",
+            "score": 0.025144892538034296,
+            "support": 6,
+            "target_met": false
+          },
+          {
+            "label": "safety_vest",
+            "metric": "AP50",
+            "score": 0.44015197910388537,
+            "support": 45,
+            "target_met": false
+          }
+        ],
+        "independent_reliability_established": false,
+        "interpretation": "Held-out development point scores. Meeting 0.50 does not establish source independence, calibrated event recall or site reliability."
+      }
+    },
+    {
+      "version": "cuda-g4-weapons-yolo",
+      "task": "detection",
+      "domain": "dangerous-items-development",
+      "capabilities": [
+        "firearm"
+      ],
+      "weights_intact": true,
+      "dataset_resolved": true,
+      "dataset": "dangerous-items-development-v1",
+      "source_provenance": {
+        "source": "https://zenodo.org/records/13786228",
+        "archive_sha256": "9c6749a3e36b6935fc468de9b1fb639b16c4caef2c21f5328a44ff210d3e1aa8",
+        "source_independence_verified": false,
+        "selection": "Deterministic VOC subset capped at 160 images per label signature",
+        "group_limitation": "Publisher camera, sequence, subject and original-image identities are unavailable; split groups are unique-image placeholders only",
+        "label_mapping": "Publisher Gun and Rifle map to firearm; Knife, Machete and Baseball Bat remain distinct",
+        "acceptance_limitation": "Development metrics only; independent site acceptance is required"
+      },
+      "calibrated": true,
+      "inherited": false,
+      "development": {
+        "metric": "AP50",
+        "score": 0.5053979629824668,
+        "target": 0.5,
+        "aggregate_target_met": true,
+        "all_classes_target_met": false,
+        "per_class": [
+          {
+            "label": "firearm",
+            "metric": "AP50",
+            "score": 0.4796279492985376,
+            "support": 33,
+            "target_met": false
+          },
+          {
+            "label": "knife",
+            "metric": "AP50",
+            "score": 0.37980947523105557,
+            "support": 34,
+            "target_met": false
+          },
+          {
+            "label": "machete",
+            "metric": "AP50",
+            "score": 0.5116436620380235,
+            "support": 34,
+            "target_met": true
+          },
+          {
+            "label": "baseball_bat",
+            "metric": "AP50",
+            "score": 0.6505107653622505,
+            "support": 26,
             "target_met": true
           }
         ],

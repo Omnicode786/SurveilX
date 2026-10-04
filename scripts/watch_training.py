@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 import re
 import subprocess
+import sys
 import time
 
 from surveilx.generations import read_generation, read_queue
@@ -80,6 +81,7 @@ def snapshot(data, names):
 
 
 def main():
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("campaigns", nargs="*", default=["cuda-accuracy-g4a", "cuda-accuracy-g4b"])
     parser.add_argument("--data-dir", type=Path, default=Path(__file__).resolve().parents[1] / "data")
