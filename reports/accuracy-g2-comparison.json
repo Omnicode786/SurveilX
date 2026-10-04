@@ -1,0 +1,1805 @@
+{
+  "campaign": "accuracy-g2",
+  "state": "completed",
+  "updated": 1790838540.261065,
+  "scope": "Paired development evaluation on frozen splits; candidates stay inactive",
+  "unsupported": [
+    "General 80-class/domain-inherited YOLO copies lack local labeled 80-class domain evaluation data.",
+    "Fighting, theft, traffic collisions and industrial hazard events lack trained real-data candidates.",
+    "SH17 has sparse PPE labels and classes absent from held-out splits; coverage is reported per class.",
+    "These development sets do not establish independent camera/site acceptance or deployment readiness.",
+    "Entity motion data are synthetic; improved synthetic accuracy does not validate real video events.",
+    "Only CPU execution is available here; CUDA/FPGA performance is unverified."
+  ],
+  "jobs": {
+    "accuracy-g2-fall": {
+      "coverage": [
+        {
+          "class": "normal",
+          "labeled_instances": {
+            "train": 5,
+            "validation": 5,
+            "calibration": 5,
+            "test": 5
+          }
+        },
+        {
+          "class": "fall",
+          "labeled_instances": {
+            "train": 5,
+            "validation": 5,
+            "calibration": 5,
+            "test": 5
+          }
+        }
+      ],
+      "counts": {
+        "train": 10,
+        "validation": 10,
+        "calibration": 10,
+        "test": 10
+      },
+      "state": "completed",
+      "command": [
+        "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX\\.venv\\Scripts\\python.exe",
+        "-m",
+        "training.pipeline",
+        "train",
+        "data\\datasets\\urfall-development-v1\\manifest.json",
+        "data\\runs\\accuracy-g2-fall",
+        "--initialize-from",
+        "data\\runs\\urfall-g1-scene",
+        "--epochs",
+        "60",
+        "--threads",
+        "3",
+        "--learning-rate",
+        "0.0007",
+        "--patience",
+        "15",
+        "--finetune-all",
+        "--augment"
+      ],
+      "log": "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX\\data\\generations\\accuracy-g2\\accuracy-g2-fall.log",
+      "started": 1790789388.950211,
+      "pid": 14916,
+      "model_id": "43af069b-09cd-4024-ac69-72af460dd2e1",
+      "comparison": {
+        "metric": "accuracy",
+        "before": 0.5,
+        "after": 1.0,
+        "delta": 0.5,
+        "classes": [
+          {
+            "class": "normal",
+            "metric": "recall",
+            "before": 0.0,
+            "after": 1.0,
+            "delta": 1.0,
+            "details": {
+              "class_id": 0,
+              "support": 5,
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0
+            }
+          },
+          {
+            "class": "fall",
+            "metric": "recall",
+            "before": 1.0,
+            "after": 1.0,
+            "delta": 0.0,
+            "details": {
+              "class_id": 1,
+              "support": 5,
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0
+            }
+          }
+        ],
+        "validation_selection": {
+          "split": "validation",
+          "parent_loss": 0.681038498878479,
+          "selected_loss": 0.00984859373420477,
+          "selected": "candidate"
+        },
+        "test_is_selection_criterion": false,
+        "independent_acceptance": false
+      },
+      "finished": 1790838210.7794158,
+      "version": "accuracy-g2-fall"
+    },
+    "accuracy-g2-entity-v1": {
+      "coverage": [
+        {
+          "class": "slow_motion",
+          "labeled_instances": {
+            "train": 20,
+            "validation": 20,
+            "calibration": 20,
+            "test": 20
+          }
+        },
+        {
+          "class": "fast_motion",
+          "labeled_instances": {
+            "train": 20,
+            "validation": 20,
+            "calibration": 20,
+            "test": 20
+          }
+        }
+      ],
+      "counts": {
+        "train": 40,
+        "validation": 40,
+        "calibration": 40,
+        "test": 40
+      },
+      "state": "completed",
+      "command": [
+        "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX\\.venv\\Scripts\\python.exe",
+        "-m",
+        "training.pipeline",
+        "train",
+        "data\\datasets\\generated-v1\\manifest.json",
+        "data\\runs\\accuracy-g2-entity-v1",
+        "--initialize-from",
+        "data\\runs\\trajectory-v1",
+        "--epochs",
+        "60",
+        "--threads",
+        "3",
+        "--learning-rate",
+        "0.0007",
+        "--patience",
+        "15",
+        "--finetune-all",
+        "--augment"
+      ],
+      "log": "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX\\data\\generations\\accuracy-g2\\accuracy-g2-entity-v1.log",
+      "started": 1790789469.4752753,
+      "pid": 6892,
+      "model_id": "a2fb6d64-b84e-4cb7-9273-17786aa25a5d",
+      "comparison": {
+        "metric": "accuracy",
+        "before": 0.65,
+        "after": 0.7,
+        "delta": 0.04999999999999993,
+        "classes": [
+          {
+            "class": "slow_motion",
+            "metric": "recall",
+            "before": 0.65,
+            "after": 0.65,
+            "delta": 0.0,
+            "details": {
+              "class_id": 0,
+              "support": 20,
+              "precision": 0.7222222222222222,
+              "recall": 0.65,
+              "f1": 0.6842105263157895
+            }
+          },
+          {
+            "class": "fast_motion",
+            "metric": "recall",
+            "before": 0.65,
+            "after": 0.75,
+            "delta": 0.09999999999999998,
+            "details": {
+              "class_id": 1,
+              "support": 20,
+              "precision": 0.6818181818181818,
+              "recall": 0.75,
+              "f1": 0.7142857142857143
+            }
+          }
+        ],
+        "validation_selection": {
+          "split": "validation",
+          "parent_loss": 0.5266398191452026,
+          "selected_loss": 0.40438002347946167,
+          "selected": "candidate"
+        },
+        "test_is_selection_criterion": false,
+        "independent_acceptance": false
+      },
+      "finished": 1790838217.8444054,
+      "version": "accuracy-g2-entity-v1"
+    },
+    "accuracy-g2-entity-v2": {
+      "coverage": [
+        {
+          "class": "slow_motion",
+          "labeled_instances": {
+            "train": 50,
+            "validation": 50,
+            "calibration": 50,
+            "test": 50
+          }
+        },
+        {
+          "class": "fast_motion",
+          "labeled_instances": {
+            "train": 50,
+            "validation": 50,
+            "calibration": 50,
+            "test": 50
+          }
+        }
+      ],
+      "counts": {
+        "train": 100,
+        "validation": 100,
+        "calibration": 100,
+        "test": 100
+      },
+      "state": "completed",
+      "command": [
+        "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX\\.venv\\Scripts\\python.exe",
+        "-m",
+        "training.pipeline",
+        "train",
+        "data\\datasets\\generated-v2\\manifest.json",
+        "data\\runs\\accuracy-g2-entity-v2",
+        "--initialize-from",
+        "data\\runs\\synthetic-candidate-v1",
+        "--epochs",
+        "60",
+        "--threads",
+        "3",
+        "--learning-rate",
+        "0.0007",
+        "--patience",
+        "15",
+        "--finetune-all",
+        "--augment"
+      ],
+      "log": "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX\\data\\generations\\accuracy-g2\\accuracy-g2-entity-v2.log",
+      "started": 1790789592.1119976,
+      "pid": 18924,
+      "model_id": "1776f66c-7646-4cea-a55d-7188a7703307",
+      "comparison": {
+        "metric": "accuracy",
+        "before": 1.0,
+        "after": 1.0,
+        "delta": 0.0,
+        "classes": [
+          {
+            "class": "slow_motion",
+            "metric": "recall",
+            "before": 1.0,
+            "after": 1.0,
+            "delta": 0.0,
+            "details": {
+              "class_id": 0,
+              "support": 50,
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0
+            }
+          },
+          {
+            "class": "fast_motion",
+            "metric": "recall",
+            "before": 1.0,
+            "after": 1.0,
+            "delta": 0.0,
+            "details": {
+              "class_id": 1,
+              "support": 50,
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0
+            }
+          }
+        ],
+        "validation_selection": {
+          "split": "validation",
+          "parent_loss": 0.0004069686692673713,
+          "selected_loss": 1.3617437616630923e-05,
+          "selected": "candidate"
+        },
+        "test_is_selection_criterion": false,
+        "independent_acceptance": false
+      },
+      "finished": 1790838235.2374356,
+      "version": "accuracy-g2-entity-v2"
+    },
+    "accuracy-g2-ppe-scratch": {
+      "coverage": [
+        {
+          "class": "person",
+          "labeled_instances": {
+            "train": 233,
+            "validation": 60,
+            "calibration": 50,
+            "test": 58
+          }
+        },
+        {
+          "class": "ear",
+          "labeled_instances": {
+            "train": 131,
+            "validation": 22,
+            "calibration": 31,
+            "test": 44
+          }
+        },
+        {
+          "class": "earmuffs",
+          "labeled_instances": {
+            "train": 2,
+            "validation": 0,
+            "calibration": 0,
+            "test": 1
+          }
+        },
+        {
+          "class": "face",
+          "labeled_instances": {
+            "train": 164,
+            "validation": 40,
+            "calibration": 24,
+            "test": 36
+          }
+        },
+        {
+          "class": "face_guard",
+          "labeled_instances": {
+            "train": 0,
+            "validation": 0,
+            "calibration": 0,
+            "test": 0
+          }
+        },
+        {
+          "class": "face_mask",
+          "labeled_instances": {
+            "train": 6,
+            "validation": 3,
+            "calibration": 2,
+            "test": 3
+          }
+        },
+        {
+          "class": "foot",
+          "labeled_instances": {
+            "train": 11,
+            "validation": 0,
+            "calibration": 4,
+            "test": 10
+          }
+        },
+        {
+          "class": "tools",
+          "labeled_instances": {
+            "train": 57,
+            "validation": 8,
+            "calibration": 12,
+            "test": 37
+          }
+        },
+        {
+          "class": "glasses",
+          "labeled_instances": {
+            "train": 34,
+            "validation": 10,
+            "calibration": 5,
+            "test": 14
+          }
+        },
+        {
+          "class": "gloves",
+          "labeled_instances": {
+            "train": 54,
+            "validation": 13,
+            "calibration": 12,
+            "test": 10
+          }
+        },
+        {
+          "class": "helmet",
+          "labeled_instances": {
+            "train": 13,
+            "validation": 17,
+            "calibration": 8,
+            "test": 5
+          }
+        },
+        {
+          "class": "hands",
+          "labeled_instances": {
+            "train": 265,
+            "validation": 84,
+            "calibration": 44,
+            "test": 73
+          }
+        },
+        {
+          "class": "head",
+          "labeled_instances": {
+            "train": 212,
+            "validation": 49,
+            "calibration": 45,
+            "test": 53
+          }
+        },
+        {
+          "class": "medical_suit",
+          "labeled_instances": {
+            "train": 1,
+            "validation": 2,
+            "calibration": 0,
+            "test": 4
+          }
+        },
+        {
+          "class": "shoes",
+          "labeled_instances": {
+            "train": 93,
+            "validation": 31,
+            "calibration": 9,
+            "test": 14
+          }
+        },
+        {
+          "class": "safety_suit",
+          "labeled_instances": {
+            "train": 5,
+            "validation": 0,
+            "calibration": 0,
+            "test": 0
+          }
+        },
+        {
+          "class": "safety_vest",
+          "labeled_instances": {
+            "train": 10,
+            "validation": 12,
+            "calibration": 3,
+            "test": 1
+          }
+        }
+      ],
+      "counts": {
+        "train": 163,
+        "validation": 29,
+        "calibration": 25,
+        "test": 39
+      },
+      "state": "completed",
+      "command": [
+        "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX\\.venv\\Scripts\\python.exe",
+        "-m",
+        "training.detection_pipeline",
+        "train",
+        "data\\datasets\\sh17-development-v1\\manifest.json",
+        "data\\runs\\accuracy-g2-ppe-scratch",
+        "--initialize-from",
+        "data\\runs\\sh17-g2-scratch",
+        "--epochs",
+        "8",
+        "--threads",
+        "3",
+        "--learning-rate",
+        "0.0005",
+        "--patience",
+        "5",
+        "--balanced-sampling"
+      ],
+      "log": "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX\\data\\generations\\accuracy-g2\\accuracy-g2-ppe-scratch.log",
+      "started": 1790789840.0144613,
+      "pid": 20684,
+      "model_id": "96bb2c24-d59f-4acd-908d-e339c05ee420",
+      "comparison": {
+        "metric": "map50",
+        "before": 0.013570477167452268,
+        "after": 0.04317651003591984,
+        "delta": 0.02960603286846757,
+        "classes": [
+          {
+            "class": "person",
+            "metric": "ap50",
+            "before": 0.16219919780431705,
+            "after": 0.2692510442842405,
+            "delta": 0.10705184647992347,
+            "details": {
+              "class_id": 0,
+              "ground_truth": 58,
+              "ap50": 0.2692510442842405
+            }
+          },
+          {
+            "class": "ear",
+            "metric": "ap50",
+            "before": 0.0,
+            "after": 0.0,
+            "delta": 0.0,
+            "details": {
+              "class_id": 1,
+              "ground_truth": 44,
+              "ap50": 0.0
+            }
+          },
+          {
+            "class": "earmuffs",
+            "metric": "ap50",
+            "before": 0.0,
+            "after": 0.0,
+            "delta": 0.0,
+            "details": {
+              "class_id": 2,
+              "ground_truth": 1,
+              "ap50": 0.0
+            }
+          },
+          {
+            "class": "face",
+            "metric": "ap50",
+            "before": 0.0,
+            "after": 0.17181447574638556,
+            "delta": 0.17181447574638556,
+            "details": {
+              "class_id": 3,
+              "ground_truth": 36,
+              "ap50": 0.17181447574638556
+            }
+          },
+          {
+            "class": "face_guard",
+            "metric": "ap50",
+            "before": null,
+            "after": null,
+            "delta": null,
+            "details": {
+              "class_id": 4,
+              "ground_truth": 0,
+              "ap50": null
+            }
+          },
+          {
+            "class": "face_mask",
+            "metric": "ap50",
+            "before": 0.0,
+            "after": 0.0,
+            "delta": 0.0,
+            "details": {
+              "class_id": 5,
+              "ground_truth": 3,
+              "ap50": 0.0
+            }
+          },
+          {
+            "class": "foot",
+            "metric": "ap50",
+            "before": 0.0,
+            "after": 0.0,
+            "delta": 0.0,
+            "details": {
+              "class_id": 6,
+              "ground_truth": 10,
+              "ap50": 0.0
+            }
+          },
+          {
+            "class": "tools",
+            "metric": "ap50",
+            "before": 0.0,
+            "after": 0.0,
+            "delta": 0.0,
+            "details": {
+              "class_id": 7,
+              "ground_truth": 37,
+              "ap50": 0.0
+            }
+          },
+          {
+            "class": "glasses",
+            "metric": "ap50",
+            "before": 0.0,
+            "after": 0.0,
+            "delta": 0.0,
+            "details": {
+              "class_id": 8,
+              "ground_truth": 14,
+              "ap50": 0.0
+            }
+          },
+          {
+            "class": "gloves",
+            "metric": "ap50",
+            "before": 0.0,
+            "after": 0.0,
+            "delta": 0.0,
+            "details": {
+              "class_id": 9,
+              "ground_truth": 10,
+              "ap50": 0.0
+            }
+          },
+          {
+            "class": "helmet",
+            "metric": "ap50",
+            "before": 0.0,
+            "after": 0.0,
+            "delta": 0.0,
+            "details": {
+              "class_id": 10,
+              "ground_truth": 5,
+              "ap50": 0.0
+            }
+          },
+          {
+            "class": "hands",
+            "metric": "ap50",
+            "before": 0.010045468852470141,
+            "after": 0.031428599048842897,
+            "delta": 0.021383130196372755,
+            "details": {
+              "class_id": 11,
+              "ground_truth": 73,
+              "ap50": 0.031428599048842897
+            }
+          },
+          {
+            "class": "head",
+            "metric": "ap50",
+            "before": 0.03131249085499683,
+            "after": 0.17515353145932872,
+            "delta": 0.1438410406043319,
+            "details": {
+              "class_id": 12,
+              "ground_truth": 53,
+              "ap50": 0.17515353145932872
+            }
+          },
+          {
+            "class": "medical_suit",
+            "metric": "ap50",
+            "before": 0.0,
+            "after": 0.0,
+            "delta": 0.0,
+            "details": {
+              "class_id": 13,
+              "ground_truth": 4,
+              "ap50": 0.0
+            }
+          },
+          {
+            "class": "shoes",
+            "metric": "ap50",
+            "before": 0.0,
+            "after": 0.0,
+            "delta": 0.0,
+            "details": {
+              "class_id": 14,
+              "ground_truth": 14,
+              "ap50": 0.0
+            }
+          },
+          {
+            "class": "safety_suit",
+            "metric": "ap50",
+            "before": null,
+            "after": null,
+            "delta": null,
+            "details": {
+              "class_id": 15,
+              "ground_truth": 0,
+              "ap50": null
+            }
+          },
+          {
+            "class": "safety_vest",
+            "metric": "ap50",
+            "before": 0.0,
+            "after": 0.0,
+            "delta": 0.0,
+            "details": {
+              "class_id": 16,
+              "ground_truth": 1,
+              "ap50": 0.0
+            }
+          }
+        ],
+        "validation_selection": {
+          "split": "validation",
+          "selected": "candidate",
+          "parent_map50": 0.020163096855132172,
+          "selected_map50": 0.0396668960421942
+        },
+        "test_is_selection_criterion": false,
+        "independent_acceptance": false
+      },
+      "finished": 1790838261.7738028,
+      "version": "accuracy-g2-ppe-scratch"
+    },
+    "accuracy-g2-ppe-yolo": {
+      "coverage": [
+        {
+          "class": "person",
+          "labeled_instances": {
+            "train": 233,
+            "validation": 60,
+            "calibration": 50,
+            "test": 58
+          }
+        },
+        {
+          "class": "ear",
+          "labeled_instances": {
+            "train": 131,
+            "validation": 22,
+            "calibration": 31,
+            "test": 44
+          }
+        },
+        {
+          "class": "earmuffs",
+          "labeled_instances": {
+            "train": 2,
+            "validation": 0,
+            "calibration": 0,
+            "test": 1
+          }
+        },
+        {
+          "class": "face",
+          "labeled_instances": {
+            "train": 164,
+            "validation": 40,
+            "calibration": 24,
+            "test": 36
+          }
+        },
+        {
+          "class": "face_guard",
+          "labeled_instances": {
+            "train": 0,
+            "validation": 0,
+            "calibration": 0,
+            "test": 0
+          }
+        },
+        {
+          "class": "face_mask",
+          "labeled_instances": {
+            "train": 6,
+            "validation": 3,
+            "calibration": 2,
+            "test": 3
+          }
+        },
+        {
+          "class": "foot",
+          "labeled_instances": {
+            "train": 11,
+            "validation": 0,
+            "calibration": 4,
+            "test": 10
+          }
+        },
+        {
+          "class": "tools",
+          "labeled_instances": {
+            "train": 57,
+            "validation": 8,
+            "calibration": 12,
+            "test": 37
+          }
+        },
+        {
+          "class": "glasses",
+          "labeled_instances": {
+            "train": 34,
+            "validation": 10,
+            "calibration": 5,
+            "test": 14
+          }
+        },
+        {
+          "class": "gloves",
+          "labeled_instances": {
+            "train": 54,
+            "validation": 13,
+            "calibration": 12,
+            "test": 10
+          }
+        },
+        {
+          "class": "helmet",
+          "labeled_instances": {
+            "train": 13,
+            "validation": 17,
+            "calibration": 8,
+            "test": 5
+          }
+        },
+        {
+          "class": "hands",
+          "labeled_instances": {
+            "train": 265,
+            "validation": 84,
+            "calibration": 44,
+            "test": 73
+          }
+        },
+        {
+          "class": "head",
+          "labeled_instances": {
+            "train": 212,
+            "validation": 49,
+            "calibration": 45,
+            "test": 53
+          }
+        },
+        {
+          "class": "medical_suit",
+          "labeled_instances": {
+            "train": 1,
+            "validation": 2,
+            "calibration": 0,
+            "test": 4
+          }
+        },
+        {
+          "class": "shoes",
+          "labeled_instances": {
+            "train": 93,
+            "validation": 31,
+            "calibration": 9,
+            "test": 14
+          }
+        },
+        {
+          "class": "safety_suit",
+          "labeled_instances": {
+            "train": 5,
+            "validation": 0,
+            "calibration": 0,
+            "test": 0
+          }
+        },
+        {
+          "class": "safety_vest",
+          "labeled_instances": {
+            "train": 10,
+            "validation": 12,
+            "calibration": 3,
+            "test": 1
+          }
+        }
+      ],
+      "counts": {
+        "train": 163,
+        "validation": 29,
+        "calibration": 25,
+        "test": 39
+      },
+      "state": "completed",
+      "command": [
+        "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX\\.venv\\Scripts\\python.exe",
+        "-m",
+        "training.yolo_pipeline",
+        "train",
+        "data\\datasets\\sh17-development-v1\\manifest.json",
+        "data\\runs\\accuracy-g2-ppe-yolo",
+        "--initialize-from",
+        "data\\runs\\sh17-g2-yolo-rai",
+        "--epochs",
+        "8",
+        "--threads",
+        "3",
+        "--learning-rate",
+        "0.0005",
+        "--patience",
+        "5"
+      ],
+      "log": "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX\\data\\generations\\accuracy-g2\\accuracy-g2-ppe-yolo.log",
+      "started": 1790791151.9874818,
+      "pid": 22160,
+      "model_id": "f9b2c5c6-1a10-4445-b96a-f03014e2953e",
+      "comparison": {
+        "metric": "map50",
+        "before": 0.04768025108032765,
+        "after": 0.1657541543063994,
+        "delta": 0.11807390322607175,
+        "classes": [
+          {
+            "class": "person",
+            "metric": "ap50",
+            "before": 0.7152037662049147,
+            "after": 0.8515010147898396,
+            "delta": 0.13629724858492498,
+            "details": {
+              "class_id": 0,
+              "ground_truth": 58,
+              "ap50": 0.8515010147898396
+            }
+          },
+          {
+            "class": "ear",
+            "metric": "ap50",
+            "before": 0.0,
+            "after": 0.0,
+            "delta": 0.0,
+            "details": {
+              "class_id": 1,
+              "ground_truth": 44,
+              "ap50": 0.0
+            }
+          },
+          {
+            "class": "earmuffs",
+            "metric": "ap50",
+            "before": 0.0,
+            "after": 0.0,
+            "delta": 0.0,
+            "details": {
+              "class_id": 2,
+              "ground_truth": 1,
+              "ap50": 0.0
+            }
+          },
+          {
+            "class": "face",
+            "metric": "ap50",
+            "before": 0.0,
+            "after": 0.6223935698298452,
+            "delta": 0.6223935698298452,
+            "details": {
+              "class_id": 3,
+              "ground_truth": 36,
+              "ap50": 0.6223935698298452
+            }
+          },
+          {
+            "class": "face_guard",
+            "metric": "ap50",
+            "before": null,
+            "after": null,
+            "delta": null,
+            "details": {
+              "class_id": 4,
+              "ground_truth": 0,
+              "ap50": null
+            }
+          },
+          {
+            "class": "face_mask",
+            "metric": "ap50",
+            "before": 0.0,
+            "after": 0.0,
+            "delta": 0.0,
+            "details": {
+              "class_id": 5,
+              "ground_truth": 3,
+              "ap50": 0.0
+            }
+          },
+          {
+            "class": "foot",
+            "metric": "ap50",
+            "before": 0.0,
+            "after": 0.0,
+            "delta": 0.0,
+            "details": {
+              "class_id": 6,
+              "ground_truth": 10,
+              "ap50": 0.0
+            }
+          },
+          {
+            "class": "tools",
+            "metric": "ap50",
+            "before": 0.0,
+            "after": 0.0,
+            "delta": 0.0,
+            "details": {
+              "class_id": 7,
+              "ground_truth": 37,
+              "ap50": 0.0
+            }
+          },
+          {
+            "class": "glasses",
+            "metric": "ap50",
+            "before": 0.0,
+            "after": 0.0,
+            "delta": 0.0,
+            "details": {
+              "class_id": 8,
+              "ground_truth": 14,
+              "ap50": 0.0
+            }
+          },
+          {
+            "class": "gloves",
+            "metric": "ap50",
+            "before": 0.0,
+            "after": 0.0,
+            "delta": 0.0,
+            "details": {
+              "class_id": 9,
+              "ground_truth": 10,
+              "ap50": 0.0
+            }
+          },
+          {
+            "class": "helmet",
+            "metric": "ap50",
+            "before": 0.0,
+            "after": 0.0,
+            "delta": 0.0,
+            "details": {
+              "class_id": 10,
+              "ground_truth": 5,
+              "ap50": 0.0
+            }
+          },
+          {
+            "class": "hands",
+            "metric": "ap50",
+            "before": 0.0,
+            "after": 0.279674291287383,
+            "delta": 0.279674291287383,
+            "details": {
+              "class_id": 11,
+              "ground_truth": 73,
+              "ap50": 0.279674291287383
+            }
+          },
+          {
+            "class": "head",
+            "metric": "ap50",
+            "before": 0.0,
+            "after": 0.7327434386889233,
+            "delta": 0.7327434386889233,
+            "details": {
+              "class_id": 12,
+              "ground_truth": 53,
+              "ap50": 0.7327434386889233
+            }
+          },
+          {
+            "class": "medical_suit",
+            "metric": "ap50",
+            "before": 0.0,
+            "after": 0.0,
+            "delta": 0.0,
+            "details": {
+              "class_id": 13,
+              "ground_truth": 4,
+              "ap50": 0.0
+            }
+          },
+          {
+            "class": "shoes",
+            "metric": "ap50",
+            "before": 0.0,
+            "after": 0.0,
+            "delta": 0.0,
+            "details": {
+              "class_id": 14,
+              "ground_truth": 14,
+              "ap50": 0.0
+            }
+          },
+          {
+            "class": "safety_suit",
+            "metric": "ap50",
+            "before": null,
+            "after": null,
+            "delta": null,
+            "details": {
+              "class_id": 15,
+              "ground_truth": 0,
+              "ap50": null
+            }
+          },
+          {
+            "class": "safety_vest",
+            "metric": "ap50",
+            "before": 0.0,
+            "after": 0.0,
+            "delta": 0.0,
+            "details": {
+              "class_id": 16,
+              "ground_truth": 1,
+              "ap50": 0.0
+            }
+          }
+        ],
+        "validation_selection": {
+          "candidate_map50": 0.13723943837512886,
+          "selected": "candidate",
+          "split": "validation",
+          "parent_map50": 0.03933286191117053
+        },
+        "test_is_selection_criterion": false,
+        "independent_acceptance": false
+      },
+      "finished": 1790838266.9453242,
+      "version": "accuracy-g2-ppe-yolo"
+    },
+    "accuracy-g2-weapons-scratch": {
+      "coverage": [
+        {
+          "class": "firearm",
+          "labeled_instances": {
+            "train": 114,
+            "validation": 26,
+            "calibration": 18,
+            "test": 33
+          }
+        },
+        {
+          "class": "knife",
+          "labeled_instances": {
+            "train": 120,
+            "validation": 28,
+            "calibration": 18,
+            "test": 34
+          }
+        },
+        {
+          "class": "machete",
+          "labeled_instances": {
+            "train": 112,
+            "validation": 27,
+            "calibration": 17,
+            "test": 34
+          }
+        },
+        {
+          "class": "baseball_bat",
+          "labeled_instances": {
+            "train": 97,
+            "validation": 23,
+            "calibration": 16,
+            "test": 26
+          }
+        }
+      ],
+      "counts": {
+        "train": 399,
+        "validation": 96,
+        "calibration": 65,
+        "test": 106
+      },
+      "state": "completed",
+      "command": [
+        "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX\\.venv\\Scripts\\python.exe",
+        "-m",
+        "training.detection_pipeline",
+        "train",
+        "data\\datasets\\dangerous-items-development-v1\\manifest.json",
+        "data\\runs\\accuracy-g2-weapons-scratch",
+        "--initialize-from",
+        "data\\runs\\dangerous-items-g1-scratch",
+        "--epochs",
+        "8",
+        "--threads",
+        "3",
+        "--learning-rate",
+        "0.0005",
+        "--patience",
+        "5",
+        "--balanced-sampling"
+      ],
+      "log": "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX\\data\\generations\\accuracy-g2\\accuracy-g2-weapons-scratch.log",
+      "started": 1790791651.2375593,
+      "pid": 21144,
+      "model_id": "a6e1a244-a3cd-49b4-9c95-b33ed0de38e9",
+      "comparison": {
+        "metric": "map50",
+        "before": 0.009776429310929638,
+        "after": 0.02298108646400026,
+        "delta": 0.013204657153070622,
+        "classes": [
+          {
+            "class": "firearm",
+            "metric": "ap50",
+            "before": 0.0007242545971188274,
+            "after": 0.0009316305584682075,
+            "delta": 0.00020737596134938008,
+            "details": {
+              "class_id": 0,
+              "ground_truth": 33,
+              "ap50": 0.0009316305584682075
+            }
+          },
+          {
+            "class": "knife",
+            "metric": "ap50",
+            "before": 0.009189153733187084,
+            "after": 0.02090028322620164,
+            "delta": 0.011711129493014555,
+            "details": {
+              "class_id": 1,
+              "ground_truth": 34,
+              "ap50": 0.02090028322620164
+            }
+          },
+          {
+            "class": "machete",
+            "metric": "ap50",
+            "before": 0.02545543582797653,
+            "after": 0.06800815375655213,
+            "delta": 0.042552717928575595,
+            "details": {
+              "class_id": 2,
+              "ground_truth": 34,
+              "ap50": 0.06800815375655213
+            }
+          },
+          {
+            "class": "baseball_bat",
+            "metric": "ap50",
+            "before": 0.003736873085436111,
+            "after": 0.002084278314779063,
+            "delta": -0.001652594770657048,
+            "details": {
+              "class_id": 3,
+              "ground_truth": 26,
+              "ap50": 0.002084278314779063
+            }
+          }
+        ],
+        "validation_selection": {
+          "split": "validation",
+          "selected": "candidate",
+          "parent_map50": 0.04048695618331024,
+          "selected_map50": 0.060420509461286825
+        },
+        "test_is_selection_criterion": false,
+        "independent_acceptance": false
+      },
+      "finished": 1790838271.484104,
+      "version": "accuracy-g2-weapons-scratch"
+    },
+    "accuracy-g2-weapons-yolo": {
+      "coverage": [
+        {
+          "class": "firearm",
+          "labeled_instances": {
+            "train": 114,
+            "validation": 26,
+            "calibration": 18,
+            "test": 33
+          }
+        },
+        {
+          "class": "knife",
+          "labeled_instances": {
+            "train": 120,
+            "validation": 28,
+            "calibration": 18,
+            "test": 34
+          }
+        },
+        {
+          "class": "machete",
+          "labeled_instances": {
+            "train": 112,
+            "validation": 27,
+            "calibration": 17,
+            "test": 34
+          }
+        },
+        {
+          "class": "baseball_bat",
+          "labeled_instances": {
+            "train": 97,
+            "validation": 23,
+            "calibration": 16,
+            "test": 26
+          }
+        }
+      ],
+      "counts": {
+        "train": 399,
+        "validation": 96,
+        "calibration": 65,
+        "test": 106
+      },
+      "state": "completed",
+      "command": [
+        "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX\\.venv\\Scripts\\python.exe",
+        "-m",
+        "training.yolo_pipeline",
+        "train",
+        "data\\datasets\\dangerous-items-development-v1\\manifest.json",
+        "data\\runs\\accuracy-g2-weapons-yolo",
+        "--initialize-from",
+        "data\\runs\\dangerous-items-g1-yolo-rai",
+        "--epochs",
+        "8",
+        "--threads",
+        "3",
+        "--learning-rate",
+        "0.0005",
+        "--patience",
+        "5"
+      ],
+      "log": "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX\\data\\generations\\accuracy-g2\\accuracy-g2-weapons-yolo.log",
+      "started": 1790792852.9164474,
+      "pid": 18940,
+      "model_id": "dee5a18c-cec2-49a0-9acf-c6ef943ac465",
+      "comparison": {
+        "metric": "map50",
+        "before": 0.21297910674922105,
+        "after": 0.32299934111428114,
+        "delta": 0.11002023436506009,
+        "classes": [
+          {
+            "class": "firearm",
+            "metric": "ap50",
+            "before": 0.14558027438948964,
+            "after": 0.26849250638441513,
+            "delta": 0.12291223199492549,
+            "details": {
+              "class_id": 0,
+              "ground_truth": 33,
+              "ap50": 0.26849250638441513
+            }
+          },
+          {
+            "class": "knife",
+            "metric": "ap50",
+            "before": 0.0930742205734221,
+            "after": 0.2305564480979075,
+            "delta": 0.1374822275244854,
+            "details": {
+              "class_id": 1,
+              "ground_truth": 34,
+              "ap50": 0.2305564480979075
+            }
+          },
+          {
+            "class": "machete",
+            "metric": "ap50",
+            "before": 0.26218777423305456,
+            "after": 0.30763910658903504,
+            "delta": 0.04545133235598048,
+            "details": {
+              "class_id": 2,
+              "ground_truth": 34,
+              "ap50": 0.30763910658903504
+            }
+          },
+          {
+            "class": "baseball_bat",
+            "metric": "ap50",
+            "before": 0.35107415780091783,
+            "after": 0.48530930338576683,
+            "delta": 0.134235145584849,
+            "details": {
+              "class_id": 3,
+              "ground_truth": 26,
+              "ap50": 0.48530930338576683
+            }
+          }
+        ],
+        "validation_selection": {
+          "candidate_map50": 0.33848340835968377,
+          "selected": "candidate",
+          "split": "validation",
+          "parent_map50": 0.20089644210664598
+        },
+        "test_is_selection_criterion": false,
+        "independent_acceptance": false
+      },
+      "finished": 1790838275.3238778,
+      "version": "accuracy-g2-weapons-yolo"
+    },
+    "accuracy-g2-fire-scratch": {
+      "coverage": [
+        {
+          "class": "smoke",
+          "labeled_instances": {
+            "train": 225,
+            "validation": 61,
+            "calibration": 57,
+            "test": 52
+          }
+        },
+        {
+          "class": "fire",
+          "labeled_instances": {
+            "train": 403,
+            "validation": 72,
+            "calibration": 64,
+            "test": 120
+          }
+        }
+      ],
+      "counts": {
+        "train": 384,
+        "validation": 96,
+        "calibration": 96,
+        "test": 96
+      },
+      "state": "completed",
+      "command": [
+        "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX\\.venv\\Scripts\\python.exe",
+        "-m",
+        "training.detection_pipeline",
+        "train",
+        "data\\datasets\\dfire-development-v1\\manifest.json",
+        "data\\runs\\accuracy-g2-fire-scratch",
+        "--initialize-from",
+        "data\\runs\\dfire-g1-scratch",
+        "--epochs",
+        "8",
+        "--threads",
+        "3",
+        "--learning-rate",
+        "0.0005",
+        "--patience",
+        "5",
+        "--balanced-sampling"
+      ],
+      "log": "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX\\data\\generations\\accuracy-g2\\accuracy-g2-fire-scratch.log",
+      "started": 1790793680.2751338,
+      "pid": 20916,
+      "model_id": "c9efd471-3776-4a1d-bb6c-4fbd6e39419c",
+      "comparison": {
+        "metric": "map50",
+        "before": 0.08838278492845306,
+        "after": 0.21059396942181818,
+        "delta": 0.12221118449336513,
+        "classes": [
+          {
+            "class": "smoke",
+            "metric": "ap50",
+            "before": 0.1347741774880202,
+            "after": 0.2120187730589641,
+            "delta": 0.0772445955709439,
+            "details": {
+              "class_id": 0,
+              "ground_truth": 52,
+              "ap50": 0.2120187730589641
+            }
+          },
+          {
+            "class": "fire",
+            "metric": "ap50",
+            "before": 0.04199139236888592,
+            "after": 0.2091691657846723,
+            "delta": 0.16717777341578638,
+            "details": {
+              "class_id": 1,
+              "ground_truth": 120,
+              "ap50": 0.2091691657846723
+            }
+          }
+        ],
+        "validation_selection": {
+          "split": "validation",
+          "selected": "candidate",
+          "parent_map50": 0.08430485840955146,
+          "selected_map50": 0.11825289653959883
+        },
+        "test_is_selection_criterion": false,
+        "independent_acceptance": false
+      },
+      "finished": 1790838281.354274,
+      "version": "accuracy-g2-fire-scratch"
+    },
+    "accuracy-g2-fire-yolo": {
+      "coverage": [
+        {
+          "class": "smoke",
+          "labeled_instances": {
+            "train": 225,
+            "validation": 61,
+            "calibration": 57,
+            "test": 52
+          }
+        },
+        {
+          "class": "fire",
+          "labeled_instances": {
+            "train": 403,
+            "validation": 72,
+            "calibration": 64,
+            "test": 120
+          }
+        }
+      ],
+      "counts": {
+        "train": 384,
+        "validation": 96,
+        "calibration": 96,
+        "test": 96
+      },
+      "state": "completed",
+      "command": [
+        "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX\\.venv\\Scripts\\python.exe",
+        "-m",
+        "training.yolo_pipeline",
+        "train",
+        "data\\datasets\\dfire-development-v1\\manifest.json",
+        "data\\runs\\accuracy-g2-fire-yolo",
+        "--initialize-from",
+        "data\\runs\\dfire-g1-yolo-rai",
+        "--epochs",
+        "8",
+        "--threads",
+        "3",
+        "--learning-rate",
+        "0.0005",
+        "--patience",
+        "5"
+      ],
+      "log": "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX\\data\\generations\\accuracy-g2\\accuracy-g2-fire-yolo.log",
+      "started": 1790794585.1718578,
+      "pid": 11432,
+      "model_id": "867a027b-3844-45ca-a115-89d38e759d5d",
+      "comparison": {
+        "metric": "map50",
+        "before": 0.2112007412665332,
+        "after": 0.31904240147553486,
+        "delta": 0.10784166020900166,
+        "classes": [
+          {
+            "class": "smoke",
+            "metric": "ap50",
+            "before": 0.24066210019299972,
+            "after": 0.35077537388318164,
+            "delta": 0.11011327369018192,
+            "details": {
+              "class_id": 0,
+              "ground_truth": 52,
+              "ap50": 0.35077537388318164
+            }
+          },
+          {
+            "class": "fire",
+            "metric": "ap50",
+            "before": 0.18173938234006673,
+            "after": 0.28730942906788814,
+            "delta": 0.10557004672782141,
+            "details": {
+              "class_id": 1,
+              "ground_truth": 120,
+              "ap50": 0.28730942906788814
+            }
+          }
+        ],
+        "validation_selection": {
+          "candidate_map50": 0.267191532672898,
+          "selected": "candidate",
+          "split": "validation",
+          "parent_map50": 0.06671151199149125
+        },
+        "test_is_selection_criterion": false,
+        "independent_acceptance": false
+      },
+      "finished": 1790838284.9703743,
+      "version": "accuracy-g2-fire-yolo"
+    },
+    "accuracy-g2-person-scratch": {
+      "coverage": [
+        {
+          "class": "person",
+          "labeled_instances": {
+            "train": 245,
+            "validation": 59,
+            "calibration": 45,
+            "test": 58
+          }
+        }
+      ],
+      "counts": {
+        "train": 97,
+        "validation": 23,
+        "calibration": 16,
+        "test": 28
+      },
+      "state": "completed",
+      "command": [
+        "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX\\.venv\\Scripts\\python.exe",
+        "-m",
+        "training.detection_pipeline",
+        "train",
+        "data\\datasets\\pennfudan\\manifest.json",
+        "data\\runs\\accuracy-g2-person-scratch",
+        "--initialize-from",
+        "data\\runs\\scratch-pennfudan-v1",
+        "--epochs",
+        "8",
+        "--threads",
+        "3",
+        "--learning-rate",
+        "0.0005",
+        "--patience",
+        "5"
+      ],
+      "log": "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX\\data\\generations\\accuracy-g2\\accuracy-g2-person-scratch.log",
+      "started": 1790795272.0131204,
+      "pid": 21308,
+      "model_id": "0760a37f-2272-4796-866e-447cb6ea0b0d",
+      "comparison": {
+        "metric": "map50",
+        "before": 0.624879434872418,
+        "after": 0.7176529874753077,
+        "delta": 0.09277355260288966,
+        "classes": [
+          {
+            "class": "person",
+            "metric": "ap50",
+            "before": 0.624879434872418,
+            "after": 0.7176529874753077,
+            "delta": 0.09277355260288966,
+            "details": {
+              "class_id": 0,
+              "ground_truth": 58,
+              "ap50": 0.7176529874753077
+            }
+          }
+        ],
+        "validation_selection": {
+          "split": "validation",
+          "selected": "candidate",
+          "parent_map50": 0.3371986645345639,
+          "selected_map50": 0.4098953895372915
+        },
+        "test_is_selection_criterion": false,
+        "independent_acceptance": false
+      },
+      "finished": 1790838286.905162,
+      "version": "accuracy-g2-person-scratch"
+    },
+    "accuracy-g2-person-yolo": {
+      "coverage": [
+        {
+          "class": "person",
+          "labeled_instances": {
+            "train": 245,
+            "validation": 59,
+            "calibration": 45,
+            "test": 58
+          }
+        }
+      ],
+      "counts": {
+        "train": 97,
+        "validation": 23,
+        "calibration": 16,
+        "test": 28
+      },
+      "state": "completed",
+      "command": [
+        "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX\\.venv\\Scripts\\python.exe",
+        "-m",
+        "training.yolo_pipeline",
+        "train",
+        "data\\datasets\\pennfudan\\manifest.json",
+        "data\\runs\\accuracy-g2-person-yolo",
+        "--initialize-from",
+        "data\\runs\\yolo-rai-pennfudan-v1",
+        "--epochs",
+        "8",
+        "--threads",
+        "3",
+        "--learning-rate",
+        "0.0005",
+        "--patience",
+        "5"
+      ],
+      "log": "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX\\data\\generations\\accuracy-g2\\accuracy-g2-person-yolo.log",
+      "started": 1790795523.0364146,
+      "pid": 1288,
+      "model_id": "13ea9d68-2dc1-49e5-a3ed-fb7093395018",
+      "comparison": {
+        "metric": "map50",
+        "before": 0.8645020364793782,
+        "after": 0.9427371308559427,
+        "delta": 0.0782350943765645,
+        "classes": [
+          {
+            "class": "person",
+            "metric": "ap50",
+            "before": 0.8645020364793782,
+            "after": 0.9427371308559427,
+            "delta": 0.0782350943765645,
+            "details": {
+              "class_id": 0,
+              "ground_truth": 58,
+              "ap50": 0.9427371308559427
+            }
+          }
+        ],
+        "validation_selection": {
+          "candidate_map50": 0.9759981523058352,
+          "selected": "candidate",
+          "split": "validation",
+          "parent_map50": 0.8952770643498013
+        },
+        "test_is_selection_criterion": false,
+        "independent_acceptance": false
+      },
+      "finished": 1790838288.2631094,
+      "version": "accuracy-g2-person-yolo"
+    },
+    "accuracy-g2-person-baseline": {
+      "coverage": [
+        {
+          "class": "person",
+          "labeled_instances": {
+            "train": 245,
+            "validation": 59,
+            "calibration": 45,
+            "test": 58
+          }
+        }
+      ],
+      "counts": {
+        "train": 97,
+        "validation": 23,
+        "calibration": 16,
+        "test": 28
+      },
+      "state": "completed",
+      "command": [
+        "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX\\.venv\\Scripts\\python.exe",
+        "-m",
+        "training.yolo_pipeline",
+        "train",
+        "data\\datasets\\pennfudan\\manifest.json",
+        "data\\runs\\accuracy-g2-person-baseline",
+        "--initialize-from",
+        "data\\runs\\yolo-baseline-pennfudan-v1",
+        "--epochs",
+        "8",
+        "--threads",
+        "3",
+        "--learning-rate",
+        "0.0005",
+        "--patience",
+        "5",
+        "--baseline"
+      ],
+      "log": "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX\\data\\generations\\accuracy-g2\\accuracy-g2-person-baseline.log",
+      "started": 1790795728.668193,
+      "pid": 2448,
+      "model_id": "aafe221d-bbbd-4094-803f-d418ccecfe24",
+      "comparison": {
+        "metric": "map50",
+        "before": 0.8492905949359332,
+        "after": 0.9391518529921732,
+        "delta": 0.08986125805624001,
+        "classes": [
+          {
+            "class": "person",
+            "metric": "ap50",
+            "before": 0.8492905949359332,
+            "after": 0.9391518529921732,
+            "delta": 0.08986125805624001,
+            "details": {
+              "class_id": 0,
+              "ground_truth": 58,
+              "ap50": 0.9391518529921732
+            }
+          }
+        ],
+        "validation_selection": {
+          "candidate_map50": 0.9780300678306408,
+          "selected": "candidate",
+          "split": "validation",
+          "parent_map50": 0.8215792419831208
+        },
+        "test_is_selection_criterion": false,
+        "independent_acceptance": false
+      },
+      "finished": 1790838289.6799831,
+      "version": "accuracy-g2-person-baseline"
+    }
+  }
+}

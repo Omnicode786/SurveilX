@@ -8,9 +8,11 @@ The governor probes CPU, RAM, optional NVIDIA telemetry, temperature and battery
 
 ## GPU / CUDA
 
+Current laptop inventory, actual DirectML detector measurements, compatibility findings and executable simulations are recorded in [hardware-validation.md](hardware-validation.md). The laptop has an MX130; its main PyTorch environment is CPU-only. An isolated DirectML runtime has now executed person and weapons scratch exports, while CUDA training and live ONNX activation remain pending.
+
 Install a compatible official CUDA-enabled PyTorch build for the driver and target platform. The current installed runtime is discovered at execution; CPU-only PyTorch does not become CUDA-capable merely because a GPU exists. Supplied Ultralytics checkpoints use CUDA when `torch.cuda.is_available()` succeeds. Training also selects CUDA, then Apple MPS, then CPU. Synchronize GPU timing for serious accelerator benchmarking; CPU timings cannot be extrapolated to GPU.
 
-ONNXExecutor accepts an explicit execution-provider order. CUDA, TensorRT, OpenVINO, DirectML and CoreML require the corresponding installed builds, libraries and supported graph operations. Record `session.get_providers()` and inspect profiling traces for per-node fallback. Provider availability is not proof that every operator ran there. Automatic cross-provider benchmarking and energy optimization remain to be completed.
+ONNXExecutor accepts an explicit execution-provider order. Its automatic order is TensorRT, CUDA, ROCm, MIGraphX, OpenVINO, DirectML, CoreML, XNNPACK, then CPU, restricted to providers reported by the installed runtime. CUDA, TensorRT and the other targets require their corresponding installed builds, libraries and supported graph operations. `/api/hardware/status` separates runtime availability from project validation. Record `session.get_providers()` and inspect profiling traces for per-node fallback. Provider availability is not proof that every operator ran there. Automatic cross-provider benchmarking and energy optimization still require target hardware.
 
 ## FPGA
 

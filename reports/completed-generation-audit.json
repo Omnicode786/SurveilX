@@ -1,0 +1,294 @@
+{
+  "models": [
+    {
+      "version": "accuracy-g3-weapons-yolo",
+      "weights_intact": true,
+      "map50": 0.5040670865327479,
+      "validation": {
+        "candidate_map50": 0.5543813904117434,
+        "selected": "candidate",
+        "split": "validation",
+        "parent_map50": 0.26014482668195416
+      },
+      "epochs_completed": null
+    },
+    {
+      "version": "accuracy-g3-fire-yolo",
+      "weights_intact": true,
+      "map50": 0.478528120220928,
+      "validation": {
+        "candidate_map50": 0.37049468916291517,
+        "selected": "candidate",
+        "split": "validation",
+        "parent_map50": 0.19101131215272693
+      },
+      "epochs_completed": null
+    },
+    {
+      "version": "accuracy-g3-fire-scratch",
+      "weights_intact": true,
+      "map50": 0.2371312657675233,
+      "validation": {
+        "split": "validation",
+        "selected": "candidate",
+        "parent_map50": 0.18397239831424067,
+        "selected_map50": 0.2242260526545954
+      },
+      "epochs_completed": 22
+    },
+    {
+      "version": "accuracy-g3b-weapons-scratch",
+      "weights_intact": true,
+      "map50": 0.03150283568674828,
+      "validation": {
+        "split": "validation",
+        "selected": "candidate",
+        "parent_map50": 0.01549642309008769,
+        "selected_map50": 0.07747213451967665
+      },
+      "epochs_completed": 17
+    },
+    {
+      "version": "accuracy-ppe-g3-yolo",
+      "weights_intact": true,
+      "map50": 0.3056344096780553,
+      "validation": {
+        "candidate_map50": 0.3445908386909599,
+        "selected": "candidate",
+        "split": "validation",
+        "parent_map50": 0.09181132619763854
+      },
+      "epochs_completed": null
+    },
+    {
+      "version": "accuracy-ppe-g3b-scratch",
+      "weights_intact": true,
+      "map50": 0.05266888438857279,
+      "validation": {
+        "split": "validation",
+        "selected": "candidate",
+        "parent_map50": 0.007233235198269092,
+        "selected_map50": 0.08762297953716647
+      },
+      "epochs_completed": 34
+    }
+  ],
+  "profiles": [
+    {
+      "version": "accuracy-g2-person-yolo-profiles-g1",
+      "state": "completed",
+      "profiles": [
+        {
+          "tier": "economy",
+          "size": 224,
+          "test_map50": 0.9314998166483316,
+          "latency_ms": 56.997326087540664
+        },
+        {
+          "tier": "balanced",
+          "size": 224,
+          "test_map50": 0.9314998166483316,
+          "latency_ms": 56.997326087540664
+        },
+        {
+          "tier": "performance",
+          "size": 256,
+          "test_map50": 0.9427371308559427,
+          "latency_ms": 59.289978261918094
+        }
+      ]
+    },
+    {
+      "version": "accuracy-g2-person-scratch-profiles-g1",
+      "state": "completed",
+      "profiles": [
+        {
+          "tier": "economy",
+          "size": 256,
+          "test_map50": 0.7176529874753077,
+          "latency_ms": 101.00152173965952
+        },
+        {
+          "tier": "balanced",
+          "size": 256,
+          "test_map50": 0.7176529874753077,
+          "latency_ms": 101.00152173965952
+        },
+        {
+          "tier": "performance",
+          "size": 256,
+          "test_map50": 0.7176529874753077,
+          "latency_ms": 101.00152173965952
+        }
+      ]
+    },
+    {
+      "version": "accuracy-g2-person-baseline-profiles-g1",
+      "state": "completed",
+      "profiles": [
+        {
+          "tier": "economy",
+          "size": 224,
+          "test_map50": 0.9329670794559555,
+          "latency_ms": 50.52627391231236
+        },
+        {
+          "tier": "balanced",
+          "size": 224,
+          "test_map50": 0.9329670794559555,
+          "latency_ms": 50.52627391231236
+        },
+        {
+          "tier": "performance",
+          "size": 256,
+          "test_map50": 0.9391518529921732,
+          "latency_ms": 59.72518260956428
+        }
+      ]
+    },
+    {
+      "version": "accuracy-g3-weapons-yolo-profiles-g1",
+      "state": "completed",
+      "profiles": [
+        {
+          "tier": "economy",
+          "size": 384,
+          "test_map50": 0.5040670865327479,
+          "latency_ms": 92.39043333316961
+        },
+        {
+          "tier": "balanced",
+          "size": 384,
+          "test_map50": 0.5040670865327479,
+          "latency_ms": 92.39043333316961
+        },
+        {
+          "tier": "performance",
+          "size": 384,
+          "test_map50": 0.5040670865327479,
+          "latency_ms": 92.39043333316961
+        }
+      ]
+    },
+    {
+      "version": "accuracy-g3b-weapons-scratch-profiles-g1",
+      "state": "completed",
+      "profiles": [
+        {
+          "tier": "economy",
+          "size": 256,
+          "test_map50": 0.012184976697717417,
+          "latency_ms": 85.4979104171889
+        },
+        {
+          "tier": "balanced",
+          "size": 384,
+          "test_map50": 0.03150283568674828,
+          "latency_ms": 132.63150937495993
+        },
+        {
+          "tier": "performance",
+          "size": 384,
+          "test_map50": 0.03150283568674828,
+          "latency_ms": 132.63150937495993
+        }
+      ]
+    },
+    {
+      "version": "accuracy-g3-fire-yolo-profiles-g1",
+      "state": "completed",
+      "profiles": [
+        {
+          "tier": "economy",
+          "size": 320,
+          "test_map50": 0.4548958356940866,
+          "latency_ms": 76.6858041672549
+        },
+        {
+          "tier": "balanced",
+          "size": 320,
+          "test_map50": 0.4548958356940866,
+          "latency_ms": 76.6858041672549
+        },
+        {
+          "tier": "performance",
+          "size": 320,
+          "test_map50": 0.4548958356940866,
+          "latency_ms": 76.6858041672549
+        }
+      ]
+    },
+    {
+      "version": "accuracy-g3-fire-scratch-profiles-g1",
+      "state": "completed",
+      "profiles": [
+        {
+          "tier": "economy",
+          "size": 384,
+          "test_map50": 0.2371312657675233,
+          "latency_ms": 127.21058333340807
+        },
+        {
+          "tier": "balanced",
+          "size": 384,
+          "test_map50": 0.2371312657675233,
+          "latency_ms": 127.21058333340807
+        },
+        {
+          "tier": "performance",
+          "size": 384,
+          "test_map50": 0.2371312657675233,
+          "latency_ms": 127.21058333340807
+        }
+      ]
+    },
+    {
+      "version": "accuracy-ppe-g3-yolo-profiles-g1",
+      "state": "completed",
+      "profiles": [
+        {
+          "tier": "economy",
+          "size": 416,
+          "test_map50": 0.2928642076165758,
+          "latency_ms": 108.59526734719755
+        },
+        {
+          "tier": "balanced",
+          "size": 512,
+          "test_map50": 0.3056344096780553,
+          "latency_ms": 149.36744421720505
+        },
+        {
+          "tier": "performance",
+          "size": 512,
+          "test_map50": 0.3056344096780553,
+          "latency_ms": 149.36744421720505
+        }
+      ]
+    },
+    {
+      "version": "accuracy-ppe-g3b-scratch-profiles-g1",
+      "state": "completed",
+      "profiles": [
+        {
+          "tier": "economy",
+          "size": 320,
+          "test_map50": 0.05290956193671609,
+          "latency_ms": 113.46947074848778
+        },
+        {
+          "tier": "balanced",
+          "size": 512,
+          "test_map50": 0.05266888438857279,
+          "latency_ms": 234.05568367344458
+        },
+        {
+          "tier": "performance",
+          "size": 512,
+          "test_map50": 0.05266888438857279,
+          "latency_ms": 234.05568367344458
+        }
+      ]
+    }
+  ]
+}

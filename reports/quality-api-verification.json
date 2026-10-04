@@ -1,0 +1,249 @@
+{
+  "health": 200,
+  "fighting": {
+    "id": "fighting",
+    "title": "Fighting",
+    "task": "event",
+    "required_classes": [
+      "normal",
+      "fighting"
+    ],
+    "domains": [
+      "parking",
+      "office",
+      "warehouse",
+      "industrial",
+      "retail",
+      "traffic",
+      "building"
+    ],
+    "interpretation": "Possible physical altercation requiring review",
+    "requirements": [
+      "Temporally annotated clips",
+      "Play, sport and ordinary interaction negatives",
+      "Persistent entities or explicitly labeled fixed-duration scene clips"
+    ],
+    "implemented_rules": [],
+    "datasets": [
+      "airtlab-fighting-development-v1"
+    ],
+    "dataset_evidence": [
+      {
+        "name": "airtlab-fighting-development-v1",
+        "provenance": {
+          "publisher_url": "https://github.com/airtlab/A-Dataset-for-Automatic-Violence-Detection-in-Videos",
+          "publisher_commit": "1f7747e104301ccaa82ef5a2f6804b51ced1c398",
+          "acquisition_plan_sha256": "942defe2a655c9aabaaaa1f14b47250e589735cc0561f17b781a73d7d138ecda",
+          "rights_sha256": "87a5700ef0168d2a0fc894bc9335348531ca10f35aa5712a249956a7f87a3ccd",
+          "staged": true,
+          "single_room": true,
+          "paired_camera_grouping": true,
+          "temporal_annotations_reviewed": false,
+          "limitations": "Center crops inherit video labels; actors/sites are not independent across splits. Research/education only.",
+          "descriptor_sha256": "486e8c9bca10fc8dc2c062d02224d3ef88811d5edfe32f82fc9efd36d80d7cdf",
+          "label_scope": "inherited_video_label",
+          "source_independence_verified": false
+        },
+        "license": "AIRTLab: research and educational purposes; see publisher readme.md Dataset Release Agreement",
+        "synthetic": false
+      }
+    ],
+    "models": [],
+    "status": "data_available",
+    "production_validated": false
+  },
+  "ppe": {
+    "id": "2415a6f2-53fd-43c3-b2bf-030edaa9425a",
+    "version": "accuracy-ppe-g3b-scratch",
+    "stage": "candidate",
+    "classes": [
+      "person",
+      "ear",
+      "earmuffs",
+      "face",
+      "face_guard",
+      "face_mask",
+      "foot",
+      "tools",
+      "glasses",
+      "gloves",
+      "helmet",
+      "hands",
+      "head",
+      "medical_suit",
+      "shoes",
+      "safety_suit",
+      "safety_vest"
+    ],
+    "domain": "ppe-development",
+    "synthetic": false,
+    "calibrated": true,
+    "origin": "locally_trained",
+    "dataset_provenance": {},
+    "development_evidence": {
+      "metric": "AP50",
+      "score": 0.05266888438857279,
+      "target": 0.5,
+      "aggregate_target_met": false,
+      "all_classes_target_met": false,
+      "per_class": [
+        {
+          "label": "person",
+          "metric": "AP50",
+          "score": 0.2493290680462754,
+          "support": 245,
+          "target_met": false
+        },
+        {
+          "label": "ear",
+          "metric": "AP50",
+          "score": 0.03491098547723637,
+          "support": 124,
+          "target_met": false
+        },
+        {
+          "label": "earmuffs",
+          "metric": "AP50",
+          "score": 0.00176017601760176,
+          "support": 13,
+          "target_met": false
+        },
+        {
+          "label": "face",
+          "metric": "AP50",
+          "score": 0.19479504595373326,
+          "support": 101,
+          "target_met": false
+        },
+        {
+          "label": "face_guard",
+          "metric": "AP50",
+          "score": 0.0035812091847482615,
+          "support": 6,
+          "target_met": false
+        },
+        {
+          "label": "face_mask",
+          "metric": "AP50",
+          "score": 0.02099006629634926,
+          "support": 42,
+          "target_met": false
+        },
+        {
+          "label": "foot",
+          "metric": "AP50",
+          "score": 0.0036108402140477606,
+          "support": 60,
+          "target_met": false
+        },
+        {
+          "label": "tools",
+          "metric": "AP50",
+          "score": 0.0003847535012568614,
+          "support": 84,
+          "target_met": false
+        },
+        {
+          "label": "glasses",
+          "metric": "AP50",
+          "score": 0.0023356181772023355,
+          "support": 62,
+          "target_met": false
+        },
+        {
+          "label": "gloves",
+          "metric": "AP50",
+          "score": 0.010287909213084773,
+          "support": 92,
+          "target_met": false
+        },
+        {
+          "label": "helmet",
+          "metric": "AP50",
+          "score": 0.014929606052418639,
+          "support": 42,
+          "target_met": false
+        },
+        {
+          "label": "hands",
+          "metric": "AP50",
+          "score": 0.09367298517839526,
+          "support": 205,
+          "target_met": false
+        },
+        {
+          "label": "head",
+          "metric": "AP50",
+          "score": 0.1757464001910679,
+          "support": 226,
+          "target_met": false
+        },
+        {
+          "label": "medical_suit",
+          "metric": "AP50",
+          "score": 0.015121512151215122,
+          "support": 44,
+          "target_met": false
+        },
+        {
+          "label": "shoes",
+          "metric": "AP50",
+          "score": 0.01379629762667211,
+          "support": 105,
+          "target_met": false
+        },
+        {
+          "label": "safety_suit",
+          "metric": "AP50",
+          "score": 0.008858780614903595,
+          "support": 6,
+          "target_met": false
+        },
+        {
+          "label": "safety_vest",
+          "metric": "AP50",
+          "score": 0.05125978070952876,
+          "support": 45,
+          "target_met": false
+        }
+      ],
+      "independent_reliability_established": false,
+      "interpretation": "Held-out development point scores. Meeting 0.50 does not establish source independence, calibrated event recall or site reliability."
+    },
+    "acceptance_approved": false,
+    "active": false
+  },
+  "fighting_generation": {
+    "generation": "fighting-g1",
+    "state": "running",
+    "config": {
+      "dataset": "airtlab-fighting-development-v1",
+      "dataset_sha256": "e727105659c54bccd5a2ce6f0b2c10103d0325859c22ec27b7edb012eccf32f9",
+      "epochs": 60,
+      "seed": 42,
+      "training": {
+        "threads": 3,
+        "learning_rate": 0.001,
+        "patience": 12,
+        "augment": true
+      }
+    },
+    "jobs": [
+      {
+        "architecture": "scene",
+        "version": "fighting-g1-scene",
+        "state": "running",
+        "model_id": null,
+        "completed_epochs": 45,
+        "epochs": 60,
+        "comparison": null,
+        "coverage": [],
+        "profiles": [],
+        "target": null,
+        "error": null
+      }
+    ],
+    "error": null
+  },
+  "profile_count": 12
+}

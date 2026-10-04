@@ -20,6 +20,10 @@ class Settings(BaseSettings):
     detection_log_seconds: float = 60.0
     retention_days: int = 7
     detector_path: str = ""
+    training_python: str = ""
+    training_batch_size: int | None = None
+    training_yolo_batch_size: int | None = None
+    training_event_batch_size: int | None = None
     s3_bucket: str = ""
     s3_endpoint: str = ""
 

@@ -5,11 +5,11 @@ import json
 import os
 import re
 import subprocess
-import sys
 import time
 
 from scripts.register_run import register
 from surveilx.config import settings
+from surveilx.training_runtime import training_interpreter
 from training.datasets import digest, validate_manifest
 
 
@@ -19,7 +19,9 @@ def save(path, value):
     temporary.replace(path)
 
 
-def run(dataset, generation, epochs=3, threads=3):
+def run(dataset, generation, epochs=3, threads=3, batch_size=None):
+    if batch_size is not None and not 1 <= batch_size <= 256:
+        raise ValueError("Batch size must be 1..256")
     if any(not re.fullmatch(r"[a-zA-Z0-9_-]{1,64}", value) for value in (dataset, generation)):
         raise ValueError("Dataset and generation must be simple directory names")
     manifest_path = settings.data_dir / "datasets" / dataset / "manifest.json"
@@ -35,6 +37,8 @@ def run(dataset, generation, epochs=3, threads=3):
         "epochs": epochs,
         "threads": threads,
     }
+    if batch_size is not None:
+        config["batch_size"] = batch_size
     # O_EXCL prevents concurrent invocations from training into the same run directories.
     descriptor = os.open(lock_path, os.O_WRONLY | os.O_CREAT | os.O_EXCL)
     os.write(descriptor, str(os.getpid()).encode())
@@ -77,7 +81,7 @@ def run(dataset, generation, epochs=3, threads=3):
                 )
             module = "training.detection_pipeline" if architecture == "scratch" else "training.yolo_pipeline"
             command = [
-                sys.executable,
+                training_interpreter(),
                 "-m",
                 module,
                 "train",
@@ -90,6 +94,8 @@ def run(dataset, generation, epochs=3, threads=3):
             ]
             if resumable:
                 command.extend(["--resume-checkpoint", str(resume_checkpoint)])
+            if batch_size is not None:
+                command.extend(["--batch-size" if architecture == "scratch" else "--batch", str(batch_size)])
             log_path = directory / f"{architecture}.log"
             journal["jobs"][architecture] = {
                 "state": "running",
@@ -126,6 +132,7 @@ if __name__ == "__main__":
     parser.add_argument("generation")
     parser.add_argument("--epochs", type=int, default=3)
     parser.add_argument("--threads", type=int, default=3)
+    parser.add_argument("--batch-size", type=int)
     args = parser.parse_args()
     if not 1 <= args.epochs <= 100 or not 1 <= args.threads <= 32:
         parser.error("epochs must be 1..100 and threads 1..32")

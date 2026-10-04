@@ -341,6 +341,9 @@ def train(
     initialize_from=None,
     balanced_sampling=False,
     patience=None,
+    classification_weight=None,
+    classification_focal_gamma=0.0,
+    classification_focal_alpha=0.25,
 ):
     if epochs < 1 or batch_size < 1 or image_size < 64 or image_size % 32:
         raise ValueError("epochs/batch_size must be positive; image_size must be a multiple of 32 >=64")
@@ -348,6 +351,20 @@ def train(
         raise ValueError("Learning rate and optional patience must be positive")
     manifest_path, output = Path(manifest_path).resolve(), Path(output).resolve()
     manifest, counts, asset_hashes = validate_detection_manifest(manifest_path)
+    # Mean BCE divides by class count, unlike localization's per-positive mean.
+    # Sum class terms per positive by default; a weight of one reproduces the old recipe.
+    classification_weight = (
+        len(manifest["classes"]) if classification_weight is None else classification_weight
+    )
+    if not np.isfinite(classification_weight) or classification_weight <= 0:
+        raise ValueError("Classification loss weight must be positive")
+    if (
+        not np.isfinite(classification_focal_gamma)
+        or classification_focal_gamma < 0
+        or not np.isfinite(classification_focal_alpha)
+        or not 0 < classification_focal_alpha < 1
+    ):
+        raise ValueError("Invalid focal classification parameters")
     if output.exists() and any(p.name != "process.log" for p in output.iterdir()):
         raise ValueError("Output run already contains files; choose a new version")
     output.mkdir(parents=True, exist_ok=True)
@@ -373,10 +390,16 @@ def train(
         model.load_state_dict(torch.load(previous / "weights.pt", map_location=device, weights_only=True))
         initialization = previous_manifest["weights_sha256"]
     training_samples = [s for s in manifest["samples"] if s["split"] == "train"]
-    sampler = WeightedRandomSampler(
-        class_balanced_weights(training_samples, len(manifest["classes"])),
-        len(training_samples), replacement=True, generator=torch.Generator().manual_seed(seed),
-    ) if balanced_sampling else None
+    sampler = (
+        WeightedRandomSampler(
+            class_balanced_weights(training_samples, len(manifest["classes"])),
+            len(training_samples),
+            replacement=True,
+            generator=torch.Generator().manual_seed(seed),
+        )
+        if balanced_sampling
+        else None
+    )
     loaders = {
         split: DataLoader(
             DetectionImages(
@@ -416,6 +439,12 @@ def train(
         "initialization": initialization,
         "balanced_sampling": balanced_sampling,
         "patience": patience,
+        "classification_weight": classification_weight,
+        "loss_recipe": "positive-class-focal-v1" if classification_focal_gamma else "positive-class-sum-v2",
+        "classification_focal_gamma": classification_focal_gamma,
+        "classification_focal_alpha": classification_focal_alpha,
+        "training_code_sha256": digest(Path(__file__)),
+        "model_code_sha256": digest(Path(__file__).with_name("detector_model.py")),
     }
     (output / "config.json").write_text(
         json.dumps({**run_config, "model": model.config}, indent=2), encoding="utf-8"
@@ -426,7 +455,13 @@ def train(
         losses = []
         for images, context, zones, targets in loaders["train"]:
             optimizer.zero_grad(set_to_none=True)
-            result = detection_loss(model(images.to(device), context.to(device), zones.to(device)), targets)
+            result = detection_loss(
+                model(images.to(device), context.to(device), zones.to(device)),
+                targets,
+                classification_weight=classification_weight,
+                classification_focal_gamma=classification_focal_gamma,
+                classification_focal_alpha=classification_focal_alpha,
+            )
             if not torch.isfinite(result["loss"]):
                 raise RuntimeError("Non-finite training loss; candidate not saved as successful")
             result["loss"].backward()
@@ -530,6 +565,9 @@ def main():
     training.add_argument("--initialize-from")
     training.add_argument("--balanced-sampling", action="store_true")
     training.add_argument("--patience", type=int)
+    training.add_argument("--classification-weight", type=float)
+    training.add_argument("--classification-focal-gamma", type=float, default=0.0)
+    training.add_argument("--classification-focal-alpha", type=float, default=0.25)
     args = vars(parser.parse_args())
     args.pop("command")
     args["manifest_path"] = args.pop("manifest")

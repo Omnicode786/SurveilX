@@ -26,7 +26,7 @@ Administrators can enable a policy with a base dataset, architecture, epoch coun
 
 Custom models start from random initialization in this dashboard workflow; adapted YOLO starts from its configured pretrained base. Generations reuse reviewed data and replay, not automatically the previous weights. CLI continuation remains available separately. Training never fabricates labels. A failed or interrupted generation requires reviewing its logs and saving the policy to retry; it does not repeatedly train without intervention. Disabling the policy prevents new jobs but does not cancel an already-running job.
 
-The worker runs in one server process. It is not a distributed job queue, and approval-count triggering is not a validated statistical drift detector. Existing validation/calibration/test sets remain useful for regression checks, but repeated use can cause selection bias; final acceptance needs new, independently collected data.
+The worker runs in one server process and is not a distributed job queue. The separate [drift monitor](drift-monitoring.md) compares camera/model observation windows and can request review, but it cannot label data or start training by itself. Existing validation/calibration/test sets remain useful for regression checks, but repeated use can cause selection bias; final acceptance needs new, independently collected data.
 
 ## Independent acceptance
 

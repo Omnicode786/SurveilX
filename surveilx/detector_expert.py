@@ -33,14 +33,17 @@ class AdaptedYOLODetector:
 
     def infer(self, frame, resolution=320):
         from training.detection_pipeline import calibrate_scores
+        from surveilx.model_profiles import runtime_profile
 
-        size = self.manifest["config"]["image_size"]
+        profile = runtime_profile(self.manifest, resolution)
+        size = profile["image_size"] if profile else self.manifest["config"]["image_size"]
+        calibration = profile["calibration"] if profile else self.calibration
         square = cv2.resize(frame, (size, size))
         result = self.model.predict(
             square, imgsz=size, device=self.device, conf=0.001, iou=0.5, max_det=100, verbose=False
         )[0]
-        scores = calibrate_scores(result.boxes.conf.cpu().numpy(), self.calibration)
-        threshold = self.calibration.get("threshold", 0.25)
+        scores = calibrate_scores(result.boxes.conf.cpu().numpy(), calibration)
+        threshold = calibration.get("threshold", 0.25)
         return [
             Detection(box.tolist(), self.classes[int(label)], float(score))
             for box, label, score in zip(result.boxes.xyxyn.cpu(), result.boxes.cls.cpu(), scores)
@@ -79,10 +82,13 @@ class ScratchDetector:
 
         from training.detection_pipeline import calibrate_scores
         from training.detector_model import decode_detections
+        from surveilx.model_profiles import runtime_profile
 
-        # Calibration is tied to the evaluated input size, even when scheduler asks for another size.
-        # A different-resolution candidate must be benchmarked and calibrated separately.
-        size = self.manifest["config"]["image_size"]
+        # An arbitrary size remains forbidden. Optimized artifacts may expose only
+        # explicitly recalibrated, validation-selected profiles.
+        profile = runtime_profile(self.manifest, resolution)
+        size = profile["image_size"] if profile else self.manifest["config"]["image_size"]
+        calibration = profile["calibration"] if profile else self.calibration
         image = cv2.cvtColor(cv2.resize(frame, (size, size)), cv2.COLOR_BGR2RGB)
         tensor = torch.from_numpy(image.transpose(2, 0, 1).copy()).float()[None].to(self.device) / 255
         scene = torch.tensor(
@@ -94,8 +100,8 @@ class ScratchDetector:
             zones = torch.from_numpy(zone)[None, None].to(self.device)
         with torch.inference_mode():
             decoded = decode_detections(self.model(tensor, scene, zones), score_threshold=0.001)[0]
-        scores = calibrate_scores(decoded["scores"].cpu().numpy(), self.calibration)
-        threshold = self.calibration.get("threshold", 0.25)
+        scores = calibrate_scores(decoded["scores"].cpu().numpy(), calibration)
+        threshold = calibration.get("threshold", 0.25)
         return [
             Detection(box.tolist(), self.classes[int(label)], float(score))
             for box, label, score in zip(decoded["boxes"].cpu(), decoded["labels"].cpu(), scores)

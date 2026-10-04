@@ -32,11 +32,15 @@ def test_generation_runs_serially_then_reuses_completed_artifacts(tmp_path, monk
         return SimpleNamespace(returncode=0)
 
     monkeypatch.setattr(runner.subprocess, "run", complete)
-    assert runner.run("fixture", "g1")["state"] == "completed"
+    assert runner.run("fixture", "g1", batch_size=1)["state"] == "completed"
     assert len(commands) == 2
     assert "training.detection_pipeline" in commands[0]
     assert "training.yolo_pipeline" in commands[1]
-    assert runner.run("fixture", "g1")["state"] == "completed"
+    assert commands[0][-2:] == ["--batch-size", "1"]
+    assert commands[1][-2:] == ["--batch", "1"]
+    assert runner.run("fixture", "g1", batch_size=1)["state"] == "completed"
+    with pytest.raises(ValueError, match="configuration changed"):
+        runner.run("fixture", "g1", batch_size=2)
     assert len(commands) == 2
     assert not (tmp_path / "generations/g1/runner.lock").exists()
 

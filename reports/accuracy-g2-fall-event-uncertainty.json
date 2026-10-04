@@ -1,0 +1,61 @@
+{
+  "samples": 10,
+  "recorded_groups": 10,
+  "selection_criterion": false,
+  "group_all_correct": {
+    "successes": 10,
+    "trials": 10,
+    "interval": {
+      "lower": 0.7224672001371109,
+      "upper": 1.0,
+      "confidence": 0.95
+    },
+    "estimand": "Probability every clip in a recorded group is correct; not clip accuracy"
+  },
+  "limitations": "Intervals assume representative independent recorded groups. Shared actors/sites violate that assumption. Perfect empirical bootstrap scores do not imply perfect population accuracy.",
+  "status": "estimated",
+  "iterations": 500,
+  "seed": 42,
+  "accuracy_cluster_bootstrap": {
+    "lower": 1.0,
+    "upper": 1.0,
+    "confidence": 0.95,
+    "valid_resamples": 500,
+    "degenerate": true
+  },
+  "per_class_recall": [
+    {
+      "class_id": 0,
+      "support": 5,
+      "interval": {
+        "lower": 1.0,
+        "upper": 1.0,
+        "confidence": 0.95,
+        "valid_resamples": 500,
+        "degenerate": true
+      }
+    },
+    {
+      "class_id": 1,
+      "support": 5,
+      "interval": {
+        "lower": 1.0,
+        "upper": 1.0,
+        "confidence": 0.95,
+        "valid_resamples": 500,
+        "degenerate": true
+      }
+    }
+  ],
+  "version": "accuracy-g2-fall",
+  "dataset": "urfall-development-v1",
+  "accuracy": 1.0,
+  "classes": [
+    "normal",
+    "fall"
+  ],
+  "dataset_sha256": "c053eb8797eba1bb971b1c246212c73ea503d670220a8ef5fed17cba57db45c1",
+  "heldout_predictions_sha256": "a7a7b4be5c387b4fea6242ecad239a12b67846cfa7e0c374730b132db979ec9a",
+  "predictions_hash_recorded_at_training": false,
+  "source_independence_verified": false
+}

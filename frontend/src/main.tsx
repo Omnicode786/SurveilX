@@ -35,6 +35,7 @@ import {
 import { AcceptancePanel, AnnotationEditor, LearningPanel } from "./learning";
 import { CapabilitiesPanel } from "./capabilities";
 import { PolicyPanel } from "./policies";
+import { NotificationSettings } from "./notifications";
 
 type Row = Record<string, any>;
 async function api(path: string, method = "GET", body?: unknown) {
@@ -784,6 +785,26 @@ function App() {
                         {status.hardware.gpu?.name || "Unavailable"}
                       </strong>
                     </div>
+                    {status.hardware.gpu?.utilization != null && (
+                      <Meter
+                        label="GPU utilization"
+                        value={status.hardware.gpu.utilization}
+                      />
+                    )}
+                    {status.hardware.gpu?.used_mb != null && (
+                      <div className="resource-detail">
+                        <span>GPU memory / free</span>
+                        <strong>
+                          {status.hardware.gpu.used_mb} /{" "}
+                          {Math.max(
+                            0,
+                            status.hardware.gpu.memory_mb -
+                              status.hardware.gpu.used_mb,
+                          )}{" "}
+                          MB
+                        </strong>
+                      </div>
+                    )}
                     <div className="resource-detail">
                       <span>Energy measurement</span>
                       <strong>
@@ -839,13 +860,182 @@ function App() {
                 />
               </div>
               <div className="panel padded">
+                <h2>Detected computer</h2>
+                <p>
+                  {[
+                    status.hardware.identity?.manufacturer,
+                    status.hardware.identity?.computer_model,
+                  ]
+                    .filter(Boolean)
+                    .join(" ") || status.hardware.os}
+                </p>
+                <p>
+                  {status.hardware.identity?.cpu_name ||
+                    "Processor name unavailable"}
+                </p>
+                <p>
+                  {status.hardware.identity?.display_adapters?.join(" · ") ||
+                    status.hardware.gpu?.name ||
+                    "Display adapter inventory unavailable"}
+                </p>
                 <h2>Acceleration capabilities</h2>
                 <p>
                   Devices are eligible only when the installed runtime can
                   execute a compatible model. FPGA targets require a compiled
-                  device-specific artifact.
+                  device-specific artifact. Availability below describes the app
+                  process; an isolated training runtime is shown separately.
                 </p>
                 <Json data={rows[0]?.accelerators || {}} />
+                <h3>Training runtime</h3>
+                <p>
+                  {rows[0]?.training_runtime?.configured
+                    ? "An isolated training environment is configured."
+                    : "Training uses the app's Python environment."}
+                  {rows[0]?.training_runtime?.batch_size
+                    ? ` Scratch batch limit: ${rows[0].training_runtime.batch_size}.`
+                    : ""}{" "}
+                  {rows[0]?.training_runtime?.architecture_batch_limits &&
+                    `YOLO: ${rows[0].training_runtime.architecture_batch_limits.yolo ?? "recipe default"}; events: ${rows[0].training_runtime.architecture_batch_limits.event ?? "recipe default"} (reduced for larger clips). `}
+                  Each model records the device actually used.
+                </p>
+                {rows[0]?.training_runtime?.error && (
+                  <p role="alert">{rows[0].training_runtime.error}</p>
+                )}
+                {rows[0]?.training_runtime?.recorded_validation && (
+                  <div>
+                    <p>
+                      Recorded GPU training checks:{" "}
+                      {rows[0].training_runtime.recorded_validation.gpu} ·{" "}
+                      {rows[0].training_runtime.recorded_validation.precision} ·
+                      batch 1
+                    </p>
+                    <div className="table-wrap">
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>Model</th>
+                            <th>CPU step</th>
+                            <th>GPU step</th>
+                            <th>Measured speedup</th>
+                            <th>GPU memory reserved</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {rows[0].training_runtime.recorded_validation.results.map(
+                            (result: Row) => (
+                              <tr key={result.architecture}>
+                                <td>{result.architecture}</td>
+                                <td>
+                                  {result.cpu.median_step_ms.toFixed(1)} ms
+                                </td>
+                                <td>
+                                  {result.cuda.median_step_ms.toFixed(1)} ms
+                                </td>
+                                <td>{result.speedup.toFixed(2)}×</td>
+                                <td>
+                                  {result.cuda.peak_reserved_mib.toFixed(0)} MiB
+                                </td>
+                              </tr>
+                            ),
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                    <p>{rows[0].training_runtime.recorded_validation.scope}</p>
+                  </div>
+                )}
+                <Json data={rows[0]?.training_runtime || {}} />
+                <h3>Recorded accelerator measurements</h3>
+                <p>
+                  Offline measurements are separate from the active runtime.
+                  These exports have not been activated for live detections.
+                </p>
+                {(rows[0]?.recorded_benchmarks || []).map((report: Row) => (
+                  <div key={report.id}>
+                    <h4>{report.model}</h4>
+                    <p>
+                      {report.samples} validation images · ONNX Runtime{" "}
+                      {report.runtime_version}
+                    </p>
+                    <div className="table-wrap">
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>Provider / adapter</th>
+                            <th>Parity</th>
+                            <th>Median forward time</th>
+                            <th>Device execution</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {report.results.map((result: Row, index: number) => (
+                            <tr key={index}>
+                              <td>
+                                {result.provider.replace(
+                                  "ExecutionProvider",
+                                  "",
+                                )}
+                                {result.device_id != null
+                                  ? ` / ${result.device_id}`
+                                  : ""}
+                              </td>
+                              <td>{result.passed ? "Passed" : "Failed"}</td>
+                              <td>
+                                {result.p50_ms != null
+                                  ? `${result.p50_ms.toFixed(1)} ms`
+                                  : "Unavailable"}
+                              </td>
+                              <td>
+                                {result.accelerator_nodes_observed
+                                  ? "Accelerator observed"
+                                  : "CPU / unconfirmed"}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                ))}
+                <h3>Hardware policy simulations</h3>
+                <p>
+                  These checks exercise workload selection and throttling with
+                  hypothetical hardware. They do not measure device speed,
+                  accuracy, or energy use.
+                </p>
+                <div className="table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Target</th>
+                        <th>Selected provider</th>
+                        <th>Healthy workload</th>
+                        <th>Pressure checks</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(rows[0]?.simulation?.targets || []).map(
+                        (target: Row) => (
+                          <tr key={target.target}>
+                            <td>{target.target.replaceAll("_", " ")}</td>
+                            <td>
+                              {target.selection.providers[0].replace(
+                                "ExecutionProvider",
+                                "",
+                              )}
+                            </td>
+                            <td>{target.healthy_level}</td>
+                            <td>
+                              {target.contract_checks_passed
+                                ? "Passed in simulation"
+                                : "Incomplete"}
+                            </td>
+                          </tr>
+                        ),
+                      )}
+                    </tbody>
+                  </table>
+                </div>
                 <h3>Adaptive policy</h3>
                 <Json data={status.power} />
               </div>
@@ -853,6 +1043,9 @@ function App() {
           )}
           {page === "learning" && <LearningPanel request={api} user={user} />}
           {page === "capabilities" && <CapabilitiesPanel request={api} />}
+          {page === "alerts" && (
+            <NotificationSettings request={api} user={{ role: user.role }} />
+          )}
           {page === "acceptance" && (
             <AcceptancePanel request={api} user={user} />
           )}
@@ -911,7 +1104,12 @@ function App() {
                             : page === "users"
                               ? ["Username", "Role", "ID"]
                               : page === "alerts"
-                                ? ["Incident", "Time", "Delivery", "Action"]
+                                ? [
+                                    "Incident",
+                                    "Time",
+                                    "Priority / delivery",
+                                    "Action",
+                                  ]
                                 : ["Record", "Status / type", "Details"]
                         ).map((x) => (
                           <th key={x}>{x}</th>
@@ -988,15 +1186,29 @@ function App() {
                             <>
                               <td>
                                 <code>{row.incident_id.slice(0, 8)}</code>
+                                <small>
+                                  {row.notification?.event_type ||
+                                    "Recorded incident"}{" "}
+                                  ·{" "}
+                                  {row.notification?.incident_ids?.length || 1}{" "}
+                                  incident(s)
+                                </small>
                               </td>
                               <td>{relative(row.created)}</td>
                               <td>
                                 <Tag>{row.status}</Tag>
+                                <small>
+                                  {row.notification?.priority || "review"}
+                                </small>
                               </td>
                               <td>
                                 <button
                                   disabled={
-                                    row.status === "acknowledged" || busy
+                                    ["acknowledged", "closed"].includes(
+                                      row.status,
+                                    ) ||
+                                    busy ||
+                                    !["admin", "operator"].includes(user.role)
                                   }
                                   onClick={() =>
                                     perform(`/alerts/${row.id}/acknowledge`)
@@ -1170,11 +1382,11 @@ function App() {
               user.role !== "viewer" && (
                 <EvidenceSequence
                   incidentId={selected.id}
-                  title={`Detected: ${(
-                    selected.details?.observed_labels || []
-                  )
-                    .map((label: string) => label.replaceAll("_", " "))
-                    .join(", ") || "review required"}`}
+                  title={`Detected: ${
+                    (selected.details?.observed_labels || [])
+                      .map((label: string) => label.replaceAll("_", " "))
+                      .join(", ") || "review required"
+                  }`}
                   request={api}
                 />
               )}

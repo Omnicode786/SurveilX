@@ -10,6 +10,26 @@ import numpy as np
 from training.datasets import digest, validate_manifest, SPLITS
 
 
+def sampled_frames(video, indices):
+    """Decode dense short intervals once; retain sparse seeks for long intervals."""
+    sequential = len(indices) > 1 and np.max(np.diff(indices)) <= 16
+    position = None
+    for frame_index in indices:
+        frame_index = int(frame_index)
+        if position is None or not sequential:
+            if not video.set(cv2.CAP_PROP_POS_FRAMES, frame_index):
+                raise ValueError("Video cannot seek to the labeled interval")
+        else:
+            for _ in range(frame_index - position - 1):
+                if not video.grab():
+                    raise ValueError("Video decode failed within labeled interval")
+        ok, image = video.read()
+        if not ok:
+            raise ValueError("Video decode failed within labeled interval")
+        position = frame_index
+        yield image
+
+
 def import_scene(descriptor, output):
     descriptor, output = Path(descriptor).resolve(), Path(output).resolve()
     spec = json.loads(descriptor.read_text(encoding="utf-8"))
@@ -56,11 +76,7 @@ def import_scene(descriptor, output):
             indices = np.rint(np.linspace(start, end, frames) * fps).astype(int)
             if len(set(indices)) != frames:
                 raise ValueError("Source frame rate cannot provide distinct observations")
-            for frame_index in indices:
-                video.set(cv2.CAP_PROP_POS_FRAMES, int(frame_index))
-                ok, image = video.read()
-                if not ok:
-                    raise ValueError("Video decode failed within labeled interval")
+            for image in sampled_frames(video, indices):
                 image = cv2.cvtColor(cv2.resize(image, (size, size)), cv2.COLOR_BGR2RGB)
                 clip.append(image.transpose(2, 0, 1).astype(np.float32) / 255)
         finally:
@@ -92,8 +108,9 @@ def import_scene(descriptor, output):
         "capability_ids": spec.get("capability_ids", []),
         "samples": samples,
         "provenance": {
+            **spec.get("provenance", {}),
             "descriptor_sha256": digest(descriptor),
-            "label_scope": "whole_clip_only",
+            "label_scope": spec.get("label_scope", "whole_clip_only"),
             "source_independence_verified": spec.get("source_independence_verified", False),
         },
     }

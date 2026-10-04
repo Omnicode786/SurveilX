@@ -43,7 +43,9 @@ from surveilx.database import (
     transaction,
 )
 from surveilx.evidence import read_bundle
+from surveilx.drift import drift_monitor
 from surveilx.incidents import transition
+from surveilx.notifications import NotificationPolicy, get_policy, put_policy, acknowledge, visible_alerts
 from surveilx.jobs import jobs
 from surveilx.runtime import Runtime, seed_demo
 from surveilx.security import (
@@ -362,7 +364,8 @@ def evidence(incident_id: str, observation: int = Query(default=0, ge=0), user=D
 
 @app.get("/api/alerts")
 def alerts(user=Depends(current_user)):
-    return listing(Alert)
+    with transaction() as session:
+        return visible_alerts(session, user.role)
 
 
 @app.post("/api/alerts/{alert_id}/acknowledge")
@@ -370,9 +373,27 @@ def acknowledge_alert(alert_id: str, user=Depends(current_user)):
     require(user, "operator")
     with transaction() as session:
         alert = session.get(Alert, alert_id) or missing()
-        alert.acknowledged_by, alert.status = user.id, "acknowledged"
-        audit(session, user.id, "alert_acknowledged", alert_id)
+        metadata = session.get(Record, f"notification:{alert.id}")
+        if metadata and user.role not in metadata.payload["recipient_roles"]:
+            raise HTTPException(403, "Notification is not routed to this role")
+        try:
+            acknowledge(session, alert, user.id)
+        except ValueError as exc:
+            raise HTTPException(409, str(exc)) from None
         return serialize(alert)
+
+
+@app.get("/api/notifications/policy")
+def notification_policy(user=Depends(current_user)):
+    with transaction() as session:
+        return get_policy(session).model_dump()
+
+
+@app.put("/api/notifications/policy")
+def change_notification_policy(body: NotificationPolicy, user=Depends(current_user)):
+    require(user)
+    with transaction() as session:
+        return put_policy(session, body, user.id)
 
 
 class FeedbackInput(BaseModel):
@@ -503,6 +524,12 @@ def get_adaptation_policy(user=Depends(current_user)):
     return adaptation_worker.status()
 
 
+@app.get("/api/adaptation/drift")
+def adaptation_drift(user=Depends(current_user)):
+    require(user, "researcher")
+    return drift_monitor.status()
+
+
 @app.post("/api/adaptation/policy")
 def set_adaptation_policy(body: AdaptationPolicy, user=Depends(current_user)):
     require(user)
@@ -538,7 +565,18 @@ def approve_acceptance(report_id: str, user=Depends(current_user)):
 
 @app.get("/api/hardware/status")
 def hardware(user=Depends(current_user)):
-    return {"hardware": runtime.hardware, "power": runtime.power, "accelerators": capabilities()}
+    from surveilx.accelerators import recorded_benchmarks
+    from surveilx.hardware_simulation import simulate
+    from surveilx.training_runtime import training_runtime_status
+
+    return {
+        "hardware": runtime.hardware,
+        "power": runtime.power,
+        "accelerators": capabilities(),
+        "simulation": simulate(),
+        "recorded_benchmarks": recorded_benchmarks(settings.data_dir),
+        "training_runtime": training_runtime_status(),
+    }
 
 
 @app.get("/api/capabilities")
@@ -575,12 +613,21 @@ def controller(user=Depends(current_user)):
 
 @app.get("/api/generations")
 def generation_status(user=Depends(current_user)):
-    from surveilx.generations import read_generation
+    from surveilx.generations import read_generation, read_queue
 
     result = []
+    seen = set()
     for path in sorted((settings.data_dir / "generations").glob("*/status.json")):
         try:
             result.append(read_generation(path, settings.data_dir))
+            seen.add(path.parent.resolve())
+        except (ValueError, OSError, TypeError):
+            result.append({"generation": path.parent.name, "state": "unreadable", "jobs": []})
+    for path in sorted((settings.data_dir / "generations").glob("*/queue.json")):
+        if path.parent.resolve() in seen:
+            continue
+        try:
+            result.append(read_queue(path))
         except (ValueError, OSError, TypeError):
             result.append({"generation": path.parent.name, "state": "unreadable", "jobs": []})
     return result
@@ -934,13 +981,15 @@ async def live(socket: WebSocket, channel: str):
     await socket.accept()
     try:
         while True:
-            await asyncio.to_thread(identify, socket.cookies.get("surveilx_session"))
+            user = await asyncio.to_thread(identify, socket.cookies.get("surveilx_session"))
             if channel == "cameras":
                 payload = runtime.snapshots()
             elif channel in {"system", "metrics"}:
                 payload = runtime.status()
+            elif channel == "alerts":
+                payload = await asyncio.to_thread(alerts, user)
             else:
-                payload = await asyncio.to_thread(listing, Incident if channel == "incidents" else Alert)
+                payload = await asyncio.to_thread(listing, Incident)
             await socket.send_json({"channel": channel, "timestamp": time.time(), "data": payload})
             await asyncio.sleep(1)
     except WebSocketDisconnect:

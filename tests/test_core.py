@@ -2,6 +2,7 @@ import numpy as np
 import pytest
 
 from surveilx.controller import Candidate, Scheduler
+from surveilx.accelerators import capabilities
 from surveilx.hardware import Hardware, PowerGovernor
 from surveilx.vision import Detection, SyntheticDetector, Tracker, generated_frame
 from training.calibration import arbitrate, fit_temperature, metrics
@@ -40,6 +41,23 @@ def test_low_memory_pc_does_not_promote():
     for _ in range(100):
         result = governor.update(hardware(ram_gb=2, available_gb=1))
     assert result["level"] == "economy"
+
+
+def test_accelerator_status_keeps_cpu_available_and_unverified_targets_explicit():
+    status = capabilities()
+    assert status["execution_targets"]["cpu"] == {
+        "runtime_available": True,
+        "project_status": "exercised",
+    }
+    assert status["training_device"] in {"cpu", "cuda", "mps"}
+    assert status["execution_targets"]["tensorrt"]["project_status"] in {
+        "unavailable",
+        "available_unbenchmarked",
+    }
+    assert status["execution_targets"]["fpga_vitis"]["project_status"] in {
+        "unavailable",
+        "available_unbenchmarked",
+    }
 
 
 def test_scheduler_budget_and_starvation():

@@ -1,0 +1,8 @@
+{
+  "source": "data\\downloads\\airtlab\\violence-detection-dataset\\non-violent\\cam1\\23.mp4",
+  "frames": 8,
+  "random_seek_seconds": 5.548609500001476,
+  "sequential_seconds": 0.8663033999982872,
+  "pixel_identical": true,
+  "limitation": "one source, one timing pass, concurrent training; no throughput guarantee"
+}

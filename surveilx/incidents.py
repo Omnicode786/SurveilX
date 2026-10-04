@@ -3,7 +3,8 @@ import time
 from fastapi import HTTPException
 from sqlalchemy import select
 
-from surveilx.database import Alert, Incident, audit
+from surveilx.database import Incident, audit
+from surveilx.notifications import get_policy, notify, reconcile_incident
 
 TRANSITIONS = {
     "VERIFYING": {"ACKNOWLEDGED", "FALSE_POSITIVE", "ESCALATED", "CONFIRMED", "EXPIRED"},
@@ -25,6 +26,7 @@ def transition(session, incident, state, actor, note=""):
     incident.state = state
     incident.updated = time.time()
     audit(session, actor, "incident_transition", incident.id, old=before, new=state, note=note)
+    reconcile_incident(session, incident, actor)
 
 
 def create_incident(session, camera_id, evidence_key, details, synthetic=False):
@@ -53,7 +55,7 @@ def create_incident(session, camera_id, evidence_key, details, synthetic=False):
             Incident.camera_id == camera_id,
             Incident.event_type == event_type,
             Incident.evidence_key.is_not(None),
-            Incident.created >= now - 300,
+            Incident.created >= now - get_policy(session).incident_group_seconds,
             Incident.state.in_(
                 ["VERIFYING", "CONFIRMED", "ALERTED", "ACKNOWLEDGED", "IN_PROGRESS", "ESCALATED"]
             ),
@@ -80,7 +82,6 @@ def create_incident(session, camera_id, evidence_key, details, synthetic=False):
     )
     session.add(incident)
     session.flush()
-    session.add(Alert(incident_id=incident.id))
+    notify(session, incident, now)
     audit(session, "runtime", "incident_created", incident.id, synthetic=synthetic)
-    audit(session, "runtime", "notification_delivered_in_app", incident.id)
     return incident

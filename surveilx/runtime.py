@@ -13,9 +13,11 @@ from sqlalchemy import select
 from surveilx.config import settings
 from surveilx.controller import Candidate, Scheduler
 from surveilx.database import Camera, Incident, ModelVersion, Record, audit, transaction
+from surveilx.drift import drift_monitor
 from surveilx.evidence import delete_bundle, save_bundle
 from surveilx.hardware import PowerGovernor, probe
 from surveilx.incidents import create_incident
+from surveilx.notifications import process_due
 from surveilx.security import cipher
 from surveilx.policies import PolicyEngine
 from surveilx.vision import HOGDetector, SyntheticDetector, Tracker, YOLODetector, generated_frame, redact
@@ -560,9 +562,13 @@ class Runtime:
         signature = tuple(sorted({item["label"] for item in outputs}))
         if evidence_saved and signature:
             capture.last_detection_log = now
-        if signature and not evidence_saved and (
-            signature != capture.last_detection_signature
-            or now - capture.last_detection_log >= max(1.0, settings.detection_log_seconds)
+        if (
+            signature
+            and not evidence_saved
+            and (
+                signature != capture.last_detection_signature
+                or now - capture.last_detection_log >= max(1.0, settings.detection_log_seconds)
+            )
         ):
             details = {
                 "event_type": "detection_sequence",
@@ -599,6 +605,9 @@ class Runtime:
                         "captured_at": captured_at,
                         "camera_id": capture.id,
                         "action": detector.name,
+                        "model_version": getattr(detector, "version", None),
+                        "expert_slot": selected_key,
+                        "power_level": self.power.get("level"),
                         "resolution": getattr(detector, "manifest", {})
                         .get("config", {})
                         .get("image_size", self.power["resolution"]),
@@ -650,7 +659,10 @@ class Runtime:
                     self.flush_spool()
                     with transaction() as session:
                         session.add(Record(kind="hardware", payload=self.hardware | {"power": self.power}))
+                        process_due(session)
                     self.sync_cameras()
+                if epoch % 60 == 0:
+                    drift_monitor.evaluate()
                 if epoch % 600 == 0:
                     self.retention()
                 self.heartbeat = time.time()

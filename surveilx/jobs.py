@@ -1,6 +1,5 @@
 import json
 import subprocess
-import sys
 import threading
 import time
 import uuid
@@ -11,6 +10,7 @@ from sqlalchemy import select
 from surveilx.config import settings
 from surveilx.database import ModelVersion, Record, audit, transaction
 from training.datasets import digest
+from surveilx.training_runtime import training_interpreter, training_batch_arguments
 
 
 def retention_report(result, current_dataset, parent_directory):
@@ -131,7 +131,7 @@ class TrainingJobs:
             else:
                 module = "training.detection_pipeline" if task == "detection" else "training.pipeline"
             command = [
-                sys.executable,
+                training_interpreter(),
                 "-m",
                 module,
                 "train",
@@ -140,6 +140,7 @@ class TrainingJobs:
                 "--epochs",
                 str(epochs),
             ]
+            command.extend(training_batch_arguments(module, dataset_manifest))
             if initialize_from:
                 if architecture == "yolo_rai":
                     raise ValueError("Automatic YOLO continuation is not yet validated")

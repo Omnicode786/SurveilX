@@ -240,20 +240,43 @@ def assign_targets(flat, targets):
     return objectness, class_targets, box_targets
 
 
-def detection_loss(levels, targets):
+def classification_loss(logits, targets, gamma=0.0, alpha=0.25):
+    if not math.isfinite(gamma) or gamma < 0 or not math.isfinite(alpha) or not 0 < alpha < 1:
+        raise ValueError("Focal gamma must be nonnegative and alpha strictly between zero and one")
+    terms = F.binary_cross_entropy_with_logits(logits, targets, reduction="none")
+    if gamma == 0:
+        return terms.mean()
+    probability = logits.sigmoid()
+    correct_probability = probability * targets + (1 - probability) * (1 - targets)
+    balance = alpha * targets + (1 - alpha) * (1 - targets)
+    return (balance * (1 - correct_probability).pow(gamma) * terms).mean()
+
+
+def detection_loss(
+    levels,
+    targets,
+    classification_weight=1.0,
+    classification_focal_gamma=0.0,
+    classification_focal_alpha=0.25,
+):
     flat = flatten_predictions(levels)
     object_target, class_target, box_target = assign_targets(flat, targets)
     positive = object_target.bool()
     denominator = positive.sum().clamp(min=1)
     object_loss = focal_loss(flat["objectness"].squeeze(-1), object_target).sum() / denominator
     if positive.any():
-        class_loss = F.binary_cross_entropy_with_logits(flat["classes"][positive], class_target[positive])
+        class_loss = classification_loss(
+            flat["classes"][positive],
+            class_target[positive],
+            classification_focal_gamma,
+            classification_focal_alpha,
+        )
         box_loss = generalized_iou_loss(flat["boxes"][positive], box_target[positive]).mean()
         size_loss = F.smooth_l1_loss(flat["boxes"][positive], box_target[positive])
     else:
         class_loss = flat["classes"].sum() * 0
         box_loss = size_loss = flat["boxes"].sum() * 0
-    total = object_loss + class_loss + 3 * box_loss + 2 * size_loss
+    total = object_loss + classification_weight * class_loss + 3 * box_loss + 2 * size_loss
     return {
         "loss": total,
         "objectness": object_loss,

@@ -1,0 +1,111 @@
+{
+  "version": "fighting-g1-scene",
+  "samples": 20,
+  "accuracy": 0.7,
+  "maximum_probability_difference": 1.536433080762123e-08,
+  "domain_mismatch_abstains": true,
+  "cadence_mismatch_abstains": true,
+  "limitation": "Offline imported-clip parity; not live-camera validation",
+  "rows": [
+    {
+      "sample": "clip-000070.npz",
+      "correct": false,
+      "maximum_probability_difference": 0.0
+    },
+    {
+      "sample": "clip-000071.npz",
+      "correct": true,
+      "maximum_probability_difference": 0.0
+    },
+    {
+      "sample": "clip-000072.npz",
+      "correct": false,
+      "maximum_probability_difference": 8.06915062545599e-09
+    },
+    {
+      "sample": "clip-000073.npz",
+      "correct": true,
+      "maximum_probability_difference": 1.3808169274653892e-08
+    },
+    {
+      "sample": "clip-000074.npz",
+      "correct": true,
+      "maximum_probability_difference": 0.0
+    },
+    {
+      "sample": "clip-000075.npz",
+      "correct": true,
+      "maximum_probability_difference": 8.167722831409208e-09
+    },
+    {
+      "sample": "clip-000076.npz",
+      "correct": false,
+      "maximum_probability_difference": 8.866482326119751e-09
+    },
+    {
+      "sample": "clip-000077.npz",
+      "correct": true,
+      "maximum_probability_difference": 0.0
+    },
+    {
+      "sample": "clip-000078.npz",
+      "correct": true,
+      "maximum_probability_difference": 0.0
+    },
+    {
+      "sample": "clip-000079.npz",
+      "correct": true,
+      "maximum_probability_difference": 2.2357657392113595e-09
+    },
+    {
+      "sample": "clip-000150.npz",
+      "correct": false,
+      "maximum_probability_difference": 0.0
+    },
+    {
+      "sample": "clip-000151.npz",
+      "correct": true,
+      "maximum_probability_difference": 8.029670928166865e-09
+    },
+    {
+      "sample": "clip-000152.npz",
+      "correct": true,
+      "maximum_probability_difference": 1.319231246466046e-08
+    },
+    {
+      "sample": "clip-000153.npz",
+      "correct": true,
+      "maximum_probability_difference": 1.536433080762123e-08
+    },
+    {
+      "sample": "clip-000154.npz",
+      "correct": false,
+      "maximum_probability_difference": 6.6913199425755465e-09
+    },
+    {
+      "sample": "clip-000155.npz",
+      "correct": false,
+      "maximum_probability_difference": 7.926785894341037e-09
+    },
+    {
+      "sample": "clip-000156.npz",
+      "correct": true,
+      "maximum_probability_difference": 7.3028981750766775e-09
+    },
+    {
+      "sample": "clip-000157.npz",
+      "correct": true,
+      "maximum_probability_difference": 4.182729884671943e-09
+    },
+    {
+      "sample": "clip-000158.npz",
+      "correct": true,
+      "maximum_probability_difference": 1.1102230246251565e-16
+    },
+    {
+      "sample": "clip-000159.npz",
+      "correct": true,
+      "maximum_probability_difference": 4.386737084693948e-09
+    }
+  ]
+}

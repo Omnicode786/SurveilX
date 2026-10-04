@@ -84,3 +84,19 @@ def test_yolo_thread_budget_applies_after_library_device_setup(monkeypatch):
     callbacks["on_pretrain_routine_start"](None)
     callbacks["on_predict_start"](None)
     assert observed == [3, 3]
+
+
+def test_classification_weight_changes_class_gradient_without_changing_box_loss():
+    from training.detector_model import SVADetector, detection_loss
+
+    torch.set_num_threads(1)
+    model = SVADetector(classes=4, width=8, depth=1)
+    heads = model(torch.rand(1, 3, 64, 64))
+    targets = [{"boxes": torch.tensor([[0.1, 0.1, 0.8, 0.8]]), "labels": torch.tensor([3])}]
+    original = detection_loss(heads, targets)
+    weighted = detection_loss(heads, targets, classification_weight=4)
+    assert (weighted["loss"] - original["loss"]).detach().item() == pytest.approx(3 * original["classification"].detach().item())
+    assert torch.equal(weighted["box_giou"], original["box_giou"])
+    old_gradient = torch.autograd.grad(original["loss"], model.classifier.weight, retain_graph=True)[0]
+    new_gradient = torch.autograd.grad(weighted["loss"], model.classifier.weight)[0]
+    assert torch.allclose(new_gradient, 4 * old_gradient)

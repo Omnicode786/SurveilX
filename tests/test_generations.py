@@ -2,7 +2,7 @@ import hashlib
 import json
 from types import SimpleNamespace
 
-from surveilx.generations import read_generation, runner_matches
+from surveilx.generations import queue_matches, read_generation, read_queue, runner_matches
 
 
 def test_runner_identity_matches_module_and_generation_not_pid_alone(tmp_path):
@@ -55,3 +55,51 @@ def test_event_journal_has_visible_job_history(tmp_path):
     result = read_generation(directory / "status.json", tmp_path)
     assert result["jobs"][0]["version"] == "fall-scene"
     assert result["jobs"][0]["completed_epochs"] == 1
+
+
+def test_optimized_profiles_are_visible(tmp_path):
+    directory = tmp_path / "generations/profiles"
+    directory.mkdir(parents=True)
+    plan_path = directory / "plan.json"
+    plan_path.write_text(json.dumps({"jobs": [{"version": "optimized"}]}))
+    profiles = [{"tier": "economy", "image_size": 224, "validation_map50": 0.52,
+                 "latency_ms": 14.2, "test_metrics": {"map50": 0.55}}]
+    journal = {"state": "completed", "plan_sha256": hashlib.sha256(plan_path.read_bytes()).hexdigest(),
+               "jobs": {"optimized": {"state": "completed", "profiles": profiles}}}
+    path = directory / "status.json"
+    path.write_text(json.dumps(journal))
+    result = read_generation(path, tmp_path)
+    assert result["jobs"][0]["profiles"] == profiles
+
+
+def test_waiting_queue_is_visible_and_process_verified(tmp_path, monkeypatch):
+    directory = tmp_path / "generations/profiles"
+    directory.mkdir(parents=True)
+    path = directory / "queue.json"
+    path.write_text(json.dumps({"state": "waiting", "pid": 123, "ppe_state": "waiting", "ppe_retry_state": "planned"}))
+    process = SimpleNamespace(
+        cmdline=lambda: ["python", "-m", "scripts.queue_model_optimization", str(directory)],
+        cwd=lambda: str(tmp_path),
+    )
+    monkeypatch.setattr("surveilx.generations.psutil.Process", lambda pid: process)
+    assert queue_matches(process, directory)
+    result = read_queue(path)
+    assert result["state"] == "waiting"
+    assert result["config"]["ppe_state"] == "waiting"
+    assert result["config"]["ppe_retry_state"] == "planned"
+
+
+def test_accuracy_retry_queue_identity_is_visible(tmp_path, monkeypatch):
+    directory = tmp_path / "generations/retry"
+    directory.mkdir(parents=True)
+    path = directory / "queue.json"
+    path.write_text(json.dumps({"state": "waiting", "pid": 321, "predecessor_state": "running"}))
+    process = SimpleNamespace(
+        cmdline=lambda: ["python", "-m", "scripts.queue_accuracy_retry", str(directory), "original/status.json"],
+        cwd=lambda: str(tmp_path),
+    )
+    monkeypatch.setattr("surveilx.generations.psutil.Process", lambda pid: process)
+    assert queue_matches(process, directory)
+    result = read_queue(path)
+    assert result["state"] == "waiting"
+    assert result["config"]["predecessor_state"] == "running"

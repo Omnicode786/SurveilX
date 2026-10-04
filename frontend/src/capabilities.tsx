@@ -11,6 +11,13 @@ type Candidate = {
   acceptance_approved: boolean;
   origin: string;
   classes: string[];
+  dataset_provenance?: { staged?: boolean; label_scope?: string };
+  development_evidence?: {
+    metric: string; score: number | null; target: number; aggregate_target_met: boolean | null;
+    all_classes_target_met: boolean;
+    per_class: { label: string; metric: string; score: number | null; support: number; target_met: boolean | null }[];
+    interpretation: string;
+  };
 };
 type Profile = {
   id: string;
@@ -20,6 +27,10 @@ type Profile = {
   requirements: string[];
   required_classes: string[];
   datasets: string[];
+  dataset_evidence?: { name: string; provenance: {
+    label_scope?: string; staged?: boolean; single_room?: boolean;
+    limitations?: string; temporal_annotations_reviewed?: boolean;
+  }; license?: string }[];
   models: Candidate[];
   production_validated: boolean;
   implemented_rules: string[];
@@ -37,11 +48,16 @@ type Generation = {
   jobs: {
     architecture: string; version: string; state: string; completed_epochs: number; epochs?: number;
     error?: string;
+    target?: { minimum: number; observed?: number; met?: boolean };
     comparison?: {
       metric: string; before: number; after: number; delta: number;
       classes: { class: string; metric: string; before: number | null; after: number | null; delta: number | null }[];
     };
     coverage?: { class: string; labeled_instances: Record<string, number> }[];
+    profiles?: {
+      tier: string; image_size: number; validation_map50: number; latency_ms: number;
+      test_metrics?: { map50: number }; test_is_selection_criterion?: boolean;
+    }[];
   }[];
 };
 
@@ -128,6 +144,7 @@ export function CapabilitiesPanel({
                     ? ` · ${job.completed_epochs}/${job.epochs ?? run.config?.epochs ?? "?"} epochs recorded`
                     : ""}
                 </p>
+                {job.target && <p>Target development score: at least {job.target.minimum.toFixed(2)} · {job.target.met == null ? "awaiting final evaluation" : job.target.met ? "aggregate target reached; inspect individual classes" : "below target"}.</p>}
                 {job.comparison && <>
                   <p>Development {job.comparison.metric === "map50" ? "AP50" : "accuracy"}: {job.comparison.before.toFixed(4)} → {job.comparison.after.toFixed(4)} ({job.comparison.delta >= 0 ? "+" : ""}{job.comparison.delta.toFixed(4)}). Independent acceptance pending.</p>
                   <details>
@@ -148,6 +165,20 @@ export function CapabilitiesPanel({
                     <p>Classes without test labels cannot establish detection accuracy. Checkpoints are chosen using validation; these test results do not control selection.</p>
                   </details>
                 </>}
+                {job.profiles && job.profiles.length > 0 && <details>
+                  <summary>Validated power profiles</summary>
+                  <div className="table-panel"><table>
+                    <thead><tr><th>Power tier</th><th>Input size</th><th>Validation AP50</th><th>Latency</th><th>Test AP50</th></tr></thead>
+                    <tbody>{job.profiles.map((profile) => <tr key={profile.tier}>
+                      <td>{profile.tier}</td>
+                      <td>{profile.image_size} px</td>
+                      <td>{profile.validation_map50.toFixed(4)}</td>
+                      <td>{profile.latency_ms.toFixed(2)} ms</td>
+                      <td>{profile.test_metrics?.map50.toFixed(4) ?? "Pending"}</td>
+                    </tr>)}</tbody>
+                  </table></div>
+                  <p>Calibration is fitted separately for each input size. Validation AP50 and measured latency choose the tier; test AP50 is reported afterward.</p>
+                </details>}
                 {job.error && <p role="alert">{job.error}</p>}
                 </div>
               ))}
@@ -178,6 +209,14 @@ export function CapabilitiesPanel({
               : "Real-domain production acceptance pending"}
           </p>
           <p>Required labels: {profile.required_classes.join(", ")}</p>
+          {profile.dataset_evidence?.filter((item) => item.provenance.label_scope === "inherited_video_label").map((item) => (
+            <p key={item.name}><strong>{item.name}: weak video labels.</strong>{" "}
+              Crop intervals have not been individually reviewed.
+              {item.provenance.staged ? " Actions are staged." : ""}
+              {item.provenance.single_room ? " All recordings share one room." : ""}
+              {item.license ? ` Rights: ${item.license}.` : ""}
+            </p>
+          ))}
           <p>
             Imported dataset declarations:{" "}
             {profile.datasets.length ? profile.datasets.join(", ") : "None"}
@@ -189,9 +228,24 @@ export function CapabilitiesPanel({
               <details><summary>Model labels ({model.classes.length})</summary><p>{model.classes.join(", ")}</p></details>
               <p>
                 Domain: {model.domain} ·{" "}
-                {model.synthetic ? "Synthetic" : "Real data"} · Stage:{" "}
+                {model.synthetic ? "Synthetic" : model.dataset_provenance?.staged ? "Staged recordings" : "Recorded/pretrained data"} · Stage:{" "}
                 {model.stage} · {model.active ? "Live" : "Inactive"}
               </p>
+              {model.development_evidence && <details>
+                <summary>Development {model.development_evidence.metric}: {model.development_evidence.score?.toFixed(4) ?? "Not evaluated"}
+                  {" · "}{model.development_evidence.all_classes_target_met ? "All class point scores reach 0.50" : "All-class target not established"}
+                </summary>
+                <div className="table-panel"><table>
+                  <thead><tr><th>Class</th><th>Metric</th><th>Test score</th><th>Test labels</th><th>0.50 floor</th></tr></thead>
+                  <tbody>{model.development_evidence.per_class.map((row) => <tr key={row.label}>
+                    <td>{row.label.replaceAll("_", " ")}</td><td>{row.metric}</td>
+                    <td>{row.score?.toFixed(4) ?? "Unavailable"}</td><td>{row.support}</td>
+                    <td>{row.target_met == null ? "Not evaluated" : row.target_met ? "Reached" : "Below"}</td>
+                  </tr>)}</tbody>
+                </table></div>
+                <p>{model.development_evidence.interpretation}</p>
+                {model.dataset_provenance?.label_scope === "inherited_video_label" && <p>Training used inherited video labels; individual crop intervals require review.</p>}
+              </details>}
               <p>
                 Calibration: {model.calibrated ? "Fitted" : "Pending"} ·
                 Acceptance:{" "}

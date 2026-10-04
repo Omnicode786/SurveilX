@@ -1,5 +1,7 @@
 """Explicit task contracts; a declared profile is not evidence of a trained capability."""
 
+import math
+
 DOMAINS = ["parking", "office", "warehouse", "industrial", "retail", "traffic", "building"]
 
 
@@ -167,9 +169,9 @@ PROFILES = [
 ]
 BY_ID = {p["id"]: p for p in PROFILES}
 POLICY_PRIMITIVES = {
-    "traffic_violation": ["wrong_way"],
-    "ppe_compliance": ["possible_missing_helmet"],
-    "industrial_hazards": ["restricted_zone"],
+    "traffic_violation": ["wrong_way", "calibrated_speed", "signal_stop_line"],
+    "ppe_compliance": ["possible_missing_helmet", "possible_missing_vest"],
+    "industrial_hazards": ["restricted_zone", "configured_proximity", "machine_state", "blocked_exit"],
 }
 
 
@@ -194,12 +196,38 @@ def validate_profiles(manifest):
 def declared_profiles(manifest):
     # Backward compatibility for the earlier, explicitly person-only experiment.
     if (
-        "capability_ids" not in manifest
+        manifest.get("capability_ids", []) == []
+        and manifest.get("task", "detection") == "detection"
         and manifest.get("domain") == "pedestrian"
         and manifest.get("classes") == ["person"]
     ):
         return ["person_detection"]
     return validate_profiles(manifest)
+
+
+def development_evidence(metadata):
+    """Expose the user's point-score floor without presenting it as reliability."""
+    metrics = metadata.get("metrics", {})
+    detection = metadata.get("task") == "detection"
+    metric, class_metric = ("AP50", "ap50") if detection else ("accuracy", "recall")
+
+    def finite_score(value):
+        return float(value) if isinstance(value, (int, float)) and math.isfinite(value) and 0 <= value <= 1 else None
+
+    score = finite_score(metrics.get("map50" if detection else "accuracy"))
+    lookup = {row.get("class_id"): row for row in metrics.get("per_class", [])}
+    classes = []
+    for index, label in enumerate(metadata.get("classes", [])):
+        row = lookup.get(index, {})
+        support = row.get("ground_truth" if detection else "support", 0)
+        value = finite_score(row.get(class_metric)) if isinstance(support, int) and support > 0 else None
+        classes.append({"label": label, "metric": "AP50" if detection else "recall", "score": value,
+                        "support": support, "target_met": value >= 0.5 if value is not None else None})
+    return {"metric": metric, "score": score, "target": 0.5,
+            "aggregate_target_met": score >= 0.5 if score is not None else None,
+            "all_classes_target_met": bool(classes) and all(row["target_met"] is True for row in classes),
+            "per_class": classes, "independent_reliability_established": False,
+            "interpretation": "Held-out development point scores. Meeting 0.50 does not establish source independence, calibrated event recall or site reliability."}
 
 
 def coverage(models, datasets, active_model_ids=(), verified_model_ids=()):
@@ -223,15 +251,20 @@ def coverage(models, datasets, active_model_ids=(), verified_model_ids=()):
                         "synthetic": metadata.get("synthetic", False),
                         "calibrated": metadata.get("calibrated", False),
                         "origin": metadata.get("training_status", "locally_trained"),
+                        "dataset_provenance": metadata.get("dataset_provenance", {}),
+                        "development_evidence": development_evidence(metadata),
                         "acceptance_approved": model["id"] in verified_model_ids,
                         "active": model["id"] in active_model_ids,
                     }
                 )
-        compatible = []
+        compatible, data_evidence = [], []
         for name, metadata in datasets:
             try:
                 if item["id"] in declared_profiles(metadata):
                     compatible.append(name)
+                    data_evidence.append({"name": name, "provenance": metadata.get("provenance", {}),
+                                          "license": metadata.get("license"),
+                                          "synthetic": metadata.get("synthetic", False)})
             except ValueError:
                 pass
         result.append(
@@ -239,6 +272,7 @@ def coverage(models, datasets, active_model_ids=(), verified_model_ids=()):
                 **item,
                 "implemented_rules": POLICY_PRIMITIVES.get(item["id"], []),
                 "datasets": compatible,
+                "dataset_evidence": data_evidence,
                 "models": candidates,
                 "status": "candidate_available"
                 if candidates

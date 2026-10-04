@@ -15,6 +15,7 @@ from surveilx.accelerators import torch_device
 from training.calibration import fit_temperature, metrics
 from training.datasets import digest, generate, validate_manifest
 from training.models import SVANet, SVASceneNet
+from training.event_uncertainty import event_uncertainty
 
 
 class Clips(Dataset):
@@ -52,8 +53,8 @@ def predict(model, loader, device):
 
 
 def train(manifest_path, output, epochs=5, seed=42, ablation="full", initialize_from=None,
-          finetune_all=False, learning_rate=0.002, augment=False, patience=None, threads=4):
-    if epochs < 1 or threads < 1 or not np.isfinite(learning_rate) or learning_rate <= 0:
+          finetune_all=False, learning_rate=0.002, augment=False, patience=None, threads=4, batch_size=8):
+    if epochs < 1 or threads < 1 or batch_size < 1 or not np.isfinite(learning_rate) or learning_rate <= 0:
         raise ValueError("Epochs, threads and learning rate must be positive")
     if patience is not None and patience < 1:
         raise ValueError("Optional patience must be positive")
@@ -105,7 +106,7 @@ def train(manifest_path, output, epochs=5, seed=42, ablation="full", initialize_
         split: DataLoader(
             Clips(manifest_path.parent, [s for s in manifest["samples"] if s["split"] == split],
                   scene=scene, augment=augment and split == "train"),
-            batch_size=8,
+            batch_size=batch_size,
             shuffle=split == "train",
             num_workers=0,
         )
@@ -156,6 +157,10 @@ def train(manifest_path, output, epochs=5, seed=42, ablation="full", initialize_
     temperature = fit_temperature(calibration_logits, calibration_labels)
     test_logits, test_labels = predict(model, loaders["test"], device)
     report = metrics(test_logits, test_labels, temperature)
+    uncertainty = event_uncertainty(
+        test_logits, test_labels, [sample["group"] for sample in manifest["samples"] if sample["split"] == "test"],
+        seed=seed,
+    )
     before = metrics(test_logits, test_labels)
     np.savez(output / "heldout_predictions.npz", logits=test_logits, labels=test_labels)
     try:
@@ -177,11 +182,15 @@ def train(manifest_path, output, epochs=5, seed=42, ablation="full", initialize_
         "classes": manifest["classes"],
         "dataset_sha256": digest(manifest_path),
         "weights_sha256": digest(output / "weights.pt"),
+        "heldout_predictions_sha256": digest(output / "heldout_predictions.npz"),
         "dataset_counts": counts,
+        "dataset_provenance": manifest.get("provenance", {}),
+        "dataset_license": manifest.get("license"),
         "temperature": temperature,
         "calibration_task": "event",
         "calibrated": True,
         "metrics": report,
+        "test_uncertainty": uncertainty,
         "uncalibrated_metrics": before,
         "history": history,
         "seed": seed,
@@ -191,7 +200,8 @@ def train(manifest_path, output, epochs=5, seed=42, ablation="full", initialize_
         "validation_selection": {"split": "validation", "parent_loss": parent_loss,
                                  "selected_loss": best, "selected": "parent" if best_epoch == 0 else "candidate"},
         "training": {"learning_rate": learning_rate, "augment": augment,
-                     "finetune_all": finetune_all, "patience": patience, "threads": threads},
+                     "finetune_all": finetune_all, "patience": patience, "threads": threads,
+                     "batch_size": batch_size},
         "ablation": ablation,
         "architecture": flags,
         "initialization": initialization,
@@ -236,6 +246,7 @@ def main():
     training.add_argument("--augment", action="store_true")
     training.add_argument("--patience", type=int)
     training.add_argument("--threads", type=int, default=4)
+    training.add_argument("--batch-size", type=int, default=8)
     args = parser.parse_args()
     if args.command == "generate":
         print(generate(args.directory, args.count, args.seed))
@@ -244,7 +255,7 @@ def main():
             json.dumps(
                 train(
                     args.manifest, args.output, args.epochs, args.seed, args.ablation, args.initialize_from,
-                    args.finetune_all, args.learning_rate, args.augment, args.patience, args.threads
+                    args.finetune_all, args.learning_rate, args.augment, args.patience, args.threads, args.batch_size
                 ),
                 indent=2,
             )

@@ -1,6 +1,14 @@
 import pytest
 
-from surveilx.task_profiles import coverage, validate_profiles
+from surveilx.task_profiles import coverage, declared_profiles, validate_profiles
+from surveilx.task_profiles import development_evidence
+
+
+def test_legacy_pedestrian_continuation_keeps_its_declared_family():
+    metadata = {"task": "detection", "domain": "pedestrian", "classes": ["person"], "capability_ids": []}
+    assert declared_profiles(metadata) == ["person_detection"]
+    assert declared_profiles({**metadata, "domain": "retail"}) == []
+    assert declared_profiles({**metadata, "task": "event"}) == []
 
 
 def test_profiles_require_explicit_taxonomy_and_matching_task():
@@ -56,6 +64,27 @@ def test_coverage_endpoint_requires_authentication_and_reports_all_families(clie
         "industrial_hazards",
     } <= profiles.keys()
     assert all(not p["production_validated"] for p in profiles.values())
+
+
+def test_coverage_exposes_weak_staged_data_without_claiming_a_trained_model():
+    metadata = {"task": "event", "classes": ["normal", "fighting"], "capability_ids": ["fighting"],
+                "license": "research only", "provenance": {"label_scope": "inherited_video_label", "staged": True}}
+    profile = next(p for p in coverage([], [("staged", metadata)]) if p["id"] == "fighting")
+    assert profile["status"] == "data_available"
+    assert not profile["models"] and not profile["production_validated"]
+    assert profile["dataset_evidence"][0]["provenance"]["staged"]
+
+
+def test_aggregate_score_never_hides_weak_or_untested_classes():
+    metadata = {"task": "detection", "classes": ["fire", "smoke", "untested"],
+                "metrics": {"map50": 0.6, "per_class": [
+                    {"class_id": 0, "ground_truth": 20, "ap50": 0.8},
+                    {"class_id": 1, "ground_truth": 20, "ap50": 0.4}]}}
+    result = development_evidence(metadata)
+    assert result["aggregate_target_met"]
+    assert not result["all_classes_target_met"]
+    assert result["per_class"][2]["score"] is None
+    assert not result["independent_reliability_established"]
 
 
 def test_generation_status_detects_stale_runner_and_preserves_journal(client, monkeypatch):

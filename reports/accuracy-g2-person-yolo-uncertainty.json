@@ -1,0 +1,22 @@
+{
+  "status": "insufficient_clusters",
+  "clusters": 2,
+  "minimum_clusters": 8,
+  "iterations": 0,
+  "version": "accuracy-g2-person-yolo",
+  "dataset": "pennfudan",
+  "point_map50": 0.9427371308559427,
+  "point_per_class": [
+    {
+      "class_id": 0,
+      "ground_truth": 58,
+      "ap50": 0.9427371308559427
+    }
+  ],
+  "classes": [
+    "person"
+  ],
+  "dataset_sha256": "8c32d21e21fe7945e4480d5a38d5110ae25ad338e60db50ca1a8bf6826a66d4c",
+  "source_independence": false,
+  "warning": "A narrow interval cannot establish site/source independence when dataset provenance lacks those groups"
+}

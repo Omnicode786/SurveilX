@@ -143,6 +143,31 @@ def test_bad_spool_file_does_not_block_later_events(client):
         assert session.scalar(select(Incident).where(Incident.camera_id == capture.id))
 
 
+def test_unreachable_rtsp_source_reconnects_without_blocking_shutdown():
+    from surveilx.database import Camera
+    from surveilx.runtime import Capture
+    from surveilx.security import cipher
+
+    camera = Camera(
+        id="rtsp-failure-fixture",
+        name="Unavailable RTSP",
+        source_cipher=cipher().encrypt(b"rtsp://127.0.0.1:9/unavailable").decode(),
+        zones=[],
+        masks=[],
+        priority=1,
+        environment="custom",
+    )
+    capture = Capture(camera)
+    capture.start()
+    deadline = time.monotonic() + 5
+    while capture.reconnects == 0 and time.monotonic() < deadline:
+        time.sleep(0.05)
+    capture.stop()
+    assert capture.reconnects >= 1
+    assert capture.frame is None
+    assert not capture.thread.is_alive()
+
+
 def test_job_failure_preserves_metadata_releases_lock_and_restart_is_explicit(client, monkeypatch):
     from surveilx import jobs
     from surveilx.config import settings

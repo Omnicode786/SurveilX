@@ -1,0 +1,439 @@
+{
+  "kind": "software_contract_simulation",
+  "hardware_executed": false,
+  "scope": "Hypothetical provider availability and telemetry; no speed/accuracy/energy predictions",
+  "targets": [
+    {
+      "target": "ordinary_pc",
+      "hypothetical_cores": 6,
+      "hypothetical_ram_gb": 16,
+      "selection": {
+        "providers": [
+          "CPUExecutionProvider"
+        ],
+        "provider_options": {
+          "CPUExecutionProvider": {}
+        },
+        "threads": 3,
+        "memory_pattern": true,
+        "serialize_runs": false,
+        "allow_spinning": false
+      },
+      "healthy_level": "balanced",
+      "stress_levels": {
+        "thermal": [
+          "economy",
+          "economy"
+        ],
+        "memory": [
+          "economy",
+          "economy"
+        ],
+        "battery": [
+          "economy",
+          "economy"
+        ],
+        "cpu": [
+          "economy",
+          "economy"
+        ]
+      },
+      "contract_checks_passed": true
+    },
+    {
+      "target": "cuda_workstation",
+      "hypothetical_cores": 12,
+      "hypothetical_ram_gb": 32,
+      "selection": {
+        "providers": [
+          "CUDAExecutionProvider",
+          "CPUExecutionProvider"
+        ],
+        "provider_options": {
+          "CUDAExecutionProvider": {},
+          "CPUExecutionProvider": {}
+        },
+        "threads": 3,
+        "memory_pattern": true,
+        "serialize_runs": false,
+        "allow_spinning": false
+      },
+      "healthy_level": "performance",
+      "stress_levels": {
+        "thermal": [
+          "balanced",
+          "economy"
+        ],
+        "memory": [
+          "balanced",
+          "economy"
+        ],
+        "battery": [
+          "balanced",
+          "economy"
+        ],
+        "cpu": [
+          "balanced",
+          "economy"
+        ]
+      },
+      "contract_checks_passed": true
+    },
+    {
+      "target": "tensorrt_workstation",
+      "hypothetical_cores": 12,
+      "hypothetical_ram_gb": 32,
+      "selection": {
+        "providers": [
+          "TensorrtExecutionProvider",
+          "CUDAExecutionProvider",
+          "CPUExecutionProvider"
+        ],
+        "provider_options": {
+          "TensorrtExecutionProvider": {},
+          "CUDAExecutionProvider": {},
+          "CPUExecutionProvider": {}
+        },
+        "threads": 3,
+        "memory_pattern": true,
+        "serialize_runs": false,
+        "allow_spinning": false
+      },
+      "healthy_level": "performance",
+      "stress_levels": {
+        "thermal": [
+          "balanced",
+          "economy"
+        ],
+        "memory": [
+          "balanced",
+          "economy"
+        ],
+        "battery": [
+          "balanced",
+          "economy"
+        ],
+        "cpu": [
+          "balanced",
+          "economy"
+        ]
+      },
+      "contract_checks_passed": true
+    },
+    {
+      "target": "jetson",
+      "hypothetical_cores": 6,
+      "hypothetical_ram_gb": 8,
+      "selection": {
+        "providers": [
+          "TensorrtExecutionProvider",
+          "CUDAExecutionProvider",
+          "CPUExecutionProvider"
+        ],
+        "provider_options": {
+          "TensorrtExecutionProvider": {},
+          "CUDAExecutionProvider": {},
+          "CPUExecutionProvider": {}
+        },
+        "threads": 3,
+        "memory_pattern": true,
+        "serialize_runs": false,
+        "allow_spinning": false
+      },
+      "healthy_level": "balanced",
+      "stress_levels": {
+        "thermal": [
+          "economy",
+          "economy"
+        ],
+        "memory": [
+          "economy",
+          "economy"
+        ],
+        "battery": [
+          "economy",
+          "economy"
+        ],
+        "cpu": [
+          "economy",
+          "economy"
+        ]
+      },
+      "contract_checks_passed": true
+    },
+    {
+      "target": "raspberry_pi",
+      "hypothetical_cores": 4,
+      "hypothetical_ram_gb": 4,
+      "selection": {
+        "providers": [
+          "XNNPACKExecutionProvider",
+          "CPUExecutionProvider"
+        ],
+        "provider_options": {
+          "XNNPACKExecutionProvider": {
+            "intra_op_num_threads": "3"
+          },
+          "CPUExecutionProvider": {}
+        },
+        "threads": 1,
+        "memory_pattern": true,
+        "serialize_runs": false,
+        "allow_spinning": false
+      },
+      "healthy_level": "balanced",
+      "stress_levels": {
+        "thermal": [
+          "economy",
+          "economy"
+        ],
+        "memory": [
+          "economy",
+          "economy"
+        ],
+        "battery": [
+          "economy",
+          "economy"
+        ],
+        "cpu": [
+          "economy",
+          "economy"
+        ]
+      },
+      "contract_checks_passed": true
+    },
+    {
+      "target": "low_memory_edge",
+      "hypothetical_cores": 4,
+      "hypothetical_ram_gb": 2,
+      "selection": {
+        "providers": [
+          "CPUExecutionProvider"
+        ],
+        "provider_options": {
+          "CPUExecutionProvider": {}
+        },
+        "threads": 3,
+        "memory_pattern": true,
+        "serialize_runs": false,
+        "allow_spinning": false
+      },
+      "healthy_level": "economy",
+      "stress_levels": {
+        "thermal": [
+          "economy",
+          "economy"
+        ],
+        "memory": [
+          "economy",
+          "economy"
+        ],
+        "battery": [
+          "economy",
+          "economy"
+        ],
+        "cpu": [
+          "economy",
+          "economy"
+        ]
+      },
+      "contract_checks_passed": true
+    },
+    {
+      "target": "intel_openvino",
+      "hypothetical_cores": 8,
+      "hypothetical_ram_gb": 16,
+      "selection": {
+        "providers": [
+          "OpenVINOExecutionProvider",
+          "CPUExecutionProvider"
+        ],
+        "provider_options": {
+          "OpenVINOExecutionProvider": {},
+          "CPUExecutionProvider": {}
+        },
+        "threads": 3,
+        "memory_pattern": true,
+        "serialize_runs": false,
+        "allow_spinning": false
+      },
+      "healthy_level": "performance",
+      "stress_levels": {
+        "thermal": [
+          "balanced",
+          "economy"
+        ],
+        "memory": [
+          "balanced",
+          "economy"
+        ],
+        "battery": [
+          "balanced",
+          "economy"
+        ],
+        "cpu": [
+          "balanced",
+          "economy"
+        ]
+      },
+      "contract_checks_passed": true
+    },
+    {
+      "target": "windows_directml",
+      "hypothetical_cores": 6,
+      "hypothetical_ram_gb": 16,
+      "selection": {
+        "providers": [
+          "DmlExecutionProvider",
+          "CPUExecutionProvider"
+        ],
+        "provider_options": {
+          "DmlExecutionProvider": {},
+          "CPUExecutionProvider": {}
+        },
+        "threads": 3,
+        "memory_pattern": false,
+        "serialize_runs": true,
+        "allow_spinning": false
+      },
+      "healthy_level": "balanced",
+      "stress_levels": {
+        "thermal": [
+          "economy",
+          "economy"
+        ],
+        "memory": [
+          "economy",
+          "economy"
+        ],
+        "battery": [
+          "economy",
+          "economy"
+        ],
+        "cpu": [
+          "economy",
+          "economy"
+        ]
+      },
+      "contract_checks_passed": true
+    },
+    {
+      "target": "apple_coreml",
+      "hypothetical_cores": 8,
+      "hypothetical_ram_gb": 16,
+      "selection": {
+        "providers": [
+          "CoreMLExecutionProvider",
+          "CPUExecutionProvider"
+        ],
+        "provider_options": {
+          "CoreMLExecutionProvider": {},
+          "CPUExecutionProvider": {}
+        },
+        "threads": 3,
+        "memory_pattern": true,
+        "serialize_runs": false,
+        "allow_spinning": false
+      },
+      "healthy_level": "performance",
+      "stress_levels": {
+        "thermal": [
+          "balanced",
+          "economy"
+        ],
+        "memory": [
+          "balanced",
+          "economy"
+        ],
+        "battery": [
+          "balanced",
+          "economy"
+        ],
+        "cpu": [
+          "balanced",
+          "economy"
+        ]
+      },
+      "contract_checks_passed": true
+    },
+    {
+      "target": "amd_rocm",
+      "hypothetical_cores": 8,
+      "hypothetical_ram_gb": 16,
+      "selection": {
+        "providers": [
+          "ROCMExecutionProvider",
+          "CPUExecutionProvider"
+        ],
+        "provider_options": {
+          "ROCMExecutionProvider": {},
+          "CPUExecutionProvider": {}
+        },
+        "threads": 3,
+        "memory_pattern": true,
+        "serialize_runs": false,
+        "allow_spinning": false
+      },
+      "healthy_level": "performance",
+      "stress_levels": {
+        "thermal": [
+          "balanced",
+          "economy"
+        ],
+        "memory": [
+          "balanced",
+          "economy"
+        ],
+        "battery": [
+          "balanced",
+          "economy"
+        ],
+        "cpu": [
+          "balanced",
+          "economy"
+        ]
+      },
+      "contract_checks_passed": true
+    },
+    {
+      "target": "amd_migraphx",
+      "hypothetical_cores": 8,
+      "hypothetical_ram_gb": 16,
+      "selection": {
+        "providers": [
+          "MIGraphXExecutionProvider",
+          "CPUExecutionProvider"
+        ],
+        "provider_options": {
+          "MIGraphXExecutionProvider": {},
+          "CPUExecutionProvider": {}
+        },
+        "threads": 3,
+        "memory_pattern": true,
+        "serialize_runs": false,
+        "allow_spinning": false
+      },
+      "healthy_level": "performance",
+      "stress_levels": {
+        "thermal": [
+          "balanced",
+          "economy"
+        ],
+        "memory": [
+          "balanced",
+          "economy"
+        ],
+        "battery": [
+          "balanced",
+          "economy"
+        ],
+        "cpu": [
+          "balanced",
+          "economy"
+        ]
+      },
+      "contract_checks_passed": true
+    }
+  ],
+  "fpga": "VART graph and execution contracts tested with doubles in tests/test_accelerators.py; board validation pending"
+}

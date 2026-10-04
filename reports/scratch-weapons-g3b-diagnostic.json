@@ -1,0 +1,97 @@
+{
+  "dataset": "data\\datasets\\dangerous-items-development-v1\\manifest.json",
+  "model": "data\\runs\\accuracy-g3b-weapons-scratch",
+  "image_size": 384,
+  "scope": "Class-stratified train/validation localization diagnostic; not representative AP or independent acceptance",
+  "weights_sha256": "46fcabb99ceca381fb62c33d5d0a9522decf3dea9aba4f838892208a12d0596c",
+  "splits": {
+    "train": {
+      "images": 16,
+      "counts": {
+        "ground_truth": 25,
+        "localized_gt_iou50": 12,
+        "correct_class_localized_gt": 4
+      },
+      "per_class": {
+        "firearm": {
+          "ground_truth": 11,
+          "localized_gt_iou50": 5,
+          "correct_class_localized_gt": 1
+        },
+        "knife": {
+          "ground_truth": 6,
+          "localized_gt_iou50": 4,
+          "correct_class_localized_gt": 0
+        },
+        "machete": {
+          "ground_truth": 4,
+          "localized_gt_iou50": 1,
+          "correct_class_localized_gt": 1
+        },
+        "baseball_bat": {
+          "ground_truth": 4,
+          "localized_gt_iou50": 2,
+          "correct_class_localized_gt": 2
+        }
+      },
+      "prediction_labels": {
+        "baseball_bat": 255,
+        "firearm": 525,
+        "knife": 122,
+        "machete": 536
+      },
+      "loss_components": {
+        "loss": 4.210079796612263,
+        "objectness": 0.4606458218768239,
+        "classification": 0.5046831523068249,
+        "box_giou": 0.5736940102651715,
+        "box_l1": 0.004809694650248275,
+        "positives": 13.8125
+      }
+    },
+    "validation": {
+      "images": 16,
+      "counts": {
+        "ground_truth": 20,
+        "localized_gt_iou50": 16,
+        "correct_class_localized_gt": 5
+      },
+      "per_class": {
+        "firearm": {
+          "ground_truth": 5,
+          "localized_gt_iou50": 4,
+          "correct_class_localized_gt": 1
+        },
+        "knife": {
+          "ground_truth": 7,
+          "localized_gt_iou50": 5,
+          "correct_class_localized_gt": 1
+        },
+        "machete": {
+          "ground_truth": 4,
+          "localized_gt_iou50": 3,
+          "correct_class_localized_gt": 1
+        },
+        "baseball_bat": {
+          "ground_truth": 4,
+          "localized_gt_iou50": 4,
+          "correct_class_localized_gt": 2
+        }
+      },
+      "prediction_labels": {
+        "firearm": 466,
+        "baseball_bat": 264,
+        "knife": 127,
+        "machete": 598
+      },
+      "loss_components": {
+        "loss": 4.006097450852394,
+        "objectness": 0.47594253718852997,
+        "classification": 0.5480474529322237,
+        "box_giou": 0.4444535644724965,
+        "box_l1": 0.0023022138211672427,
+        "positives": 11.25
+      }
+    }
+  }
+}

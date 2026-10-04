@@ -3,8 +3,46 @@ import platform
 import shutil
 import subprocess
 from dataclasses import asdict, dataclass
+from functools import lru_cache
 
 import psutil
+
+
+@lru_cache(maxsize=1)
+def hardware_identity():
+    """Inventory, independent of whether an acceleration library is installed."""
+    result = {"cpu_name": platform.processor(), "display_adapters": []}
+    if os.name == "nt":
+        import winreg
+
+        for path, fields in [
+            (r"HARDWARE\DESCRIPTION\System\CentralProcessor\0", {"ProcessorNameString": "cpu_name"}),
+            (r"HARDWARE\DESCRIPTION\System\BIOS", {"SystemManufacturer": "manufacturer",
+                                                       "SystemProductName": "computer_model"}),
+        ]:
+            try:
+                with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, path) as key:
+                    for field, name in fields.items():
+                        try:
+                            result[name] = winreg.QueryValueEx(key, field)[0]
+                        except OSError:
+                            pass
+            except OSError:
+                pass
+        try:
+            with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
+                               r"SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}") as root:
+                for index in range(winreg.QueryInfoKey(root)[0]):
+                    child = winreg.EnumKey(root, index)
+                    if child.isdigit():
+                        with winreg.OpenKey(root, child) as key:
+                            try:
+                                result["display_adapters"].append(winreg.QueryValueEx(key, "DriverDesc")[0])
+                            except OSError:
+                                pass
+        except OSError:
+            pass
+    return result
 
 
 @dataclass
@@ -20,6 +58,7 @@ class Hardware:
     temperature_c: float | None
     battery_percent: float | None
     plugged_in: bool | None
+    identity: dict | None = None
 
     def json(self):
         return asdict(self)
@@ -78,6 +117,7 @@ def probe():
         temp,
         battery.percent if battery else None,
         battery.power_plugged if battery else None,
+        hardware_identity(),
     )
 
 

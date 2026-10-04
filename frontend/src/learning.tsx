@@ -578,23 +578,26 @@ export function LearningPanel({
   const [annotations, setAnnotations] = useState<Row[]>([]),
     [feedback, setFeedback] = useState<Row[]>([]),
     [datasets, setDatasets] = useState<Row[]>([]),
-    [policy, setPolicy] = useState<Row>({});
+    [policy, setPolicy] = useState<Row>({}),
+    [drift, setDrift] = useState<Row>({ state: "collecting", streams: [] });
   const [error, setError] = useState(""),
     [notice, setNotice] = useState(""),
     [selected, setSelected] = useState<Row | null>(null),
     [busy, setBusy] = useState(false);
   const advanced = ["admin", "researcher"].includes(user.role);
   async function refresh() {
-    const [a, d, p, f] = await Promise.all([
+    const [a, d, p, f, shift] = await Promise.all([
       request("/adaptation/annotations"),
       request("/datasets"),
       advanced ? request("/adaptation/policy") : Promise.resolve({}),
       request("/feedback"),
+      advanced ? request("/adaptation/drift") : Promise.resolve({ state: "collecting", streams: [] }),
     ]);
     setAnnotations(a);
     setDatasets(d);
     setPolicy(p);
     setFeedback(f);
+    setDrift(shift);
   }
   useEffect(() => {
     if (user.role === "viewer") return;
@@ -665,6 +668,27 @@ export function LearningPanel({
         <span>03 · Train & calibrate</span>
         <span>04 · Evaluate & approve</span>
       </div>
+      {advanced && (
+        <section className="panel padded">
+          <div className="section-heading">
+            <div>
+              <p className="eyebrow">DISTRIBUTION MONITORING</p>
+              <h2>Camera and model drift</h2>
+            </div>
+            <span className="tag">{String(drift.state || "collecting").replaceAll("_", " ")}</span>
+          </div>
+          <p>{drift.interpretation || "Collecting non-overlapping reference and recent observation windows."}</p>
+          {drift.streams?.length > 0 && <div className="table-panel"><table>
+            <thead><tr><th>Camera</th><th>Model</th><th>State</th><th>Evidence</th></tr></thead>
+            <tbody>{drift.streams.map((stream: Row) => <tr key={`${stream.camera_id}-${stream.expert_slot}-${stream.model}`}>
+              <td>{stream.camera_id}</td><td>{stream.model}</td>
+              <td>{String(stream.state).replaceAll("_", " ")}</td>
+              <td>{stream.shifted_features?.length ? `Shift: ${stream.shifted_features.join(", ")}` : `${stream.observations}/${stream.required || stream.observations} observations`}</td>
+            </tr>)}</tbody>
+          </table></div>}
+          <p>A signal requires a material Jensen–Shannon shift and a Bonferroni-corrected permutation test. It requests reviewed evidence and never creates training labels automatically.</p>
+        </section>
+      )}
       <section className="panel padded">
         <div className="section-heading">
           <div>

@@ -1,0 +1,50 @@
+{
+  "dataset": "data\\datasets\\dangerous-items-development-v1\\manifest.json",
+  "model": "data\\runs\\accuracy-g2-weapons-scratch",
+  "splits": {
+    "train": {
+      "images": 64,
+      "counts": {
+        "ground_truth": 67,
+        "localized_gt_iou50": 42,
+        "correct_class_localized_gt": 18
+      },
+      "prediction_labels": {
+        "knife": 1241,
+        "machete": 240,
+        "baseball_bat": 325,
+        "firearm": 4594
+      },
+      "loss_components": {
+        "loss": 2.5928001552820206,
+        "objectness": 0.41482764668762684,
+        "classification": 0.5431213155388832,
+        "box_giou": 0.5417956560850143,
+        "box_l1": 0.004732111316116061,
+        "positives": 38.0625
+      }
+    },
+    "validation": {
+      "images": 64,
+      "counts": {
+        "ground_truth": 72,
+        "localized_gt_iou50": 48,
+        "correct_class_localized_gt": 18
+      },
+      "prediction_labels": {
+        "knife": 1230,
+        "baseball_bat": 331,
+        "machete": 248,
+        "firearm": 4591
+      },
+      "loss_components": {
+        "loss": 2.552348345518112,
+        "objectness": 0.3723655641078949,
+        "classification": 0.5298021174967289,
+        "box_giou": 0.5460694972425699,
+        "box_l1": 0.005986095377011225,
+        "positives": 40.625
+      }
+    }
+  }
+}

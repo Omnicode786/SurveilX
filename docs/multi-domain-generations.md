@@ -42,7 +42,11 @@ The [Dangerous Items dataset](https://zenodo.org/records/13786228) is a CC BY 4.
 
 ## Remaining scope
 
-Named specialist slots and scene-level imports/models are implemented. Fall and firearm development candidates exist; independent performance remains unverified. Fighting, theft and traffic event datasets still lack trained candidates. Full traffic/industrial policy validation, independent acceptance, accelerator execution and longitudinal generation evaluation remain open. The research paper is excluded. `CONTINUE.md` is the authoritative resume checklist.
+Named specialist slots and scene-level imports/models are implemented. Fall, firearm, fire/smoke and PPE development candidates exist; independent performance remains unverified and several aggregate/per-class scores remain below target. Fighting, theft and traffic event datasets still lack trained candidates, but `scripts.prepare_scene_event_directory` now provides a bounded path for local split/class video folders once rights-compatible footage is available.
+
+Site-policy rules now cover object presence, restricted zones, configured wrong-way movement, possible missing helmet, possible missing vest, configured image-coordinate proximity, calibrated ground-plane speed, signal-state stop-line crossing, machine-state proximity, blocked-exit/access-zone review and calibrated scene-event persistence. These rules create review candidates only. Speed requires an explicit site calibration ID and homography; proximity is image-coordinate distance unless separately calibrated; stop-line and machine-state rules depend on explicit trained/configured state labels.
+
+Independent acceptance, accelerator execution and longitudinal generation evaluation remain open. The research paper is excluded. `CONTINUE.md` is the authoritative resume checklist.
 
 ## Accuracy continuation campaign
 
@@ -53,3 +57,7 @@ The continued YOLO trainer restores adapted backbone keys before loading parent 
 Warm starts verify task/domain, taxonomy, architecture or input contract, and checkpoint integrity. The parent checkpoint participates in validation selection. Event models select by validation cross-entropy; scratch models use validation AP50 then loss; YOLO compares its best training checkpoint with the parent using the shared validation evaluator. Separate calibration data determines confidence mapping and thresholds. Held-out development test results are reported after selection, never used to choose a checkpoint. Repeated development runs still need fresh independent acceptance before deployment.
 
 The campaign improves existing trained families; it cannot certify missing classes or untrained event families. Seven inherited 80-class domain copies have no matching local full-taxonomy labeled evaluation sets. Synthetic motion results are not evidence of real surveillance events. See `CONTINUE.md` for the latest measured results and exact restart instructions.
+
+## Current continuation evidence (2026-10-04)
+
+PPE scratch retry and all nine efficiency-profile jobs are complete. Fighting has a trained, calibrated and evaluated development candidate: 14/20 correct clips, both class F1 0.70, staged one-room inherited labels. An actual CUDA continuation preserved that parent score after validation-based early stopping. Theft and collision still lack trained candidates. See `docs/completion-status.md`, `reports/product-readiness.md` and `CONTINUE.md` for current per-family status; earlier tables are historical generation evidence.

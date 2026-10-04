@@ -1,0 +1,73 @@
+{
+  "status": "estimated",
+  "clusters": 106,
+  "iterations": 500,
+  "seed": 42,
+  "map50": {
+    "lower": 0.4048380916759985,
+    "upper": 0.6132411895771055,
+    "confidence": 0.95
+  },
+  "per_class": [
+    {
+      "class_id": 0,
+      "lower": 0.3582071566196215,
+      "upper": 0.7214942345058554,
+      "confidence": 0.95
+    },
+    {
+      "class_id": 1,
+      "lower": 0.26436229159142777,
+      "upper": 0.6112071036732042,
+      "confidence": 0.95
+    },
+    {
+      "class_id": 2,
+      "lower": 0.2631120233247583,
+      "upper": 0.6169066592149572,
+      "confidence": 0.95
+    },
+    {
+      "class_id": 3,
+      "lower": 0.43649143906542753,
+      "upper": 0.7742599417769742,
+      "confidence": 0.95
+    }
+  ],
+  "selection_criterion": false,
+  "interpretation": "Percentile cluster bootstrap on the untouched test set; validity depends on the supplied group identities",
+  "version": "accuracy-g3-weapons-yolo",
+  "dataset": "dangerous-items-development-v1",
+  "point_map50": 0.5040670865327479,
+  "classes": [
+    "firearm",
+    "knife",
+    "machete",
+    "baseball_bat"
+  ],
+  "dataset_sha256": "772a80081dd508952124989f0f94c0a4174e95e611afc9c85f4229b4945ffca6",
+  "source_independence": false,
+  "warning": "A narrow interval cannot establish site/source independence when dataset provenance lacks those groups",
+  "point_per_class": [
+    {
+      "class_id": 0,
+      "ground_truth": 33,
+      "ap50": 0.5277667882709235
+    },
+    {
+      "class_id": 1,
+      "ground_truth": 34,
+      "ap50": 0.44530955740717554
+    },
+    {
+      "class_id": 2,
+      "ground_truth": 34,
+      "ap50": 0.43405715950841517
+    },
+    {
+      "class_id": 3,
+      "ground_truth": 26,
+      "ap50": 0.6091348409444772
+    }
+  ]
+}

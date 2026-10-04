@@ -140,8 +140,6 @@ def train(
     started = time.perf_counter()
     initialization = "pretrained"
     if initialize_from:
-        if resume_checkpoint:
-            raise ValueError("Choose continuation or interrupted-run resume, not both")
         parent = Path(initialize_from).resolve()
         metadata = json.loads((parent / "manifest.json").read_text())
         expected_architecture = "yolo_baseline" if baseline else "yolo_rai"
@@ -245,7 +243,8 @@ def train(
         "config": {"image_size": imgsz, "epochs": epochs, "batch_size": batch, "seed": seed,
                    "base": base, "learning_rate": learning_rate, "patience": patience,
                    "threads": threads,
-                   "training_geometry": "legacy_letterbox" if resume_checkpoint else "square_matches_runtime"},
+                   "training_geometry": "legacy_letterbox" if resume_checkpoint and not initialize_from
+                   else "square_matches_runtime"},
         "initialization": initialization,
         "validation_selection": selection,
         "calibration": calibration,

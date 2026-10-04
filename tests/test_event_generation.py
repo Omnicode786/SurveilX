@@ -1,6 +1,8 @@
 import json
 from types import SimpleNamespace
 
+import pytest
+
 from scripts import train_event_generation as runner
 
 
@@ -22,6 +24,9 @@ def test_event_generation_registers_and_reuses_complete_artifact(tmp_path, monke
         return SimpleNamespace(returncode=0)
 
     monkeypatch.setattr(runner.subprocess, "run", complete)
-    assert runner.run("fixture", "g1", epochs=1)["state"] == "completed"
-    assert runner.run("fixture", "g1", epochs=1)["model_id"] == "id-g1-scene"
+    assert runner.run("fixture", "g1", epochs=1, batch_size=1)["state"] == "completed"
+    assert commands[0][-2:] == ["--batch-size", "1"]
+    assert runner.run("fixture", "g1", epochs=1, batch_size=1)["model_id"] == "id-g1-scene"
+    with pytest.raises(ValueError, match="configuration changed"):
+        runner.run("fixture", "g1", epochs=1, batch_size=2)
     assert len(commands) == 1

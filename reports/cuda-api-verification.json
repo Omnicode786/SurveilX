@@ -1,0 +1,337 @@
+{
+  "health": 200,
+  "hardware": 200,
+  "capabilities": 200,
+  "generations": 200,
+  "training_runtime": {
+    "configured": true,
+    "python": "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX\\.venv-cuda\\Scripts\\python.exe",
+    "error": null,
+    "batch_size": 1,
+    "recorded_validation": {
+      "scope": "Real training-sample loss/backward/AdamW kernel and memory checks; excludes data loading, full epochs and accuracy evaluation",
+      "created": 1791121995.503207,
+      "torch": "2.14.0+cu126",
+      "cuda_runtime": "12.6",
+      "gpu": "NVIDIA GeForce MX130",
+      "precision": "float32",
+      "results": [
+        {
+          "architecture": "scene",
+          "cpu": {
+            "model": "fighting-g1-scene",
+            "weights_sha256": "ac749df6934e65ed81575a12eaee64b43e1f2f49dd0e0c16c25c9b6252982933",
+            "dataset_sha256": "e727105659c54bccd5a2ce6f0b2c10103d0325859c22ec27b7edb012eccf32f9",
+            "sample_split": "train",
+            "image_size": 96,
+            "batch_size": 1,
+            "device": "cpu",
+            "steps": 5,
+            "warmup_steps": 2,
+            "median_step_ms": 48.81949999980861,
+            "step_ms": [
+              52.4543999999878,
+              49.82860000018263,
+              45.211399999971036,
+              40.870900000300026,
+              48.81949999980861
+            ],
+            "initial_loss": 0.15970173478126526,
+            "final_loss": 0.08130849897861481,
+            "optimizer_changed_weights": true
+          },
+          "cuda": {
+            "model": "fighting-g1-scene",
+            "weights_sha256": "ac749df6934e65ed81575a12eaee64b43e1f2f49dd0e0c16c25c9b6252982933",
+            "dataset_sha256": "e727105659c54bccd5a2ce6f0b2c10103d0325859c22ec27b7edb012eccf32f9",
+            "sample_split": "train",
+            "image_size": 96,
+            "batch_size": 1,
+            "device": "cuda",
+            "steps": 5,
+            "warmup_steps": 2,
+            "median_step_ms": 15.195899999525864,
+            "step_ms": [
+              14.710799998283619,
+              15.815599999768892,
+              15.001400002802256,
+              15.195899999525864,
+              17.904899999848567
+            ],
+            "initial_loss": 0.1597016453742981,
+            "final_loss": 0.08130849897861481,
+            "optimizer_changed_weights": true,
+            "peak_allocated_mib": 35.552734375,
+            "peak_reserved_mib": 42.0
+          },
+          "speedup": 3.212675787635603,
+          "initial_loss_relative_error": 5.59837169493129e-07
+        },
+        {
+          "architecture": "scratch",
+          "cpu": {
+            "model": "accuracy-ppe-g3b-scratch",
+            "weights_sha256": "3dd2aba1104b141d3d5b7e0b16f46276cde24b6c2e4cfad6d969fbeb0cc5b758",
+            "dataset_sha256": "612b1197c555d4dce77f41772ee39834718ba588cb95c1616bce6023e064dd6c",
+            "sample_split": "train",
+            "image_size": 512,
+            "batch_size": 1,
+            "device": "cpu",
+            "steps": 5,
+            "warmup_steps": 2,
+            "median_step_ms": 1029.0509999977075,
+            "step_ms": [
+              1180.8156999977655,
+              1075.6853000020783,
+              940.5838999991829,
+              1029.0509999977075,
+              961.4147000029334
+            ],
+            "initial_loss": 2.901615619659424,
+            "final_loss": 0.6718994975090027,
+            "optimizer_changed_weights": true
+          },
+          "cuda": {
+            "model": "accuracy-ppe-g3b-scratch",
+            "weights_sha256": "3dd2aba1104b141d3d5b7e0b16f46276cde24b6c2e4cfad6d969fbeb0cc5b758",
+            "dataset_sha256": "612b1197c555d4dce77f41772ee39834718ba588cb95c1616bce6023e064dd6c",
+            "sample_split": "train",
+            "image_size": 512,
+            "batch_size": 1,
+            "device": "cuda",
+            "steps": 5,
+            "warmup_steps": 2,
+            "median_step_ms": 182.21020000055432,
+            "step_ms": [
+              172.81329999968875,
+              184.99489999885554,
+              210.5349000012211,
+              182.21020000055432,
+              175.16869999963092
+            ],
+            "initial_loss": 2.9016151428222656,
+            "final_loss": 0.6718993186950684,
+            "optimizer_changed_weights": true,
+            "peak_allocated_mib": 225.9521484375,
+            "peak_reserved_mib": 236.0
+          },
+          "speedup": 5.647603701629091,
+          "initial_loss_relative_error": 1.643350535378954e-07
+        },
+        {
+          "architecture": "yolo",
+          "cpu": {
+            "model": "accuracy-ppe-g3-yolo",
+            "weights_sha256": "d4f40651c03b52b36ddfd5a01b80af80ab651ea5886de8af383d81dc6adc6d57",
+            "dataset_sha256": "612b1197c555d4dce77f41772ee39834718ba588cb95c1616bce6023e064dd6c",
+            "sample_split": "train",
+            "image_size": 512,
+            "batch_size": 1,
+            "device": "cpu",
+            "steps": 5,
+            "warmup_steps": 2,
+            "median_step_ms": 895.9147000023222,
+            "step_ms": [
+              892.8765999989992,
+              933.3995999986655,
+              910.1602999980969,
+              895.9147000023222,
+              783.3885000000009
+            ],
+            "initial_loss": 2.101928472518921,
+            "final_loss": 1.2748000621795654,
+            "optimizer_changed_weights": true
+          },
+          "cuda": {
+            "model": "accuracy-ppe-g3-yolo",
+            "weights_sha256": "d4f40651c03b52b36ddfd5a01b80af80ab651ea5886de8af383d81dc6adc6d57",
+            "dataset_sha256": "612b1197c555d4dce77f41772ee39834718ba588cb95c1616bce6023e064dd6c",
+            "sample_split": "train",
+            "image_size": 512,
+            "batch_size": 1,
+            "device": "cuda",
+            "steps": 5,
+            "warmup_steps": 2,
+            "median_step_ms": 192.40320000244537,
+            "step_ms": [
+              191.61330000133603,
+              192.40320000244537,
+              209.20770000157063,
+              210.1418999991438,
+              187.83970000004047
+            ],
+            "initial_loss": 2.1019287109375,
+            "final_loss": 1.2748000621795654,
+            "optimizer_changed_weights": true,
+            "peak_allocated_mib": 196.3876953125,
+            "peak_reserved_mib": 210.0
+          },
+          "speedup": 4.65644386367241,
+          "initial_loss_relative_error": 1.1342849303327867e-07
+        }
+      ]
+    },
+    "scope": "Training subprocess configuration; each completed model records its actual device"
+  },
+  "fighting": {
+    "id": "fighting",
+    "title": "Fighting",
+    "task": "event",
+    "required_classes": [
+      "normal",
+      "fighting"
+    ],
+    "domains": [
+      "parking",
+      "office",
+      "warehouse",
+      "industrial",
+      "retail",
+      "traffic",
+      "building"
+    ],
+    "interpretation": "Possible physical altercation requiring review",
+    "requirements": [
+      "Temporally annotated clips",
+      "Play, sport and ordinary interaction negatives",
+      "Persistent entities or explicitly labeled fixed-duration scene clips"
+    ],
+    "implemented_rules": [],
+    "datasets": [
+      "airtlab-fighting-development-v1"
+    ],
+    "dataset_evidence": [
+      {
+        "name": "airtlab-fighting-development-v1",
+        "provenance": {
+          "publisher_url": "https://github.com/airtlab/A-Dataset-for-Automatic-Violence-Detection-in-Videos",
+          "publisher_commit": "1f7747e104301ccaa82ef5a2f6804b51ced1c398",
+          "acquisition_plan_sha256": "942defe2a655c9aabaaaa1f14b47250e589735cc0561f17b781a73d7d138ecda",
+          "rights_sha256": "87a5700ef0168d2a0fc894bc9335348531ca10f35aa5712a249956a7f87a3ccd",
+          "staged": true,
+          "single_room": true,
+          "paired_camera_grouping": true,
+          "temporal_annotations_reviewed": false,
+          "limitations": "Center crops inherit video labels; actors/sites are not independent across splits. Research/education only.",
+          "descriptor_sha256": "486e8c9bca10fc8dc2c062d02224d3ef88811d5edfe32f82fc9efd36d80d7cdf",
+          "label_scope": "inherited_video_label",
+          "source_independence_verified": false
+        },
+        "license": "AIRTLab: research and educational purposes; see publisher readme.md Dataset Release Agreement",
+        "synthetic": false
+      }
+    ],
+    "models": [
+      {
+        "id": "b30224aa-574b-4734-9a53-62264a918c94",
+        "version": "fighting-g1-scene",
+        "stage": "candidate",
+        "classes": [
+          "normal",
+          "fighting"
+        ],
+        "domain": "general",
+        "synthetic": false,
+        "calibrated": true,
+        "origin": "locally_trained",
+        "dataset_provenance": {
+          "publisher_url": "https://github.com/airtlab/A-Dataset-for-Automatic-Violence-Detection-in-Videos",
+          "publisher_commit": "1f7747e104301ccaa82ef5a2f6804b51ced1c398",
+          "acquisition_plan_sha256": "942defe2a655c9aabaaaa1f14b47250e589735cc0561f17b781a73d7d138ecda",
+          "rights_sha256": "87a5700ef0168d2a0fc894bc9335348531ca10f35aa5712a249956a7f87a3ccd",
+          "staged": true,
+          "single_room": true,
+          "paired_camera_grouping": true,
+          "temporal_annotations_reviewed": false,
+          "limitations": "Center crops inherit video labels; actors/sites are not independent across splits. Research/education only.",
+          "descriptor_sha256": "486e8c9bca10fc8dc2c062d02224d3ef88811d5edfe32f82fc9efd36d80d7cdf",
+          "label_scope": "inherited_video_label",
+          "source_independence_verified": false
+        },
+        "development_evidence": {
+          "metric": "accuracy",
+          "score": 0.7,
+          "target": 0.5,
+          "aggregate_target_met": true,
+          "all_classes_target_met": true,
+          "per_class": [
+            {
+              "label": "normal",
+              "metric": "recall",
+              "score": 0.7,
+              "support": 10,
+              "target_met": true
+            },
+            {
+              "label": "fighting",
+              "metric": "recall",
+              "score": 0.7,
+              "support": 10,
+              "target_met": true
+            }
+          ],
+          "independent_reliability_established": false,
+          "interpretation": "Held-out development point scores. Meeting 0.50 does not establish source independence, calibrated event recall or site reliability."
+        },
+        "acceptance_approved": false,
+        "active": false
+      },
+      {
+        "id": "fade4f5a-f35e-41ac-9232-23e6601690ec",
+        "version": "cuda-fighting-g2-scene",
+        "stage": "candidate",
+        "classes": [
+          "normal",
+          "fighting"
+        ],
+        "domain": "general",
+        "synthetic": false,
+        "calibrated": true,
+        "origin": "locally_trained",
+        "dataset_provenance": {
+          "publisher_url": "https://github.com/airtlab/A-Dataset-for-Automatic-Violence-Detection-in-Videos",
+          "publisher_commit": "1f7747e104301ccaa82ef5a2f6804b51ced1c398",
+          "acquisition_plan_sha256": "942defe2a655c9aabaaaa1f14b47250e589735cc0561f17b781a73d7d138ecda",
+          "rights_sha256": "87a5700ef0168d2a0fc894bc9335348531ca10f35aa5712a249956a7f87a3ccd",
+          "staged": true,
+          "single_room": true,
+          "paired_camera_grouping": true,
+          "temporal_annotations_reviewed": false,
+          "limitations": "Center crops inherit video labels; actors/sites are not independent across splits. Research/education only.",
+          "descriptor_sha256": "486e8c9bca10fc8dc2c062d02224d3ef88811d5edfe32f82fc9efd36d80d7cdf",
+          "label_scope": "inherited_video_label",
+          "source_independence_verified": false
+        },
+        "development_evidence": {
+          "metric": "accuracy",
+          "score": 0.7,
+          "target": 0.5,
+          "aggregate_target_met": true,
+          "all_classes_target_met": true,
+          "per_class": [
+            {
+              "label": "normal",
+              "metric": "recall",
+              "score": 0.7,
+              "support": 10,
+              "target_met": true
+            },
+            {
+              "label": "fighting",
+              "metric": "recall",
+              "score": 0.7,
+              "support": 10,
+              "target_met": true
+            }
+          ],
+          "independent_reliability_established": false,
+          "interpretation": "Held-out development point scores. Meeting 0.50 does not establish source independence, calibrated event recall or site reliability."
+        },
+        "acceptance_approved": false,
+        "active": false
+      }
+    ],
+    "status": "candidate_available",
+    "production_validated": false
+  }
+}

@@ -1,0 +1,130 @@
+{
+  "date": "2026-10-01",
+  "health": 200,
+  "campaign_state": "completed",
+  "completed_jobs": 12,
+  "active_candidates": [],
+  "models": [
+    {
+      "version": "accuracy-g2-fall",
+      "id": "43af069b-09cd-4024-ac69-72af460dd2e1",
+      "stage": "candidate",
+      "weights_verified": true
+    },
+    {
+      "version": "accuracy-g2-entity-v1",
+      "id": "a2fb6d64-b84e-4cb7-9273-17786aa25a5d",
+      "stage": "candidate",
+      "weights_verified": true
+    },
+    {
+      "version": "accuracy-g2-entity-v2",
+      "id": "1776f66c-7646-4cea-a55d-7188a7703307",
+      "stage": "candidate",
+      "weights_verified": true
+    },
+    {
+      "version": "accuracy-g2-ppe-scratch",
+      "id": "96bb2c24-d59f-4acd-908d-e339c05ee420",
+      "stage": "candidate",
+      "weights_verified": true
+    },
+    {
+      "version": "accuracy-g2-ppe-yolo",
+      "id": "f9b2c5c6-1a10-4445-b96a-f03014e2953e",
+      "stage": "candidate",
+      "weights_verified": true
+    },
+    {
+      "version": "accuracy-g2-weapons-scratch",
+      "id": "a6e1a244-a3cd-49b4-9c95-b33ed0de38e9",
+      "stage": "candidate",
+      "weights_verified": true
+    },
+    {
+      "version": "accuracy-g2-weapons-yolo",
+      "id": "dee5a18c-cec2-49a0-9acf-c6ef943ac465",
+      "stage": "candidate",
+      "weights_verified": true
+    },
+    {
+      "version": "accuracy-g2-fire-scratch",
+      "id": "c9efd471-3776-4a1d-bb6c-4fbd6e39419c",
+      "stage": "candidate",
+      "weights_verified": true
+    },
+    {
+      "version": "accuracy-g2-fire-yolo",
+      "id": "867a027b-3844-45ca-a115-89d38e759d5d",
+      "stage": "candidate",
+      "weights_verified": true
+    },
+    {
+      "version": "accuracy-g2-person-scratch",
+      "id": "0760a37f-2272-4796-866e-447cb6ea0b0d",
+      "stage": "candidate",
+      "weights_verified": true
+    },
+    {
+      "version": "accuracy-g2-person-yolo",
+      "id": "13ea9d68-2dc1-49e5-a3ed-fb7093395018",
+      "stage": "candidate",
+      "weights_verified": true
+    },
+    {
+      "version": "accuracy-g2-person-baseline",
+      "id": "aafe221d-bbbd-4094-803f-d418ccecfe24",
+      "stage": "candidate",
+      "weights_verified": true
+    }
+  ],
+  "full_suite": {
+    "passed": 92,
+    "seconds": 125.87,
+    "warnings": 1
+  },
+  "final_focused_tests": 9,
+  "ruff": "passed",
+  "frontend_build": "passed",
+  "authenticated_ui": "class results and coverage verified",
+  "screenshot": "reports/accuracy-ui-preview.png",
+  "overall_improvements": 11,
+  "overall_unchanged": 1,
+  "all_classes_improved": false,
+  "server_processes": [
+    {
+      "pid": 220,
+      "command": [
+        "C:\\Users\\muzam\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-m",
+        "uvicorn",
+        "surveilx.api:app",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "8000",
+        "--no-access-log"
+      ]
+    },
+    {
+      "pid": 15956,
+      "command": [
+        "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX\\.venv\\Scripts\\python.exe",
+        "-m",
+        "uvicorn",
+        "surveilx.api:app",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "8000",
+        "--no-access-log"
+      ]
+    }
+  ],
+  "person_profile_candidates": [
+    "accuracy-g2-person-scratch",
+    "accuracy-g2-person-yolo",
+    "accuracy-g2-person-baseline"
+  ],
+  "campaign_lock_removed": true
+}
