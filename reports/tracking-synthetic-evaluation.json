@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "scope": "Offline labeled-sequence development evaluation; no model training or activation",
+  "matching": "class-aware IoU; previous-frame continuity preference; switches against last matched identity across gaps",
+  "iou_threshold": 0.5,
+  "synthetic": true,
+  "ground_truth_reviewed": false,
+  "metrics": {
+    "gt": 2,
+    "predicted": 2,
+    "matched": 2,
+    "false_positives": 0,
+    "false_negatives": 0,
+    "id_switches": 1,
+    "id_true_positives": 1,
+    "mota": 0.5,
+    "motp_mean_iou": 1.0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "id_false_positives": 1,
+    "id_false_negatives": 1,
+    "idf1": 0.5
+  },
+  "per_class": {
+    "person": {
+      "gt": 2,
+      "predicted": 2,
+      "matched": 2,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "id_switches": 1,
+      "id_true_positives": 1,
+      "mota": 0.5,
+      "motp_mean_iou": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "id_false_positives": 1,
+      "id_false_negatives": 1,
+      "idf1": 0.5
+    }
+  },
+  "sequences": [
+    {
+      "name": "synthetic-identity-correctness",
+      "frames": 2,
+      "metrics": {
+        "gt": 2,
+        "predicted": 2,
+        "matched": 2,
+        "false_positives": 0,
+        "false_negatives": 0,
+        "id_switches": 1,
+        "id_true_positives": 1,
+        "mota": 0.5,
+        "motp_mean_iou": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "id_false_positives": 1,
+        "id_false_negatives": 1,
+        "idf1": 0.5
+      },
+      "per_class": {
+        "person": {
+          "gt": 2,
+          "predicted": 2,
+          "matched": 2,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "id_switches": 1,
+          "id_true_positives": 1,
+          "mota": 0.5,
+          "motp_mean_iou": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "id_false_positives": 1,
+          "id_false_negatives": 1,
+          "idf1": 0.5
+        }
+      }
+    }
+  ],
+  "input_sha256": "db905aa9f0715fa0de28e496406c50deb686b6c8362c6a1e63ab188ef54d8efb"
+}

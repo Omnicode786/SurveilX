@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./learning.css";
+import { DatasetReadiness } from "./dataset-readiness";
 
 type Row = Record<string, any>;
 type Request = (path: string, method?: string, body?: unknown) => Promise<any>;
@@ -652,6 +653,7 @@ export function LearningPanel({
     );
   return (
     <div className="learning-workspace">
+      {advanced && <DatasetReadiness datasets={datasets as { name: string }[]} request={request} />}
       {error && (
         <p role="alert" className="learning-error">
           {error}

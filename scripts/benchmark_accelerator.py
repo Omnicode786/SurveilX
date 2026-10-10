@@ -56,7 +56,7 @@ def benchmark(run, dataset, output, provider="DmlExecutionProvider", device_ids=
     rows = [s for s in data["samples"] if s["split"] == "validation"][:samples]
     if not rows:
         raise ValueError("Validation samples required")
-    loader = DetectionImages(dataset.parent, rows, image_size=size)
+    loader = DetectionImages(dataset.parent, rows, image_size=size, preprocessing=metadata["config"].get("preprocessing", "stretch"))
     inputs, expected = [], []
     for index in range(len(loader)):
         tensors = tuple(value[None] for value in loader[index][:3])

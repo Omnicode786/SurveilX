@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "synthetic": true,
+  "ground_truth_reviewed": false,
+  "sequences": [
+    {
+      "name": "synthetic-identity-correctness",
+      "frames": [
+        {
+          "index": 0,
+          "ground_truth": [
+            {
+              "track_id": 1,
+              "label": "person",
+              "box": [
+                0.1,
+                0.1,
+                0.3,
+                0.5
+              ]
+            }
+          ],
+          "predictions": [
+            {
+              "track_id": 7,
+              "label": "person",
+              "box": [
+                0.1,
+                0.1,
+                0.3,
+                0.5
+              ]
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "ground_truth": [
+            {
+              "track_id": 1,
+              "label": "person",
+              "box": [
+                0.2,
+                0.1,
+                0.4,
+                0.5
+              ]
+            }
+          ],
+          "predictions": [
+            {
+              "track_id": 8,
+              "label": "person",
+              "box": [
+                0.2,
+                0.1,
+                0.4,
+                0.5
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

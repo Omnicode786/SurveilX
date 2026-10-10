@@ -1,0 +1,99 @@
+{
+  "valid": true,
+  "manifest_sha256": "772a80081dd508952124989f0f94c0a4174e95e611afc9c85f4229b4945ffca6",
+  "task": "detection",
+  "counts": {
+    "train": 399,
+    "validation": 96,
+    "calibration": 65,
+    "test": 106
+  },
+  "count_unit": "objects",
+  "empty_samples": {
+    "train": 0,
+    "validation": 0,
+    "calibration": 0,
+    "test": 0
+  },
+  "recorded_groups": {
+    "train": 399,
+    "validation": 96,
+    "calibration": 65,
+    "test": 106
+  },
+  "per_class": [
+    {
+      "label": "firearm",
+      "labeled_instances": {
+        "train": 114,
+        "validation": 26,
+        "calibration": 18,
+        "test": 33
+      },
+      "samples_with_label": {
+        "train": 106,
+        "validation": 24,
+        "calibration": 17,
+        "test": 31
+      }
+    },
+    {
+      "label": "knife",
+      "labeled_instances": {
+        "train": 120,
+        "validation": 28,
+        "calibration": 18,
+        "test": 34
+      },
+      "samples_with_label": {
+        "train": 111,
+        "validation": 26,
+        "calibration": 17,
+        "test": 31
+      }
+    },
+    {
+      "label": "machete",
+      "labeled_instances": {
+        "train": 112,
+        "validation": 27,
+        "calibration": 17,
+        "test": 34
+      },
+      "samples_with_label": {
+        "train": 104,
+        "validation": 25,
+        "calibration": 16,
+        "test": 30
+      }
+    },
+    {
+      "label": "baseball_bat",
+      "labeled_instances": {
+        "train": 97,
+        "validation": 23,
+        "calibration": 16,
+        "test": 26
+      },
+      "samples_with_label": {
+        "train": 96,
+        "validation": 23,
+        "calibration": 16,
+        "test": 26
+      }
+    }
+  ],
+  "issues": [],
+  "synthetic": false,
+  "provenance": {
+    "source": "https://zenodo.org/records/13786228",
+    "archive_sha256": "9c6749a3e36b6935fc468de9b1fb639b16c4caef2c21f5328a44ff210d3e1aa8",
+    "source_independence_verified": false,
+    "selection": "Deterministic VOC subset capped at 160 images per label signature",
+    "group_limitation": "Publisher camera, sequence, subject and original-image identities are unavailable; split groups are unique-image placeholders only",
+    "label_mapping": "Publisher Gun and Rifle map to firearm; Knife, Machete and Baseball Bat remain distinct",
+    "acceptance_limitation": "Development metrics only; independent site acceptance is required"
+  },
+  "scope": "Dataset integrity and label coverage only. Group identifiers do not prove source independence; model training, evaluation and acceptance are separate.",
+  "model_quality_verified": false
+}

@@ -871,6 +871,22 @@ def validate_dataset(name: str, user=Depends(current_user)):
     return {"valid": True, "counts": counts}
 
 
+@app.get("/api/datasets/{name}/readiness")
+async def dataset_readiness(name: str, user=Depends(current_user)):
+    require(user, "researcher")
+    if not re.fullmatch(r"[a-zA-Z0-9_-]{1,64}", name):
+        raise HTTPException(422, "Invalid dataset name")
+    from training.dataset_readiness import inspect_dataset
+    root = (settings.data_dir / "datasets").resolve()
+    path = (root / name / "manifest.json").resolve()
+    if not path.is_relative_to(root):
+        raise HTTPException(422, "Dataset escaped configured directory")
+    try:
+        return await asyncio.to_thread(inspect_dataset, path)
+    except (ValueError, OSError, KeyError) as exc:
+        raise HTTPException(422, str(exc)) from None
+
+
 @app.post("/api/datasets/{name}/import")
 async def import_dataset(name: str, request: Request, user=Depends(current_user)):
     require(user, "researcher")

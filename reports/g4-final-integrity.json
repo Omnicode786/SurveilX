@@ -1,0 +1,12 @@
+{
+  "created": 1791217834.083215,
+  "frozen_files_verified": 275,
+  "changed": [],
+  "training_processes": [],
+  "caches_removed": 15,
+  "bytes_removed": 1054997989,
+  "free_disk_bytes": 5270790144,
+  "uncertain_cache_retained": "dfire-g1-yolo-rai/dataset",
+  "training_launched": false,
+  "downloads_performed": false
+}

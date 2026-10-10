@@ -15,6 +15,8 @@ from torch.utils.data import DataLoader, Dataset, WeightedRandomSampler
 
 from surveilx.accelerators import torch_device
 from training.detector_model import SVADetector, box_iou, decode_detections, detection_loss
+from training.observability import EpochLossSummary, ValidationSelection
+from training.detection_geometry import prepare_image, prepare_zone, transform_boxes
 
 SPLITS = ("train", "validation", "calibration", "test")
 
@@ -89,8 +91,11 @@ def validate_detection_manifest(path):
 
 
 class DetectionImages(Dataset):
-    def __init__(self, root, samples, image_size=256, augment=False):
+    def __init__(self, root, samples, image_size=256, augment=False, preprocessing="stretch"):
         self.root, self.samples, self.image_size, self.augment = Path(root), samples, image_size, augment
+        if preprocessing not in {"stretch", "letterbox"}:
+            raise ValueError("Unknown detection preprocessing")
+        self.preprocessing = preprocessing
 
     def __len__(self):
         return len(self.samples)
@@ -100,15 +105,15 @@ class DetectionImages(Dataset):
         image = cv2.imread(str(resolve_asset(self.root, sample["image"])))
         if image is None:
             raise ValueError(f"Cannot decode image: {sample['image']}")
-        image = cv2.cvtColor(cv2.resize(image, (self.image_size, self.image_size)), cv2.COLOR_BGR2RGB)
+        image, geometry = prepare_image(image, self.image_size, self.preprocessing)
         image = image.astype(np.float32) / 255
-        boxes = np.asarray(sample["boxes"], dtype=np.float32).reshape(-1, 4).copy()
+        boxes = transform_boxes(sample["boxes"], geometry)
         zone = np.zeros((self.image_size, self.image_size), dtype=np.float32)
         if sample.get("zone_map"):
             source = cv2.imread(str(resolve_asset(self.root, sample["zone_map"])), cv2.IMREAD_GRAYSCALE)
             if source is None:
                 raise ValueError(f"Cannot decode zone map: {sample['zone_map']}")
-            zone = cv2.resize(source, (self.image_size, self.image_size)).astype(np.float32) / 255
+            zone = prepare_zone(source, geometry).astype(np.float32) / 255
         if self.augment:
             # Explicit context may encode left/right orientation; do not silently invalidate it.
             if not sample.get("context") and random.random() < 0.5:
@@ -119,7 +124,8 @@ class DetectionImages(Dataset):
             torch.from_numpy(image.transpose(2, 0, 1).copy()),
             torch.tensor(sample.get("context", [0, 0, 0, 0]), dtype=torch.float32),
             torch.from_numpy(zone[None].copy()),
-            {"boxes": torch.from_numpy(boxes), "labels": torch.tensor(sample["labels"], dtype=torch.long)},
+            {"boxes": torch.from_numpy(boxes), "labels": torch.tensor(sample["labels"], dtype=torch.long),
+             "geometry": geometry},
         )
 
 
@@ -302,6 +308,7 @@ def calibrated_predictions(predictions, calibration):
 def predict(model, loader, device, measure_loss=False):
     model.eval()
     predictions, targets, losses, latencies = [], [], [], []
+    summary = EpochLossSummary()
     for images, context, zones, target in loader:
         images, context, zones = images.to(device), context.to(device), zones.to(device)
         if device == "cuda":
@@ -312,15 +319,27 @@ def predict(model, loader, device, measure_loss=False):
         if device == "cuda":
             torch.cuda.synchronize()
         latencies.append((time.perf_counter() - start) * 1000 / len(images))
-        predictions.extend([{k: v.cpu() for k, v in item.items() if k != "embeddings"} for item in decoded])
-        targets.extend(target)
+        for item, truth in zip(decoded, target, strict=True):
+            prediction = {k: v.cpu() for k, v in item.items() if k != "embeddings"}
+            original = {"boxes": truth["boxes"], "labels": truth["labels"]}
+            geometry = truth.get("geometry")
+            if geometry and geometry["mode"] != "stretch":
+                prediction["boxes"] = torch.from_numpy(transform_boxes(prediction["boxes"].numpy(), geometry, inverse=True))
+                valid = (prediction["boxes"][:, 2:] > prediction["boxes"][:, :2]).all(-1)
+                prediction = {key: value[valid] for key, value in prediction.items()}
+                original["boxes"] = torch.from_numpy(transform_boxes(truth["boxes"].numpy(), geometry, inverse=True))
+            predictions.append(prediction)
+            targets.append(original)
         if measure_loss:
-            losses.append(float(detection_loss(output, target)["loss"]))
+            result = detection_loss(output, target)
+            losses.append(float(result["loss"]))
+            summary.update(result, len(images))
     return (
         predictions,
         targets,
         {
             "loss": float(np.mean(losses)) if losses else None,
+            "loss_components": summary.report() if measure_loss else None,
             "mean_batch_amortized_latency_ms": float(np.mean(latencies)),
             "latency_scope": "forward+decode+NMS; excludes file loading and host-to-device copy",
         },
@@ -344,6 +363,11 @@ def train(
     classification_weight=None,
     classification_focal_gamma=0.0,
     classification_focal_alpha=0.25,
+    architecture_version=1,
+    trainable_scope="all",
+    upgrade_from_v1=False,
+    assignment="center-v1",
+    preprocessing="stretch",
 ):
     if epochs < 1 or batch_size < 1 or image_size < 64 or image_size % 32:
         raise ValueError("epochs/batch_size must be positive; image_size must be a multiple of 32 >=64")
@@ -373,7 +397,14 @@ def train(
     torch.manual_seed(seed)
     torch.set_num_threads(max(1, min(threads, torch.get_num_threads())))
     device = torch_device()
-    model = SVADetector(classes=len(manifest["classes"]), width=width, depth=depth).to(device)
+    if assignment not in {"center-v1", "coverage-v2"} or preprocessing not in {"stretch", "letterbox"}:
+        raise ValueError("Unknown assignment or preprocessing recipe")
+    if upgrade_from_v1 and (not initialize_from or architecture_version != 2):
+        raise ValueError("An explicit v1 upgrade requires a parent checkpoint and architecture version 2")
+    if trainable_scope == "classification" and not initialize_from:
+        raise ValueError("Classification-only adaptation requires trained parent geometry")
+    model = SVADetector(classes=len(manifest["classes"]), width=width, depth=depth,
+                        architecture_version=architecture_version).to(device)
     initialization = "random"
     if initialize_from:
         previous = Path(initialize_from).resolve()
@@ -382,13 +413,21 @@ def train(
             previous_manifest.get("task") != "detection"
             or previous_manifest.get("domain") != manifest.get("domain")
             or previous_manifest.get("classes") != manifest["classes"]
-            or previous_manifest.get("model_config") != model.config
+            or previous_manifest.get("model_config") != (
+                {key: value for key, value in model.config.items() if key != "architecture_version"}
+                if upgrade_from_v1 else model.config)
+            or previous_manifest.get("config", {}).get("preprocessing", "stretch") != preprocessing
         ):
             raise ValueError("Continuation requires identical task, domain, class order and architecture")
         if digest(previous / "weights.pt") != previous_manifest["weights_sha256"]:
             raise ValueError("Continuation checkpoint checksum mismatch")
-        model.load_state_dict(torch.load(previous / "weights.pt", map_location=device, weights_only=True))
+        state = torch.load(previous / "weights.pt", map_location=device, weights_only=True)
+        if upgrade_from_v1:
+            model.load_v1_for_classification_upgrade(state)
+        else:
+            model.load_state_dict(state)
         initialization = previous_manifest["weights_sha256"]
+    model.configure_trainable_scope(trainable_scope)
     training_samples = [s for s in manifest["samples"] if s["split"] == "train"]
     sampler = (
         WeightedRandomSampler(
@@ -407,6 +446,7 @@ def train(
                 [s for s in manifest["samples"] if s["split"] == split],
                 image_size=image_size,
                 augment=split == "train",
+                preprocessing=preprocessing,
             ),
             batch_size=batch_size,
             shuffle=split == "train" and sampler is None,
@@ -416,19 +456,21 @@ def train(
         )
         for split in SPLITS
     }
-    optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate, weight_decay=0.0001)
+    optimizer = torch.optim.AdamW((p for p in model.parameters() if p.requires_grad), lr=learning_rate, weight_decay=0.0001)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
         optimizer, T_max=epochs, eta_min=learning_rate * 0.05
     )
     started, history, best, best_epoch = time.perf_counter(), [], (-1.0, -float("inf")), 0
     selection = {"split": "validation", "selected": "candidate"}
+    stopping = ValidationSelection(patience=patience)
     if initialize_from:
         predictions, targets, validation = predict(model, loaders["validation"], device, measure_loss=True)
         parent_map = evaluate_detections(predictions, targets, len(manifest["classes"]))["map50"] or 0
         best = (parent_map, -validation["loss"])
         selection.update(parent_map50=parent_map, selected="parent")
+        selection["parent_reference_bce_loss"] = validation["loss"]
+        stopping = ValidationSelection(patience, parent_map, validation["loss"])
         torch.save(model.state_dict(), output / "weights.pt")
-    stale = 0
     run_config = {
         "epochs": epochs,
         "seed": seed,
@@ -440,11 +482,19 @@ def train(
         "balanced_sampling": balanced_sampling,
         "patience": patience,
         "classification_weight": classification_weight,
+        "architecture_version": architecture_version,
+        "trainable_scope": trainable_scope,
+        "upgrade_from_v1": upgrade_from_v1,
+        "assignment": assignment,
+        "preprocessing": preprocessing,
+        "trainable_parameters": sum(p.numel() for p in model.parameters() if p.requires_grad),
         "loss_recipe": "positive-class-focal-v1" if classification_focal_gamma else "positive-class-sum-v2",
         "classification_focal_gamma": classification_focal_gamma,
         "classification_focal_alpha": classification_focal_alpha,
         "training_code_sha256": digest(Path(__file__)),
         "model_code_sha256": digest(Path(__file__).with_name("detector_model.py")),
+        "geometry_code_sha256": digest(Path(__file__).with_name("detection_geometry.py")),
+        "observability_code_sha256": digest(Path(__file__).with_name("observability.py")),
     }
     (output / "config.json").write_text(
         json.dumps({**run_config, "model": model.config}, indent=2), encoding="utf-8"
@@ -453,6 +503,7 @@ def train(
     for epoch in range(epochs):
         model.train()
         losses = []
+        summary = EpochLossSummary()
         for images, context, zones, targets in loaders["train"]:
             optimizer.zero_grad(set_to_none=True)
             result = detection_loss(
@@ -461,6 +512,7 @@ def train(
                 classification_weight=classification_weight,
                 classification_focal_gamma=classification_focal_gamma,
                 classification_focal_alpha=classification_focal_alpha,
+                assignment=assignment,
             )
             if not torch.isfinite(result["loss"]):
                 raise RuntimeError("Non-finite training loss; candidate not saved as successful")
@@ -468,28 +520,38 @@ def train(
             torch.nn.utils.clip_grad_norm_(model.parameters(), 5.0)
             optimizer.step()
             losses.append(float(result["loss"].detach()))
+            summary.update(result, len(images))
         predictions, targets, validation = predict(model, loaders["validation"], device, measure_loss=True)
         metrics = evaluate_detections(predictions, targets, len(manifest["classes"]))
-        score = (metrics["map50"] or 0, -validation["loss"])
-        if score > best:
-            best, best_epoch = score, epoch + 1
-            stale = 0
+        if stopping.observe(epoch + 1, metrics["map50"] or 0, validation["loss"]):
             selection["selected"] = "candidate"
             torch.save(model.state_dict(), output / "weights.pt")
-        else:
-            stale += 1
+        best, best_epoch = stopping.best, stopping.best_epoch
+        for class_row in metrics["per_class"]:
+            class_row["class_name"] = manifest["classes"][class_row["class_id"]]
         row = {
+            "history_schema_version": 2,
             "epoch": epoch + 1,
             "train_loss": float(np.mean(losses)),
             "validation_loss": validation["loss"],
             "validation_map50": metrics["map50"],
+            "training": summary.report(),
+            "validation": validation["loss_components"],
+            "validation_metrics": metrics,
+            "learning_rate": optimizer.param_groups[0]["lr"],
+            "loss_recipe": run_config["loss_recipe"],
+            "classification_weight": classification_weight,
+            "reference_validation_loss_recipe": "objectness_focal_plus_class_BCE_mean_plus_3GIoU_plus_2smoothL1",
+            "selection": stopping.report(epoch + 1, epochs),
             "elapsed_seconds": time.perf_counter() - started,
         }
         history.append(row)
-        (output / "history.json").write_text(json.dumps(history, indent=2), encoding="utf-8")
+        history_path = output / "history.tmp"
+        history_path.write_text(json.dumps(history, indent=2), encoding="utf-8")
+        history_path.replace(output / "history.json")
         print(json.dumps(row), flush=True)
         scheduler.step()
-        if patience and stale >= patience:
+        if stopping.should_stop:
             break
     model.load_state_dict(torch.load(output / "weights.pt", map_location=device, weights_only=True))
     predictions, targets, _ = predict(model, loaders["calibration"], device)
@@ -520,6 +582,8 @@ def train(
         "parameters": sum(p.numel() for p in model.parameters()),
         "best_epoch": best_epoch,
         "epochs_completed": len(history),
+        "stopping": stopping.report(len(history), epochs),
+        "history_schema_version": 2,
         "validation_selection": {**selection, "selected_map50": best[0]},
         "calibration": calibration,
         "calibrated": calibration["status"] == "fitted",
@@ -568,6 +632,11 @@ def main():
     training.add_argument("--classification-weight", type=float)
     training.add_argument("--classification-focal-gamma", type=float, default=0.0)
     training.add_argument("--classification-focal-alpha", type=float, default=0.25)
+    training.add_argument("--architecture-version", type=int, choices=(1, 2), default=1)
+    training.add_argument("--trainable-scope", choices=("all", "classification"), default="all")
+    training.add_argument("--upgrade-from-v1", action="store_true")
+    training.add_argument("--assignment", choices=("center-v1", "coverage-v2"), default="center-v1")
+    training.add_argument("--preprocessing", choices=("stretch", "letterbox"), default="stretch")
     args = vars(parser.parse_args())
     args.pop("command")
     args["manifest_path"] = args.pop("manifest")

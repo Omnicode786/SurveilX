@@ -82,6 +82,7 @@ class ScratchDetector:
 
         from training.detection_pipeline import calibrate_scores
         from training.detector_model import decode_detections
+        from training.detection_geometry import prepare_image, prepare_zone, transform_boxes
         from surveilx.model_profiles import runtime_profile
 
         # An arbitrary size remains forbidden. Optimized artifacts may expose only
@@ -89,21 +90,22 @@ class ScratchDetector:
         profile = runtime_profile(self.manifest, resolution)
         size = profile["image_size"] if profile else self.manifest["config"]["image_size"]
         calibration = profile["calibration"] if profile else self.calibration
-        image = cv2.cvtColor(cv2.resize(frame, (size, size)), cv2.COLOR_BGR2RGB)
+        image, geometry = prepare_image(frame, size, self.manifest["config"].get("preprocessing", "stretch"))
         tensor = torch.from_numpy(image.transpose(2, 0, 1).copy()).float()[None].to(self.device) / 255
         scene = torch.tensor(
             context if context is not None else [0, 0, 0, 0], dtype=torch.float32, device=self.device
         )[None]
         zones = None
         if zone_map is not None:
-            zone = cv2.resize(np.asarray(zone_map, dtype=np.float32), (size, size))
+            zone = prepare_zone(np.asarray(zone_map, dtype=np.float32), geometry)
             zones = torch.from_numpy(zone)[None, None].to(self.device)
         with torch.inference_mode():
             decoded = decode_detections(self.model(tensor, scene, zones), score_threshold=0.001)[0]
         scores = calibrate_scores(decoded["scores"].cpu().numpy(), calibration)
         threshold = calibration.get("threshold", 0.25)
+        boxes = transform_boxes(decoded["boxes"].cpu().numpy(), geometry, inverse=True)
         return [
             Detection(box.tolist(), self.classes[int(label)], float(score))
-            for box, label, score in zip(decoded["boxes"].cpu(), decoded["labels"].cpu(), scores)
-            if score >= threshold
+            for box, label, score in zip(boxes, decoded["labels"].cpu(), scores)
+            if score >= threshold and np.all(box[2:] > box[:2])
         ]

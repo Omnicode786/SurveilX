@@ -57,7 +57,8 @@ def diagnose(dataset, run, output, limit=64):
             [row for row in manifest["samples"] if row["split"] == split], len(manifest["classes"]), limit
         )
         loader = DataLoader(
-            DetectionImages(dataset.parent, samples, image_size=size),
+            DetectionImages(dataset.parent, samples, image_size=size,
+                            preprocessing=model_info["config"].get("preprocessing", "stretch")),
             batch_size=1,
             collate_fn=collate_detection,
         )
@@ -73,7 +74,7 @@ def diagnose(dataset, run, output, limit=64):
                     classification_focal_gamma=model_info["config"].get("classification_focal_gamma", 0),
                     classification_focal_alpha=model_info["config"].get("classification_focal_alpha", 0.25),
                 )
-                losses.append({key: float(value) for key, value in loss.items()})
+                losses.append({key: float(loss[key]) for key in ("loss", "objectness", "classification", "box_giou", "box_l1", "positives")})
                 for prediction, target in zip(
                     decode_detections(heads, score_threshold=0.001), targets, strict=True
                 ):

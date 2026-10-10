@@ -62,6 +62,7 @@ def snapshot(data, names):
                     f"epochs {job['completed_epochs']}/{job.get('epochs') or '?'}"
                 )
                 comparison = job.get("comparison")
+                lines.extend(f"    {row}" for row in format_epoch(job.get("latest_epoch")))
                 if comparison:
                     label = "Test AP50" if comparison["metric"] == "map50" else "Test accuracy"
                     lines.append(
@@ -78,6 +79,33 @@ def snapshot(data, names):
         except (OSError, ValueError, KeyError, TypeError) as exc:
             lines.extend([f"{name}: unable to read progress ({exc})", ""])
     return "\n".join(lines)
+
+
+def format_epoch(row):
+    """Missing legacy components stay unavailable; never infer historical losses."""
+    if not row:
+        return []
+    def number(value):
+        return f"{value:.5g}" if isinstance(value, (int, float)) else "not recorded"
+    metrics = row.get("validation_metrics", {})
+    lines = [f"validation AP50 {number(row.get('validation_map50'))}; "
+             f"P/R/F1 {number(metrics.get('precision'))}/{number(metrics.get('recall'))}/{number(metrics.get('f1'))}; "
+             f"LR {number(row.get('learning_rate'))}; elapsed {number(row.get('elapsed_seconds'))}s"]
+    training = row.get("training", {})
+    losses = {"loss": row.get("train_loss"), **training.get("losses", {})}
+    keys = ("box_regression", "classification", "distribution_focal") if row.get("metric_source") else ("loss", "objectness", "classification", "box_giou", "box_l1")
+    lines.append("train losses " + ", ".join(f"{key}={number(losses.get(key))}" for key in keys))
+    if training.get("positive_assignments") is not None:
+        lines.append(f"positive assignments {training.get('positive_assignments')}; "
+                     f"FPN {training.get('positives_per_level')}; unassigned objects {training.get('unassigned_objects')}")
+    if metrics.get("per_class"):
+        lines.append("class AP50: " + ", ".join(f"{item.get('class_name', item['class_id'])}={number(item.get('ap50'))}"
+                     for item in metrics["per_class"]))
+    selection = row.get("selection", {})
+    if selection:
+        lines.append(f"best epoch {selection['best_epoch']}; stale {selection['stale_epochs']}/{selection.get('patience')}; "
+                     f"stop: {selection.get('stopping_reason') or 'not stopped'}")
+    return lines
 
 
 def main():

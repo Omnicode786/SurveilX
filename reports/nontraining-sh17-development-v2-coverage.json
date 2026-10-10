@@ -1,0 +1,318 @@
+{
+  "valid": true,
+  "manifest_sha256": "612b1197c555d4dce77f41772ee39834718ba588cb95c1616bce6023e064dd6c",
+  "task": "detection",
+  "counts": {
+    "train": 631,
+    "validation": 147,
+    "calibration": 117,
+    "test": 124
+  },
+  "count_unit": "objects",
+  "empty_samples": {
+    "train": 0,
+    "validation": 0,
+    "calibration": 0,
+    "test": 0
+  },
+  "recorded_groups": {
+    "train": 205,
+    "validation": 49,
+    "calibration": 36,
+    "test": 45
+  },
+  "per_class": [
+    {
+      "label": "person",
+      "labeled_instances": {
+        "train": 1305,
+        "validation": 316,
+        "calibration": 301,
+        "test": 245
+      },
+      "samples_with_label": {
+        "train": 608,
+        "validation": 137,
+        "calibration": 113,
+        "test": 120
+      }
+    },
+    {
+      "label": "ear",
+      "labeled_instances": {
+        "train": 577,
+        "validation": 129,
+        "calibration": 124,
+        "test": 124
+      },
+      "samples_with_label": {
+        "train": 324,
+        "validation": 74,
+        "calibration": 76,
+        "test": 79
+      }
+    },
+    {
+      "label": "earmuffs",
+      "labeled_instances": {
+        "train": 135,
+        "validation": 30,
+        "calibration": 34,
+        "test": 13
+      },
+      "samples_with_label": {
+        "train": 100,
+        "validation": 25,
+        "calibration": 20,
+        "test": 13
+      }
+    },
+    {
+      "label": "face",
+      "labeled_instances": {
+        "train": 649,
+        "validation": 176,
+        "calibration": 124,
+        "test": 101
+      },
+      "samples_with_label": {
+        "train": 388,
+        "validation": 93,
+        "calibration": 66,
+        "test": 69
+      }
+    },
+    {
+      "label": "face_guard",
+      "labeled_instances": {
+        "train": 74,
+        "validation": 15,
+        "calibration": 20,
+        "test": 6
+      },
+      "samples_with_label": {
+        "train": 72,
+        "validation": 14,
+        "calibration": 20,
+        "test": 6
+      }
+    },
+    {
+      "label": "face_mask",
+      "labeled_instances": {
+        "train": 202,
+        "validation": 34,
+        "calibration": 40,
+        "test": 42
+      },
+      "samples_with_label": {
+        "train": 100,
+        "validation": 25,
+        "calibration": 20,
+        "test": 25
+      }
+    },
+    {
+      "label": "foot",
+      "labeled_instances": {
+        "train": 180,
+        "validation": 33,
+        "calibration": 49,
+        "test": 60
+      },
+      "samples_with_label": {
+        "train": 100,
+        "validation": 13,
+        "calibration": 20,
+        "test": 25
+      }
+    },
+    {
+      "label": "tools",
+      "labeled_instances": {
+        "train": 574,
+        "validation": 59,
+        "calibration": 61,
+        "test": 84
+      },
+      "samples_with_label": {
+        "train": 197,
+        "validation": 48,
+        "calibration": 42,
+        "test": 54
+      }
+    },
+    {
+      "label": "glasses",
+      "labeled_instances": {
+        "train": 179,
+        "validation": 47,
+        "calibration": 26,
+        "test": 62
+      },
+      "samples_with_label": {
+        "train": 154,
+        "validation": 44,
+        "calibration": 22,
+        "test": 46
+      }
+    },
+    {
+      "label": "gloves",
+      "labeled_instances": {
+        "train": 461,
+        "validation": 114,
+        "calibration": 105,
+        "test": 92
+      },
+      "samples_with_label": {
+        "train": 205,
+        "validation": 50,
+        "calibration": 45,
+        "test": 35
+      }
+    },
+    {
+      "label": "helmet",
+      "labeled_instances": {
+        "train": 261,
+        "validation": 96,
+        "calibration": 70,
+        "test": 42
+      },
+      "samples_with_label": {
+        "train": 103,
+        "validation": 44,
+        "calibration": 31,
+        "test": 27
+      }
+    },
+    {
+      "label": "hands",
+      "labeled_instances": {
+        "train": 1104,
+        "validation": 279,
+        "calibration": 230,
+        "test": 205
+      },
+      "samples_with_label": {
+        "train": 414,
+        "validation": 97,
+        "calibration": 78,
+        "test": 88
+      }
+    },
+    {
+      "label": "head",
+      "labeled_instances": {
+        "train": 1184,
+        "validation": 299,
+        "calibration": 266,
+        "test": 226
+      },
+      "samples_with_label": {
+        "train": 566,
+        "validation": 133,
+        "calibration": 102,
+        "test": 105
+      }
+    },
+    {
+      "label": "medical_suit",
+      "labeled_instances": {
+        "train": 34,
+        "validation": 34,
+        "calibration": 2,
+        "test": 44
+      },
+      "samples_with_label": {
+        "train": 27,
+        "validation": 25,
+        "calibration": 2,
+        "test": 25
+      }
+    },
+    {
+      "label": "shoes",
+      "labeled_instances": {
+        "train": 742,
+        "validation": 148,
+        "calibration": 162,
+        "test": 105
+      },
+      "samples_with_label": {
+        "train": 231,
+        "validation": 41,
+        "calibration": 46,
+        "test": 29
+      }
+    },
+    {
+      "label": "safety_suit",
+      "labeled_instances": {
+        "train": 168,
+        "validation": 28,
+        "calibration": 25,
+        "test": 6
+      },
+      "samples_with_label": {
+        "train": 100,
+        "validation": 19,
+        "calibration": 13,
+        "test": 4
+      }
+    },
+    {
+      "label": "safety_vest",
+      "labeled_instances": {
+        "train": 233,
+        "validation": 56,
+        "calibration": 51,
+        "test": 45
+      },
+      "samples_with_label": {
+        "train": 87,
+        "validation": 25,
+        "calibration": 20,
+        "test": 25
+      }
+    }
+  ],
+  "issues": [
+    {
+      "label": "face_guard",
+      "split": "test",
+      "kind": "sparse_supervision",
+      "message": "Only 6 test labels for face_guard; fewer than ten is a review warning, not a statistical acceptance threshold."
+    },
+    {
+      "label": "medical_suit",
+      "split": "calibration",
+      "kind": "sparse_supervision",
+      "message": "Only 2 calibration labels for medical_suit; fewer than ten is a review warning, not a statistical acceptance threshold."
+    },
+    {
+      "label": "safety_suit",
+      "split": "test",
+      "kind": "sparse_supervision",
+      "message": "Only 6 test labels for safety_suit; fewer than ten is a review warning, not a statistical acceptance threshold."
+    }
+  ],
+  "synthetic": false,
+  "provenance": {
+    "source": "https://github.com/ahmadmughees/SH17dataset",
+    "archive_etag": "\"2e9eb8708de4d1ca84246ed230ca66f8\"",
+    "source_independence_verified": false,
+    "selection": "Class-balanced label coverage; stable photographer group assignment; all previous samples keep their split",
+    "group_limitation": "Photographer-disjoint development split, not verified scene or deployment-site independence",
+    "label_semantics": "Glasses is generic eyewear, not certified safety eyewear. Object presence does not establish compliance.",
+    "label_map_source": "https://github.com/ahmadmughees/SH17dataset/blob/master/sh17.yaml",
+    "correction": "Corrected README display-order assumption to authoritative YOLO numeric class IDs before usable training; sh17-g1 aborted and preserved",
+    "parent_dataset_sha256": "6b64e6a38baef86ba48c77a33af82fb0c381858bffd66c869a8b2bd46874c7ae",
+    "source_index_sha256": "1d57ae7432c95da4600171c787eb3e2554368d8334bf181b01c82ecf7c79a46a",
+    "image_processing": "New images preserve aspect ratio with max side 1536 and JPEG quality 95; original source hashes retained",
+    "evaluation_change": "Expanded development holdouts; compare parent and child on this identical dataset, not old test scores"
+  },
+  "scope": "Dataset integrity and label coverage only. Group identifiers do not prove source independence; model training, evaluation and acceptance are separate.",
+  "model_quality_verified": false
+}

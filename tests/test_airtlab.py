@@ -1,5 +1,6 @@
 from collections import Counter, defaultdict
 import io
+from types import SimpleNamespace
 
 import pytest
 
@@ -32,7 +33,8 @@ def test_airtlab_plan_keeps_views_together_and_filters_other_violence():
     assert actions("FILE; ACTION CLASSES\n1.mp4;fight,punch\n") == {"1.mp4": {"fight", "punch"}}
 
 
-def test_download_is_pinned_verified_and_reuses_only_intact_bytes(tmp_path):
+def test_download_is_pinned_verified_and_reuses_only_intact_bytes(tmp_path, monkeypatch):
+    monkeypatch.setattr("scripts.prepare_airtlab.shutil.disk_usage", lambda _: SimpleNamespace(free=10 * 1024**3))
     data = b"source video bytes"
     entry = {"path": "videos/1.mp4", "size": len(data), "sha": git_blob_sha(data)}
     calls = []
@@ -49,3 +51,7 @@ def test_download_is_pinned_verified_and_reuses_only_intact_bytes(tmp_path):
         fetch(entry, tmp_path, opener)
     with pytest.raises(ValueError, match="Unsafe"):
         fetch({**entry, "path": "../escape.mp4"}, tmp_path, opener)
+    monkeypatch.setattr("scripts.prepare_airtlab.shutil.disk_usage", lambda _: SimpleNamespace(free=0))
+    with pytest.raises(ValueError, match="reserve"):
+        fetch({**entry, "path": "videos/2.mp4"}, tmp_path, opener)
+    assert len(calls) == 1

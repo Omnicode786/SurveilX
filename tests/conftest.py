@@ -4,6 +4,25 @@ import pytest
 from fastapi.testclient import TestClient
 
 
+def pytest_addoption(parser):
+    parser.addoption("--no-training", action="store_true", help="Forbid real training entry points and optimizer steps")
+
+
+@pytest.fixture(autouse=True)
+def forbid_training_when_requested(request, monkeypatch):
+    if not request.config.getoption("--no-training"):
+        return
+    def forbidden(*args, **kwargs):
+        raise AssertionError("Training is prohibited in this test pass")
+    for name in ("training.pipeline", "training.detection_pipeline", "training.yolo_pipeline"):
+        module = importlib.import_module(name)
+        monkeypatch.setattr(module, "train", forbidden)
+    import torch
+    monkeypatch.setattr(torch.optim.AdamW, "step", forbidden)
+    monkeypatch.setattr(torch.optim.Adam, "step", forbidden)
+    monkeypatch.setattr(torch.optim.SGD, "step", forbidden)
+
+
 @pytest.fixture
 def client(tmp_path, monkeypatch):
     import surveilx.config

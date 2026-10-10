@@ -1,0 +1,117 @@
+{
+  "scope": "12 evenly spaced validation images per domain; forward only. Small descriptive sample, not AP or a causal augmentation ablation",
+  "runs": [
+    {
+      "domain": "fire",
+      "images": [
+        "images/8c04d8110526a03a2314cbc10cbd5d31e0f874446ff221e733258a327a72a1ee.jpg",
+        "images/81ef94f98b32954d96b1008f87b09b0b95cd09d51947a31a9aa71668e1c9795e.jpg",
+        "images/dcd4ab48ec7dfb3589f500fb168c8429156728a7baa6fe75fa3d65a8ad73c299.jpg",
+        "images/c00db722c43eee70ea23c84692eabb325423429da86401f886691de81a1726ac.jpg",
+        "images/044c058ee0ada5f1c5635429dab22f53ae661f9c8cc9b4c5758cb24483f35cef.jpg",
+        "images/1b73538b94fd227981533ccece4c940e5d1a194b43ef1cc20bf887897785bd0f.jpg",
+        "images/8cbcd5831dc9ebd7382df882823945348405c46daabdd19bb33fb54e7e3e14ce.jpg",
+        "images/e3854ca8f83c69942998d35e9fcfd908dc850b9659cc89d375cdce989fc88fa5.jpg",
+        "images/8a76a2e47a46ffe92f5b68f0428040b77961f5509d892b39e5f0f31c6b5ff3f0.jpg",
+        "images/1f5d36ac5c5155631b4e16bad2b2b4b2d036177891ad454d2549c4ef6f8289be.jpg",
+        "images/40f7ffb05693e4817232a145edc5399ae85ff20f96ae6421e74cf4ceb6467c84.jpg",
+        "images/b5f8e1ed6e4287b6dd7f0d162b5a4950bca5b37c2d8c25a7b8b2e0877300f788.jpg"
+      ],
+      "counts": {
+        "original": {
+          "correct_class_confidence_too_low": 4,
+          "correct_detection": 4,
+          "unlocalized": 5
+        },
+        "horizontal_flip": {
+          "correct_class_confidence_too_low": 4,
+          "duplicate_nms_or_matching": 1,
+          "unlocalized": 5,
+          "correct_detection": 3
+        },
+        "brighten": {
+          "correct_class_confidence_too_low": 4,
+          "duplicate_nms_or_matching": 1,
+          "unlocalized": 5,
+          "correct_detection": 3
+        }
+      }
+    },
+    {
+      "domain": "weapons",
+      "images": [
+        "images/20d207ebdee0bbc821d2dbdaba105e9672069d14d43a05a8f9c345581a891bc1.jpg",
+        "images/a100db8dfe87f52587c18c41f8006a802a97c53d362bb8983ef5c2a6332a5c62.jpg",
+        "images/e1232411bf2688797e666f26bf4d1f9a41666d7ed817e1bdb79cc228331cb939.jpg",
+        "images/f958a0952fd8e427c3d6d8b0d604257f7553ac948f8c4fcbfcb84fe75bec37f5.jpg",
+        "images/cc0f541530788af417738266b59b238bf178bd1b3fc13ae678eba30e6e350ebe.jpg",
+        "images/c9a61db1df27e82a12606485607573b7df0acfac21201faffeca2419c5076b65.jpg",
+        "images/882d6eef01e00cda23b79880ccbbe04f6d135779b2db4d9731f2ab6422d2b14c.jpg",
+        "images/807d738b032427c58a434b6569d4df9838855be225d927e20c07efd5852460fe.jpg",
+        "images/df3d94cea1ab05d29949b529570c54b7fb880be8d80d58373d84862125724fc4.jpg",
+        "images/0c0f21fc6f64e1125eaf8a9ae8fbbdf5c1e5a3a5d3ba0cd21dc421302704e6c5.jpg",
+        "images/e3f3459a21e899ced2163a82078fed4dd956902b15776e81a954b3ce39224ec7.jpg",
+        "images/9cafe923679968534412220b40bc12ac0eee504cc639e74a1412a6d3802149a7.jpg"
+      ],
+      "counts": {
+        "original": {
+          "correct_class_confidence_too_low": 6,
+          "unlocalized": 5,
+          "localized_wrong_class": 3,
+          "correct_detection": 1
+        },
+        "horizontal_flip": {
+          "localized_wrong_class": 5,
+          "correct_class_confidence_too_low": 6,
+          "unlocalized": 4
+        },
+        "brighten": {
+          "localized_wrong_class": 5,
+          "correct_detection": 1,
+          "correct_class_confidence_too_low": 5,
+          "unlocalized": 4
+        }
+      }
+    },
+    {
+      "domain": "ppe",
+      "images": [
+        "images/4d19262b5951ee8a7f9bff07ddbb5b3d9bf97331adf1c1d567ecc3dfc9e24ba8.jpeg",
+        "images/e2e575d13ea6909390630dddb31ff887122d78c4fd6356bb75d50eb18d83f256.jpeg",
+        "images/50888f50d5cfd3652d3b979261351b99bf84cff1264b7ce14750f4703c1e1798.jpeg",
+        "images/b78194a6e0a951434413cb2a4a1471af1ed6a05b0ffcf46dce0c0ff7b79d51d6.jpeg",
+        "images/ce5809787f5bd45f4d95cac2d721bb660a082d37821503591258dab3bf194b3c.jpg",
+        "images/99e08ffdb48f669190299457a5b43253309148053d6eb6615f6db2d1db1cb980.jpg",
+        "images/d2536b02cd91c6325c05c670b19c1ca691ebb68de338e4628a42df84ab735e1b.jpg",
+        "images/006af2cd1ce3042b2800c4ab9d85ff0127370eba0e6030310012a6d25b1e3971.jpg",
+        "images/edbf946e37b9156a942a26d820a431140354df922775cc3d204e2af98262970a.jpg",
+        "images/9fefc29a771ed127bef5ca5483e7da68840d31627d173c27ce9a421669e348f7.jpg",
+        "images/b9fdf9daef073d3c9c44c1df9f5a670d7077af2505e5b40e5127aa40824cf815.jpg",
+        "images/93aa0ab7090edbe469b300f81aa9323aabcc170efe513c668bcfd6df87c21507.jpg"
+      ],
+      "counts": {
+        "original": {
+          "correct_class_confidence_too_low": 44,
+          "localized_wrong_class": 38,
+          "correct_detection": 15,
+          "unlocalized": 54,
+          "duplicate_nms_or_matching": 4
+        },
+        "horizontal_flip": {
+          "correct_detection": 18,
+          "localized_wrong_class": 27,
+          "correct_class_confidence_too_low": 43,
+          "unlocalized": 62,
+          "duplicate_nms_or_matching": 5
+        },
+        "brighten": {
+          "correct_class_confidence_too_low": 49,
+          "localized_wrong_class": 34,
+          "correct_detection": 14,
+          "unlocalized": 56,
+          "duplicate_nms_or_matching": 2
+        }
+      }
+    }
+  ]
+}

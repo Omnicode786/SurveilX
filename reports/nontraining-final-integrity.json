@@ -1,0 +1,13 @@
+{
+  "created": 1791220125.9743242,
+  "frozen_files_verified": 275,
+  "changed": [],
+  "training_processes": [],
+  "completed_artifacts": 56,
+  "readiness_errors": [],
+  "free_disk_bytes": 5367107584,
+  "training_launched": false,
+  "downloads_performed": false,
+  "models_activated": false,
+  "process_check": "Python executable and actual -m/script arguments; excludes shell diagnostic text"
+}

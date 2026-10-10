@@ -57,6 +57,22 @@ class SceneZoneConditioner(nn.Module):
         return features * (1 + scale[:, :, None, None].tanh() + gate) + shift[:, :, None, None]
 
 
+class ClassRefinement(nn.Module):
+    """Small semantic-only residual adapter; starts as an exact identity."""
+
+    def __init__(self, channels):
+        super().__init__()
+        self.features = nn.Sequential(
+            ConvNorm(channels, channels, 3, groups=channels),
+            ConvNorm(channels, channels, 1),
+        )
+        self.project = nn.Conv2d(channels, channels, 1, bias=False)
+        nn.init.zeros_(self.project.weight)
+
+    def forward(self, features):
+        return features + self.project(self.features(features))
+
+
 class SVADetector(nn.Module):
     """Scratch detector with strides 8/16/32 and reusable detection features.
 
@@ -66,11 +82,15 @@ class SVADetector(nn.Module):
     projection is represented as a re-identification model.
     """
 
-    def __init__(self, classes=1, width=24, depth=2, context_dim=4):
+    def __init__(self, classes=1, width=24, depth=2, context_dim=4, architecture_version=1):
         super().__init__()
         if classes < 1 or width < 8 or depth < 1 or context_dim < 1:
             raise ValueError("classes/context_dim/depth must be positive and width at least 8")
         self.config = dict(classes=classes, width=width, depth=depth, context_dim=context_dim)
+        if architecture_version not in (1, 2):
+            raise ValueError("Unsupported SVA detector architecture version")
+        if architecture_version == 2:
+            self.config["architecture_version"] = 2
         self.stem = nn.Sequential(ConvNorm(3, width, stride=2), ConvNorm(width, width * 2, stride=2))
         self.stages = nn.ModuleList()
         previous = width * 2
@@ -96,6 +116,28 @@ class SVADetector(nn.Module):
         nn.init.constant_(self.objectness.bias, math.log(0.01 / 0.99))
         nn.init.zeros_(self.regressor.weight)
         nn.init.zeros_(self.regressor.bias)
+        if architecture_version == 2:
+            self.class_refinement = ClassRefinement(feature_width)
+
+    def load_v1_for_classification_upgrade(self, state):
+        """Explicit shape/key checked migration; no mutation of the source checkpoint."""
+        if self.config.get("architecture_version", 1) != 2:
+            raise ValueError("Classification upgrade requires architecture version 2")
+        expected = {key for key in self.state_dict() if not key.startswith("class_refinement.")}
+        if set(state) != expected:
+            raise ValueError("Upgrade requires an exact v1 checkpoint with matching taxonomy/capacity")
+        current = self.state_dict()
+        if any(state[key].shape != current[key].shape for key in expected):
+            raise ValueError("V1 checkpoint tensor shapes do not match")
+        self.load_state_dict(state, strict=False)
+        nn.init.zeros_(self.class_refinement.project.weight)
+
+    def configure_trainable_scope(self, scope="all"):
+        if scope not in {"all", "classification"}:
+            raise ValueError("Trainable scope must be all or classification")
+        prefixes = ("class_tower.", "classifier.", "class_refinement.")
+        for name, parameter in self.named_parameters():
+            parameter.requires_grad_(scope == "all" or name.startswith(prefixes))
 
     def forward(self, images, context=None, zone_map=None):
         if images.ndim != 4 or images.shape[1] != 3 or min(images.shape[-2:]) < 32:
@@ -119,6 +161,8 @@ class SVADetector(nn.Module):
         for index, features in enumerate(levels):
             features = self.conditioners[index](self.pyramid[index](features), context, zone_map)
             entity = self.class_tower(features)
+            if hasattr(self, "class_refinement"):
+                entity = self.class_refinement(entity)
             geometry = self.box_tower(features)
             output.append(
                 {
@@ -203,12 +247,52 @@ def focal_loss(logits, targets):
     )
 
 
-def assign_targets(flat, targets):
+def coverage_reservations(eligible, distance, areas):
+    """Maximum matching reserves one eligible location per object when feasible.
+
+    An augmenting path repairs collisions without changing levels, center radius,
+    regression targets or the remaining smallest-area assignments.
+    """
+    candidates = []
+    for index in range(eligible.shape[1]):
+        locations = torch.where(eligible[:, index])[0]
+        locations = locations[torch.argsort(distance[locations, index], stable=True)]
+        candidates.append(locations.tolist())
+    assigned, reserved = {}, {}
+    order = sorted(range(len(candidates)), key=lambda i: (len(candidates[i]), float(areas[i]), i))
+    for start in order:
+        queue, visited, parent, free = [start], {start}, {}, None
+        for obj in queue:
+            for location in candidates[obj]:
+                if location in parent:
+                    continue
+                parent[location] = obj
+                if location not in reserved:
+                    free = location
+                    break
+                previous = reserved[location]
+                if previous not in visited:
+                    visited.add(previous)
+                    queue.append(previous)
+            if free is not None:
+                break
+        while free is not None:
+            obj = parent[free]
+            previous = assigned.get(obj)
+            assigned[obj], reserved[free] = free, obj
+            free = previous
+    return reserved
+
+
+def assign_targets(flat, targets, return_metadata=False, assignment="center-v1"):
     """Scale-aware center assignment with a nearest-center fallback for tiny boxes."""
     batch, locations, classes = flat["classes"].shape
+    if assignment not in {"center-v1", "coverage-v2"}:
+        raise ValueError("Unknown target assignment recipe")
     objectness = flat["classes"].new_zeros((batch, locations))
     class_targets = flat["classes"].new_zeros((batch, locations, classes))
     box_targets = flat["boxes"].new_zeros((batch, locations, 4))
+    owners = torch.full((batch, locations), -1, dtype=torch.long, device=flat["classes"].device)
     points, steps, levels = flat["points"], flat["steps"], flat["levels"]
     for image_index, target in enumerate(targets):
         boxes = target["boxes"].to(points)
@@ -232,11 +316,17 @@ def assign_targets(flat, targets):
         # Dense overlaps prefer the smaller object, while the center fallback covers small targets.
         cost = sizes.prod(-1)[None].expand(locations, -1).masked_fill(~eligible, float("inf"))
         best_cost, matched = cost.min(-1)
+        if assignment == "coverage-v2":
+            for location, obj in coverage_reservations(eligible, distance, sizes.prod(-1)).items():
+                matched[location] = obj
         positive = best_cost.isfinite()
         selected = matched[positive]
+        owners[image_index, positive] = selected
         objectness[image_index, positive] = 1
         class_targets[image_index, positive, labels[selected]] = 1
         box_targets[image_index, positive] = boxes[selected]
+    if return_metadata:
+        return objectness, class_targets, box_targets, owners
     return objectness, class_targets, box_targets
 
 
@@ -258,9 +348,12 @@ def detection_loss(
     classification_weight=1.0,
     classification_focal_gamma=0.0,
     classification_focal_alpha=0.25,
+    assignment="center-v1",
 ):
     flat = flatten_predictions(levels)
-    object_target, class_target, box_target = assign_targets(flat, targets)
+    object_target, class_target, box_target, owners = assign_targets(
+        flat, targets, return_metadata=True, assignment=assignment
+    )
     positive = object_target.bool()
     denominator = positive.sum().clamp(min=1)
     object_loss = focal_loss(flat["objectness"].squeeze(-1), object_target).sum() / denominator
@@ -283,7 +376,13 @@ def detection_loss(
         "classification": class_loss,
         "box_giou": box_loss,
         "box_l1": size_loss,
-        "positives": denominator.detach(),
+        "positives": positive.sum().detach(),
+        "positives_per_level": torch.bincount(
+            flat["levels"].expand(len(targets), -1)[positive], minlength=len(levels)
+        ).detach(),
+        "assigned_objects": sum(int(row[row >= 0].unique().numel()) for row in owners),
+        "unassigned_objects": sum(len(target["labels"]) for target in targets)
+        - sum(int(row[row >= 0].unique().numel()) for row in owners),
     }
 
 

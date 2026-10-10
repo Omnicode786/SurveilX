@@ -137,6 +137,11 @@ def command_for(job, resume_checkpoint=None):
         "classification-weight",
         "classification-focal-gamma",
         "classification-focal-alpha",
+        "architecture-version",
+        "trainable-scope",
+        "upgrade-from-v1",
+        "assignment",
+        "preprocessing",
     }
     for key, value in job["options"].items():
         if key not in allowed:

@@ -1,0 +1,42 @@
+{
+  "statuses": {
+    "health": 200,
+    "login": 200,
+    "capabilities": 200,
+    "generations": 200,
+    "datasets/sh17-development-v2/readiness": 200,
+    "datasets/dangerous-items-development-v1/readiness": 200,
+    "adaptation/policy": 200
+  },
+  "training_processes": [],
+  "api_processes": [
+    {
+      "cmdline": [
+        "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX\\.venv\\Scripts\\python.exe",
+        "-m",
+        "uvicorn",
+        "surveilx.api:app",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "8000"
+      ],
+      "pid": 3784
+    },
+    {
+      "cmdline": [
+        "C:\\Users\\muzam\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-m",
+        "uvicorn",
+        "surveilx.api:app",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "8000"
+      ],
+      "pid": 15776
+    }
+  ],
+  "automatic_training_enabled": false,
+  "process_check": "Python executable and actual -m/script arguments; excludes shell diagnostic text"
+}

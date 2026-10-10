@@ -1,6 +1,7 @@
 import hashlib
 import json
 import zipfile
+from types import SimpleNamespace
 
 import cv2
 import numpy as np
@@ -11,7 +12,8 @@ from scripts.prepare_dfire import filename_bands
 from training.datasets import digest
 
 
-def test_train_expansion_preserves_holdouts_and_skips_duplicate_content(tmp_path):
+def test_train_expansion_preserves_holdouts_and_skips_duplicate_content(tmp_path, monkeypatch):
+    monkeypatch.setattr("scripts.expand_dfire_training.shutil.disk_usage", lambda _: SimpleNamespace(free=10 * 1024**3))
     names = [f"data/train/images/AoF{index:05}.jpg" for index in range(200)]
     bands = filename_bands(names)
     contents = {}

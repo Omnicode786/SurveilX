@@ -1,0 +1,219 @@
+{
+  "scope": "Labels-only assignment and frozen-checkpoint compatibility; no training",
+  "datasets": [
+    {
+      "dataset": "dfire-development-v1",
+      "images": 384,
+      "objects": 628,
+      "v1_unassigned": 4,
+      "v2_unassigned": 0,
+      "per_class": {
+        "smoke": {
+          "objects": 225,
+          "v1_unassigned": 4,
+          "v2_unassigned": 0
+        },
+        "fire": {
+          "objects": 403,
+          "v1_unassigned": 0,
+          "v2_unassigned": 0
+        }
+      }
+    },
+    {
+      "dataset": "dfire-development-v2",
+      "images": 1284,
+      "objects": 2065,
+      "v1_unassigned": 11,
+      "v2_unassigned": 0,
+      "per_class": {
+        "smoke": {
+          "objects": 790,
+          "v1_unassigned": 11,
+          "v2_unassigned": 0
+        },
+        "fire": {
+          "objects": 1275,
+          "v1_unassigned": 0,
+          "v2_unassigned": 0
+        }
+      }
+    },
+    {
+      "dataset": "dangerous-items-development-v1",
+      "images": 399,
+      "objects": 443,
+      "v1_unassigned": 0,
+      "v2_unassigned": 0,
+      "per_class": {
+        "firearm": {
+          "objects": 114,
+          "v1_unassigned": 0,
+          "v2_unassigned": 0
+        },
+        "knife": {
+          "objects": 120,
+          "v1_unassigned": 0,
+          "v2_unassigned": 0
+        },
+        "machete": {
+          "objects": 112,
+          "v1_unassigned": 0,
+          "v2_unassigned": 0
+        },
+        "baseball_bat": {
+          "objects": 97,
+          "v1_unassigned": 0,
+          "v2_unassigned": 0
+        }
+      }
+    },
+    {
+      "dataset": "sh17-development-v2",
+      "images": 631,
+      "objects": 8062,
+      "v1_unassigned": 876,
+      "v2_unassigned": 0,
+      "per_class": {
+        "person": {
+          "objects": 1305,
+          "v1_unassigned": 187,
+          "v2_unassigned": 0
+        },
+        "ear": {
+          "objects": 577,
+          "v1_unassigned": 4,
+          "v2_unassigned": 0
+        },
+        "earmuffs": {
+          "objects": 135,
+          "v1_unassigned": 8,
+          "v2_unassigned": 0
+        },
+        "face": {
+          "objects": 649,
+          "v1_unassigned": 62,
+          "v2_unassigned": 0
+        },
+        "face_guard": {
+          "objects": 74,
+          "v1_unassigned": 3,
+          "v2_unassigned": 0
+        },
+        "face_mask": {
+          "objects": 202,
+          "v1_unassigned": 13,
+          "v2_unassigned": 0
+        },
+        "foot": {
+          "objects": 180,
+          "v1_unassigned": 6,
+          "v2_unassigned": 0
+        },
+        "tools": {
+          "objects": 574,
+          "v1_unassigned": 97,
+          "v2_unassigned": 0
+        },
+        "glasses": {
+          "objects": 179,
+          "v1_unassigned": 3,
+          "v2_unassigned": 0
+        },
+        "gloves": {
+          "objects": 461,
+          "v1_unassigned": 7,
+          "v2_unassigned": 0
+        },
+        "helmet": {
+          "objects": 261,
+          "v1_unassigned": 43,
+          "v2_unassigned": 0
+        },
+        "hands": {
+          "objects": 1104,
+          "v1_unassigned": 14,
+          "v2_unassigned": 0
+        },
+        "head": {
+          "objects": 1184,
+          "v1_unassigned": 311,
+          "v2_unassigned": 0
+        },
+        "medical_suit": {
+          "objects": 34,
+          "v1_unassigned": 0,
+          "v2_unassigned": 0
+        },
+        "shoes": {
+          "objects": 742,
+          "v1_unassigned": 63,
+          "v2_unassigned": 0
+        },
+        "safety_suit": {
+          "objects": 168,
+          "v1_unassigned": 7,
+          "v2_unassigned": 0
+        },
+        "safety_vest": {
+          "objects": 233,
+          "v1_unassigned": 48,
+          "v2_unassigned": 0
+        }
+      }
+    }
+  ],
+  "checkpoints": [
+    {
+      "run": "cuda-g4-fire-scratch",
+      "parent": "data\\runs\\accuracy-g3-fire-scratch",
+      "parent_tensors_identical": false,
+      "v1_strict_load": true,
+      "v2_upgrade_forward_identical": true,
+      "v1_parameters": 1402111,
+      "v2_parameters": 1421791,
+      "best_epoch": 12,
+      "epochs_completed": 20,
+      "selection": {
+        "split": "validation",
+        "selected": "candidate",
+        "parent_map50": 0.2242260526545954,
+        "selected_map50": 0.3551608788558493
+      }
+    },
+    {
+      "run": "cuda-g4-weapons-scratch",
+      "parent": "data\\runs\\accuracy-g3b-weapons-scratch",
+      "parent_tensors_identical": true,
+      "v1_strict_load": true,
+      "v2_upgrade_forward_identical": true,
+      "v1_parameters": 1402305,
+      "v2_parameters": 1421985,
+      "best_epoch": 0,
+      "epochs_completed": 8,
+      "selection": {
+        "split": "validation",
+        "selected": "parent",
+        "parent_map50": 0.07747213451967665,
+        "selected_map50": 0.07747213451967665
+      }
+    },
+    {
+      "run": "cuda-g4-ppe-scratch",
+      "parent": "data\\runs\\accuracy-ppe-g3b-scratch",
+      "parent_tensors_identical": true,
+      "v1_strict_load": true,
+      "v2_upgrade_forward_identical": true,
+      "v1_parameters": 1403566,
+      "v2_parameters": 1423246,
+      "best_epoch": 0,
+      "epochs_completed": 8,
+      "selection": {
+        "split": "validation",
+        "selected": "parent",
+        "parent_map50": 0.08762297953716647,
+        "selected_map50": 0.08762297953716647
+      }
+    }
+  ]
+}

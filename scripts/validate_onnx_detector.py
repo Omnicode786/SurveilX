@@ -21,7 +21,7 @@ def validate(run, dataset, export_directory, runtime_path, device_id=1):
         raise ValueError("Dataset does not match the frozen model")
     data = json.loads(dataset.read_text())
     samples = [s for s in data["samples"] if s["split"] == "validation"]
-    loader = DataLoader(DetectionImages(dataset.parent, samples, metadata["config"]["image_size"]),
+    loader = DataLoader(DetectionImages(dataset.parent, samples, metadata["config"]["image_size"], preprocessing=metadata["config"].get("preprocessing", "stretch")),
                         batch_size=1, collate_fn=collate_detection)
     torch.set_num_threads(1)
     cpu = ScratchDetector(run)

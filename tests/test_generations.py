@@ -45,6 +45,20 @@ def test_campaign_progress_exposes_pending_jobs_comparison_and_yolo_epochs(tmp_p
     assert path.read_text() == original
 
 
+def test_yolo_epoch_reads_recorded_losses_and_handles_partial_csv():
+    from surveilx.generations import yolo_epoch
+    from scripts.watch_training import format_epoch
+    epoch = yolo_epoch({"epoch": "20", "train/box_loss": "1.5", "train/cls_loss": ".7", "train/dfl_loss": "1.1",
+                        "metrics/precision(B)": ".5", "metrics/recall(B)": ".25", "metrics/mAP50(B)": ".4", "lr/pg0": ".0001"})
+    assert epoch["validation_metrics"]["f1"] == .25 / .75
+    assert epoch["training"]["losses"]["box_regression"] == 1.5
+    assert "box_giou" not in epoch["training"]["losses"] and "train_loss" not in epoch
+    assert "box_regression=1.5" in "\n".join(format_epoch(epoch))
+    assert yolo_epoch({"epoch": ""}) is None
+    assert yolo_epoch({"epoch": "nan"}) is None
+    assert yolo_epoch({"epoch": "2", "metrics/mAP50(B)": "nan"})["validation_map50"] is None
+
+
 def test_event_journal_has_visible_job_history(tmp_path):
     directory = tmp_path / "generations/event"
     directory.mkdir(parents=True)
@@ -55,6 +69,22 @@ def test_event_journal_has_visible_job_history(tmp_path):
     result = read_generation(directory / "status.json", tmp_path)
     assert result["jobs"][0]["version"] == "fall-scene"
     assert result["jobs"][0]["completed_epochs"] == 1
+
+
+def test_generation_exposes_epoch_details_and_parent_selection_without_backfill(tmp_path):
+    directory = tmp_path / "generations/diagnostic"
+    directory.mkdir(parents=True)
+    (directory / "status.json").write_text(json.dumps({"state": "completed", "version": "retained"}))
+    run = tmp_path / "runs/retained"
+    run.mkdir(parents=True)
+    row = {"epoch": 8, "train_loss": 2., "training": {"positives_per_level": [3, 1, 0]}}
+    (run / "history.json").write_text(json.dumps([row]))
+    original = json.dumps({"best_epoch": 0, "validation_selection": {"selected": "parent"}, "config": {"patience": 8}})
+    (run / "manifest.json").write_text(original)
+    job = read_generation(directory / "status.json", tmp_path)["jobs"][0]
+    assert job["latest_epoch"] == row
+    assert job["checkpoint_selection"] == {"selected": "parent", "best_epoch": 0, "patience": 8, "stopping_reason": None}
+    assert (run / "manifest.json").read_text() == original
 
 
 def test_optimized_profiles_are_visible(tmp_path):
@@ -103,3 +133,4 @@ def test_accuracy_retry_queue_identity_is_visible(tmp_path, monkeypatch):
     result = read_queue(path)
     assert result["state"] == "waiting"
     assert result["config"]["predecessor_state"] == "running"
+

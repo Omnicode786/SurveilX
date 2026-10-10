@@ -4,6 +4,7 @@ from pathlib import Path
 
 import cv2
 import numpy as np
+from surveilx.matching import maximum_assignment
 
 
 @dataclass
@@ -96,7 +97,7 @@ def iou(a, b):
 
 
 class Tracker:
-    """Greedy class-aware IoU baseline, explicitly not ByteTrack or identity recognition."""
+    """Class-aware global IoU assignment baseline; no identity recognition."""
 
     def __init__(self):
         self.tracks = {}
@@ -105,19 +106,21 @@ class Tracker:
     def update(self, detections, now=None):
         now = now if now is not None else time.monotonic()
         self.tracks = {key: value for key, value in self.tracks.items() if now - value[1] < 2}
-        unused = set(self.tracks)
-        for detection in detections:
-            choices = [
-                (iou(detection.box, self.tracks[key][0].box), key)
-                for key in unused
-                if self.tracks[key][0].label == detection.label
-            ]
-            score, key = max(choices, default=(0, 0))
-            if score < 0.2:
+        keys = sorted(self.tracks)
+        scores = np.zeros((len(detections), len(keys)))
+        for index, detection in enumerate(detections):
+            for column, key in enumerate(keys):
+                if self.tracks[key][0].label == detection.label:
+                    overlap = iou(detection.box, self.tracks[key][0].box)
+                    if overlap >= .2:
+                        # Prefer maximum valid match count, then total IoU.
+                        scores[index, column] = min(scores.shape) + overlap
+        matched = {row: keys[column] for row, column in maximum_assignment(scores) if scores[row, column] > 0}
+        for index, detection in enumerate(detections):
+            key = matched.get(index)
+            if key is None:
                 key = self.next_id
                 self.next_id += 1
-            else:
-                unused.remove(key)
             detection.track_id = key
             self.tracks[key] = (detection, now)
         return detections

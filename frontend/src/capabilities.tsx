@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { EpochDetails, type Epoch } from "./epoch";
 
 type Candidate = {
   id: string;
@@ -48,6 +49,8 @@ type Generation = {
   jobs: {
     architecture: string; version: string; state: string; completed_epochs: number; epochs?: number;
     error?: string;
+    latest_epoch?: Epoch | null;
+    checkpoint_selection?: { selected?: string; best_epoch?: number; patience?: number | null; stopping_reason?: string | null };
     target?: { minimum: number; observed?: number; met?: boolean };
     comparison?: {
       metric: string; before: number; after: number; delta: number;
@@ -144,6 +147,8 @@ export function CapabilitiesPanel({
                     ? ` · ${job.completed_epochs}/${job.epochs ?? run.config?.epochs ?? "?"} epochs recorded`
                     : ""}
                 </p>
+                {job.checkpoint_selection && <p>Selected checkpoint: {job.checkpoint_selection.selected ?? "Not recorded"} · Best epoch: {job.checkpoint_selection.best_epoch ?? "Not recorded"} · Patience: {job.checkpoint_selection.patience ?? "Not recorded"} · Stopping reason: {job.checkpoint_selection.stopping_reason?.replaceAll("_", " ") ?? "Not recorded in this run"}</p>}
+                <EpochDetails epoch={job.latest_epoch} />
                 {job.target && <p>Target development score: at least {job.target.minimum.toFixed(2)} · {job.target.met == null ? "awaiting final evaluation" : job.target.met ? "aggregate target reached; inspect individual classes" : "below target"}.</p>}
                 {job.comparison && <>
                   <p>Development {job.comparison.metric === "map50" ? "AP50" : "accuracy"}: {job.comparison.before.toFixed(4)} → {job.comparison.after.toFixed(4)} ({job.comparison.delta >= 0 ? "+" : ""}{job.comparison.delta.toFixed(4)}). Independent acceptance pending.</p>

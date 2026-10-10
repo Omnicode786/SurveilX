@@ -74,7 +74,7 @@ def predict_artifact(run, dataset_path, dataset):
 
             expert = ScratchDetector(run)
             loader = DataLoader(
-                DetectionImages(dataset_path.parent, samples, metadata["config"]["image_size"]),
+                DetectionImages(dataset_path.parent, samples, metadata["config"]["image_size"], preprocessing=metadata["config"].get("preprocessing", "stretch")),
                 batch_size=1,
                 collate_fn=collate_detection,
             )

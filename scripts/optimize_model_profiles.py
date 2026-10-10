@@ -45,6 +45,7 @@ def predictions(expert, metadata, dataset_path, dataset, split, image_size, thre
                 dataset_path.parent,
                 [sample for sample in dataset["samples"] if sample["split"] == split],
                 image_size,
+                preprocessing=metadata["config"].get("preprocessing", "stretch"),
             ),
             batch_size=1,
             collate_fn=collate_detection,

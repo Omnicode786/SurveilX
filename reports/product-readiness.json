@@ -74,11 +74,15 @@
         "accuracy-g3-fire-scratch-profiles-g1",
         "accuracy-g3-fire-yolo",
         "accuracy-g3-fire-yolo-profiles-g1",
+        "cuda-g4-fire-scratch",
+        "cuda-g4-fire-yolo",
         "dfire-g1-scratch",
         "dfire-g1-yolo-rai"
       ],
-      "evaluated_candidates": 8,
-      "all_class_point_target_candidates": [],
+      "evaluated_candidates": 10,
+      "all_class_point_target_candidates": [
+        "cuda-g4-fire-yolo"
+      ],
       "domain_reliability": "Not established by development metrics; requires reviewed independent domain evidence"
     },
     {
@@ -95,11 +99,12 @@
         "accuracy-g3-weapons-yolo-profiles-g1",
         "accuracy-g3b-weapons-scratch",
         "accuracy-g3b-weapons-scratch-profiles-g1",
+        "cuda-g4-weapons-scratch",
         "cuda-g4-weapons-yolo",
         "dangerous-items-g1-scratch",
         "dangerous-items-g1-yolo-rai"
       ],
-      "evaluated_candidates": 9,
+      "evaluated_candidates": 10,
       "all_class_point_target_candidates": [],
       "domain_reliability": "Not established by development metrics; requires reviewed independent domain evidence"
     },
@@ -183,11 +188,12 @@
         "accuracy-ppe-g3-yolo-profiles-g1",
         "accuracy-ppe-g3b-scratch",
         "accuracy-ppe-g3b-scratch-profiles-g1",
+        "cuda-g4-ppe-scratch",
         "cuda-g4-ppe-yolo",
         "sh17-g2-scratch",
         "sh17-g2-yolo-rai"
       ],
-      "evaluated_candidates": 9,
+      "evaluated_candidates": 10,
       "all_class_point_target_candidates": [],
       "domain_reliability": "Not established by development metrics; requires reviewed independent domain evidence"
     },
@@ -2278,6 +2284,259 @@
       }
     },
     {
+      "version": "cuda-g4-fire-scratch",
+      "task": "detection",
+      "domain": "fire-smoke-development",
+      "capabilities": [
+        "fire_smoke"
+      ],
+      "weights_intact": true,
+      "dataset_resolved": true,
+      "dataset": "dfire-development-v2",
+      "source_provenance": {
+        "source": "https://github.com/gaia-solutions-on-demand/DFireDataset",
+        "archive_sha256": "65d81b602991261b47ddc71281e99108362a30336a448e1f8d21352c825c6d83",
+        "source_independence_verified": false,
+        "group_method": "Filename bands per source family, 32 omitted images between bands",
+        "limitation": "No camera/session identities; correlated scenes may remain. Development metrics only. Independent site acceptance required.",
+        "parent_manifest_sha256": "e40caae7d021a7fb26325c064dc92550d567136589bac16d1cf341ba2647b503",
+        "training_expansion": 900,
+        "heldout_records_unchanged": true
+      },
+      "calibrated": true,
+      "inherited": false,
+      "development": {
+        "metric": "AP50",
+        "score": 0.40581288372500723,
+        "target": 0.5,
+        "aggregate_target_met": false,
+        "all_classes_target_met": false,
+        "per_class": [
+          {
+            "label": "smoke",
+            "metric": "AP50",
+            "score": 0.43130766372170426,
+            "support": 52,
+            "target_met": false
+          },
+          {
+            "label": "fire",
+            "metric": "AP50",
+            "score": 0.3803181037283102,
+            "support": 120,
+            "target_met": false
+          }
+        ],
+        "independent_reliability_established": false,
+        "interpretation": "Held-out development point scores. Meeting 0.50 does not establish source independence, calibrated event recall or site reliability."
+      }
+    },
+    {
+      "version": "cuda-g4-fire-yolo",
+      "task": "detection",
+      "domain": "fire-smoke-development",
+      "capabilities": [
+        "fire_smoke"
+      ],
+      "weights_intact": true,
+      "dataset_resolved": true,
+      "dataset": "dfire-development-v2",
+      "source_provenance": {
+        "source": "https://github.com/gaia-solutions-on-demand/DFireDataset",
+        "archive_sha256": "65d81b602991261b47ddc71281e99108362a30336a448e1f8d21352c825c6d83",
+        "source_independence_verified": false,
+        "group_method": "Filename bands per source family, 32 omitted images between bands",
+        "limitation": "No camera/session identities; correlated scenes may remain. Development metrics only. Independent site acceptance required.",
+        "parent_manifest_sha256": "e40caae7d021a7fb26325c064dc92550d567136589bac16d1cf341ba2647b503",
+        "training_expansion": 900,
+        "heldout_records_unchanged": true
+      },
+      "calibrated": true,
+      "inherited": false,
+      "development": {
+        "metric": "AP50",
+        "score": 0.5451982904247412,
+        "target": 0.5,
+        "aggregate_target_met": true,
+        "all_classes_target_met": true,
+        "per_class": [
+          {
+            "label": "smoke",
+            "metric": "AP50",
+            "score": 0.5048158256788522,
+            "support": 52,
+            "target_met": true
+          },
+          {
+            "label": "fire",
+            "metric": "AP50",
+            "score": 0.5855807551706304,
+            "support": 120,
+            "target_met": true
+          }
+        ],
+        "independent_reliability_established": false,
+        "interpretation": "Held-out development point scores. Meeting 0.50 does not establish source independence, calibrated event recall or site reliability."
+      }
+    },
+    {
+      "version": "cuda-g4-ppe-scratch",
+      "task": "detection",
+      "domain": "ppe-development",
+      "capabilities": [
+        "ppe_objects"
+      ],
+      "weights_intact": true,
+      "dataset_resolved": true,
+      "dataset": "sh17-development-v2",
+      "source_provenance": {
+        "source": "https://github.com/ahmadmughees/SH17dataset",
+        "archive_etag": "\"2e9eb8708de4d1ca84246ed230ca66f8\"",
+        "source_independence_verified": false,
+        "selection": "Class-balanced label coverage; stable photographer group assignment; all previous samples keep their split",
+        "group_limitation": "Photographer-disjoint development split, not verified scene or deployment-site independence",
+        "label_semantics": "Glasses is generic eyewear, not certified safety eyewear. Object presence does not establish compliance.",
+        "label_map_source": "https://github.com/ahmadmughees/SH17dataset/blob/master/sh17.yaml",
+        "correction": "Corrected README display-order assumption to authoritative YOLO numeric class IDs before usable training; sh17-g1 aborted and preserved",
+        "parent_dataset_sha256": "6b64e6a38baef86ba48c77a33af82fb0c381858bffd66c869a8b2bd46874c7ae",
+        "source_index_sha256": "1d57ae7432c95da4600171c787eb3e2554368d8334bf181b01c82ecf7c79a46a",
+        "image_processing": "New images preserve aspect ratio with max side 1536 and JPEG quality 95; original source hashes retained",
+        "evaluation_change": "Expanded development holdouts; compare parent and child on this identical dataset, not old test scores"
+      },
+      "calibrated": true,
+      "inherited": false,
+      "development": {
+        "metric": "AP50",
+        "score": 0.05266888438857279,
+        "target": 0.5,
+        "aggregate_target_met": false,
+        "all_classes_target_met": false,
+        "per_class": [
+          {
+            "label": "person",
+            "metric": "AP50",
+            "score": 0.2493290680462754,
+            "support": 245,
+            "target_met": false
+          },
+          {
+            "label": "ear",
+            "metric": "AP50",
+            "score": 0.03491098547723637,
+            "support": 124,
+            "target_met": false
+          },
+          {
+            "label": "earmuffs",
+            "metric": "AP50",
+            "score": 0.00176017601760176,
+            "support": 13,
+            "target_met": false
+          },
+          {
+            "label": "face",
+            "metric": "AP50",
+            "score": 0.19479504595373326,
+            "support": 101,
+            "target_met": false
+          },
+          {
+            "label": "face_guard",
+            "metric": "AP50",
+            "score": 0.0035812091847482615,
+            "support": 6,
+            "target_met": false
+          },
+          {
+            "label": "face_mask",
+            "metric": "AP50",
+            "score": 0.02099006629634926,
+            "support": 42,
+            "target_met": false
+          },
+          {
+            "label": "foot",
+            "metric": "AP50",
+            "score": 0.0036108402140477606,
+            "support": 60,
+            "target_met": false
+          },
+          {
+            "label": "tools",
+            "metric": "AP50",
+            "score": 0.0003847535012568614,
+            "support": 84,
+            "target_met": false
+          },
+          {
+            "label": "glasses",
+            "metric": "AP50",
+            "score": 0.0023356181772023355,
+            "support": 62,
+            "target_met": false
+          },
+          {
+            "label": "gloves",
+            "metric": "AP50",
+            "score": 0.010287909213084773,
+            "support": 92,
+            "target_met": false
+          },
+          {
+            "label": "helmet",
+            "metric": "AP50",
+            "score": 0.014929606052418639,
+            "support": 42,
+            "target_met": false
+          },
+          {
+            "label": "hands",
+            "metric": "AP50",
+            "score": 0.09367298517839526,
+            "support": 205,
+            "target_met": false
+          },
+          {
+            "label": "head",
+            "metric": "AP50",
+            "score": 0.1757464001910679,
+            "support": 226,
+            "target_met": false
+          },
+          {
+            "label": "medical_suit",
+            "metric": "AP50",
+            "score": 0.015121512151215122,
+            "support": 44,
+            "target_met": false
+          },
+          {
+            "label": "shoes",
+            "metric": "AP50",
+            "score": 0.01379629762667211,
+            "support": 105,
+            "target_met": false
+          },
+          {
+            "label": "safety_suit",
+            "metric": "AP50",
+            "score": 0.008858780614903595,
+            "support": 6,
+            "target_met": false
+          },
+          {
+            "label": "safety_vest",
+            "metric": "AP50",
+            "score": 0.05125978070952876,
+            "support": 45,
+            "target_met": false
+          }
+        ],
+        "independent_reliability_established": false,
+        "interpretation": "Held-out development point scores. Meeting 0.50 does not establish source independence, calibrated event recall or site reliability."
+      }
+    },
+    {
       "version": "cuda-g4-ppe-yolo",
       "task": "detection",
       "domain": "ppe-development",
@@ -2427,6 +2686,67 @@
             "metric": "AP50",
             "score": 0.44015197910388537,
             "support": 45,
+            "target_met": false
+          }
+        ],
+        "independent_reliability_established": false,
+        "interpretation": "Held-out development point scores. Meeting 0.50 does not establish source independence, calibrated event recall or site reliability."
+      }
+    },
+    {
+      "version": "cuda-g4-weapons-scratch",
+      "task": "detection",
+      "domain": "dangerous-items-development",
+      "capabilities": [
+        "firearm"
+      ],
+      "weights_intact": true,
+      "dataset_resolved": true,
+      "dataset": "dangerous-items-development-v1",
+      "source_provenance": {
+        "source": "https://zenodo.org/records/13786228",
+        "archive_sha256": "9c6749a3e36b6935fc468de9b1fb639b16c4caef2c21f5328a44ff210d3e1aa8",
+        "source_independence_verified": false,
+        "selection": "Deterministic VOC subset capped at 160 images per label signature",
+        "group_limitation": "Publisher camera, sequence, subject and original-image identities are unavailable; split groups are unique-image placeholders only",
+        "label_mapping": "Publisher Gun and Rifle map to firearm; Knife, Machete and Baseball Bat remain distinct",
+        "acceptance_limitation": "Development metrics only; independent site acceptance is required"
+      },
+      "calibrated": true,
+      "inherited": false,
+      "development": {
+        "metric": "AP50",
+        "score": 0.03150283568674828,
+        "target": 0.5,
+        "aggregate_target_met": false,
+        "all_classes_target_met": false,
+        "per_class": [
+          {
+            "label": "firearm",
+            "metric": "AP50",
+            "score": 0.000547710848670411,
+            "support": 33,
+            "target_met": false
+          },
+          {
+            "label": "knife",
+            "metric": "AP50",
+            "score": 0.0419478200103238,
+            "support": 34,
+            "target_met": false
+          },
+          {
+            "label": "machete",
+            "metric": "AP50",
+            "score": 0.06407390951302418,
+            "support": 34,
+            "target_met": false
+          },
+          {
+            "label": "baseball_bat",
+            "metric": "AP50",
+            "score": 0.019441902374974746,
+            "support": 26,
             "target_met": false
           }
         ],
