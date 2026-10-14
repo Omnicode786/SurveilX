@@ -1,0 +1,25 @@
+{
+  "gpu": "NVIDIA GeForce MX130",
+  "dataset_sha256": "612b1197c555d4dce77f41772ee39834718ba588cb95c1616bce6023e064dd6c",
+  "memory_fraction": 0.75,
+  "results": [
+    {
+      "batch": 1,
+      "image_size": 512,
+      "seconds": [
+        2.566799100000935,
+        0.6454876999996486,
+        0.6418819999998959
+      ],
+      "peak_reserved_mib": 820.0,
+      "peak_allocated_mib": 813.12451171875,
+      "finite_loss": 7.802213668823242,
+      "scope": "temporary training-split profiling; weights never saved"
+    },
+    {
+      "batch": 2,
+      "error": "CUDA OOM under 75 percent memory ceiling",
+      "detail": "CUDA out of memory. Tried to allocate 2.00 MiB. GPU 0 has a total capacity of 2.00 GiB of which 121.46 MiB is free. Including non-PyTorch memory, this process has 17179869184.00 GiB memory in use. 1.50 GiB allowed; Of the allocated memory 1.48 GiB is allocated by PyTorch, and 18.96 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)"
+    }
+  ]
+}

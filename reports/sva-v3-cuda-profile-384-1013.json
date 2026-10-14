@@ -1,0 +1,20 @@
+{
+  "gpu": "NVIDIA GeForce MX130",
+  "dataset_sha256": "612b1197c555d4dce77f41772ee39834718ba588cb95c1616bce6023e064dd6c",
+  "memory_fraction": 0.75,
+  "results": [
+    {
+      "batch": 2,
+      "image_size": 384,
+      "seconds": [
+        2.410826100000122,
+        0.7257968999983859,
+        0.7058437000014237
+      ],
+      "peak_reserved_mib": 1000.0,
+      "peak_allocated_mib": 900.52978515625,
+      "finite_loss": 7.430324554443359,
+      "scope": "temporary training-split profiling; weights never saved"
+    }
+  ]
+}

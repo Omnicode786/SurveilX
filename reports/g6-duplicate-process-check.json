@@ -1,0 +1,147 @@
+{
+  "checked_at": 1791916172.3701413,
+  "duplicate_training": false,
+  "pytest_processes": 0,
+  "stopped_obsolete_viewers": [
+    {
+      "pid": 17972,
+      "cmd": [
+        "C:\\Users\\muzam\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-u",
+        "-m",
+        "scripts.watch_training",
+        "cuda-accuracy-g5-1013"
+      ],
+      "reason": "obsolete read-only g5 progress viewer; g5 training already stopped"
+    },
+    {
+      "pid": 14964,
+      "cmd": [
+        "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX\\.venv\\Scripts\\python.exe",
+        "-u",
+        "-m",
+        "scripts.watch_training",
+        "cuda-accuracy-g5-1013"
+      ],
+      "reason": "obsolete read-only g5 progress viewer; g5 training already stopped"
+    },
+    {
+      "pid": 14064,
+      "cmd": [
+        "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "-NoProfile",
+        "-NoExit",
+        "-Command",
+        "&",
+        "'C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX\\.venv\\Scripts\\python.exe'",
+        "-u",
+        "-m",
+        "scripts.watch_training",
+        "cuda-accuracy-g5-1013"
+      ],
+      "reason": "obsolete read-only g5 progress viewer; g5 training already stopped"
+    }
+  ],
+  "main_campaign": "cuda-accuracy-g6-v3-1013",
+  "runner_alive": true,
+  "jobs": [
+    {
+      "version": "cuda-g6-weapons-sva-v3",
+      "state": "completed",
+      "comparison": {
+        "metric": "map50",
+        "before": 0.03150283568674828,
+        "after": 0.0813091703974187,
+        "delta": 0.04980633471067041,
+        "classes": [
+          {
+            "class": "firearm",
+            "metric": "ap50",
+            "before": 0.000547710848670411,
+            "after": 0.024020109065983185,
+            "delta": 0.023472398217312774,
+            "details": {
+              "class_id": 0,
+              "ground_truth": 33,
+              "ap50": 0.024020109065983185
+            }
+          },
+          {
+            "class": "knife",
+            "metric": "ap50",
+            "before": 0.0419478200103238,
+            "after": 0.047224911247441104,
+            "delta": 0.005277091237117303,
+            "details": {
+              "class_id": 1,
+              "ground_truth": 34,
+              "ap50": 0.047224911247441104
+            }
+          },
+          {
+            "class": "machete",
+            "metric": "ap50",
+            "before": 0.06407390951302418,
+            "after": 0.14085948112870678,
+            "delta": 0.0767855716156826,
+            "details": {
+              "class_id": 2,
+              "ground_truth": 34,
+              "ap50": 0.14085948112870678
+            }
+          },
+          {
+            "class": "baseball_bat",
+            "metric": "ap50",
+            "before": 0.019441902374974746,
+            "after": 0.11313218014754375,
+            "delta": 0.09369027777256901,
+            "details": {
+              "class_id": 3,
+              "ground_truth": 26,
+              "ap50": 0.11313218014754375
+            }
+          }
+        ],
+        "validation_selection": {
+          "split": "validation",
+          "selected": "candidate",
+          "selected_map50": 0.14958838585752723
+        },
+        "test_is_selection_criterion": false,
+        "independent_acceptance": false,
+        "evaluation_dataset_sha256": "772a80081dd508952124989f0f94c0a4174e95e611afc9c85f4229b4945ffca6",
+        "parent_re_evaluated": false
+      },
+      "epoch": 30,
+      "latest_ap50": 0.13739738077650046,
+      "selection": {
+        "criterion": "validation_AP50_then_lower_reference_quality_loss",
+        "best_epoch": 14,
+        "best_map50": 0.14958838585752723,
+        "best_validation_loss": 1.9792374173800151,
+        "selected": "candidate",
+        "stale_epochs": 16,
+        "patience": 16,
+        "stopping_reason": "validation_patience_exhausted"
+      }
+    },
+    {
+      "version": "cuda-g6-ppe-sva-v3",
+      "state": "running",
+      "comparison": null,
+      "epoch": 4,
+      "latest_ap50": 0.07604809508600202,
+      "selection": {
+        "criterion": "validation_AP50_then_lower_reference_quality_loss",
+        "best_epoch": 4,
+        "best_map50": 0.07604809508600202,
+        "best_validation_loss": 2.0800941485126003,
+        "selected": "candidate",
+        "stale_epochs": 0,
+        "patience": 16,
+        "stopping_reason": null
+      }
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "verified_at": 1791912528.7762253,
+  "completed": 0,
+  "running": 1,
+  "queued": 11,
+  "epoch": 22,
+  "max_epochs": 48,
+  "baseline_validation_map50": 0.07747213451967665,
+  "best_epoch": 14,
+  "best_validation_map50": 0.14958838585752723,
+  "absolute_gain": 0.07211625133785059,
+  "relative_gain_percent": 93.08669728150352,
+  "latest_validation_map50": 0.10698321854777965,
+  "best_per_class": [
+    {
+      "class_id": 0,
+      "ground_truth": 26,
+      "ap50": 0.03624894427738557,
+      "class_name": "firearm"
+    },
+    {
+      "class_id": 1,
+      "ground_truth": 28,
+      "ap50": 0.2249079523480278,
+      "class_name": "knife"
+    },
+    {
+      "class_id": 2,
+      "ground_truth": 27,
+      "ap50": 0.23573160302368107,
+      "class_name": "machete"
+    },
+    {
+      "class_id": 3,
+      "ground_truth": 23,
+      "ap50": 0.10146504378101452,
+      "class_name": "baseball_bat"
+    }
+  ],
+  "stopping": {
+    "criterion": "validation_AP50_then_lower_reference_quality_loss",
+    "best_epoch": 14,
+    "best_map50": 0.14958838585752723,
+    "best_validation_loss": 1.9792374173800151,
+    "selected": "candidate",
+    "stale_epochs": 8,
+    "patience": 16,
+    "stopping_reason": null
+  },
+  "plan_and_sources_unchanged": true,
+  "note": "Validation comparison only; final calibrated test results not available until completion"
+}

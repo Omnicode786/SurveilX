@@ -3,6 +3,7 @@
 import importlib.util
 from contextlib import nullcontext
 import json
+import os
 from pathlib import Path
 import threading
 import time
@@ -62,6 +63,8 @@ def torch_device():
 
     if torch.cuda.is_available():
         return "cuda"
+    if os.environ.get("SURVEILX_REQUIRE_CUDA") == "1":
+        raise RuntimeError("This training campaign requires CUDA; CPU fallback is disabled")
     if hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
         return "mps"
     return "cpu"

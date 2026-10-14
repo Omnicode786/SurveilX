@@ -1,0 +1,22 @@
+{
+  "checked_at": 1791924084.5852692,
+  "client_date": "2026-10-14",
+  "state": "running",
+  "completed": 1,
+  "running": 1,
+  "queued": 10,
+  "failed": 0,
+  "ppe": {
+    "epoch": 19,
+    "best_validation_ap50": 0.1258348523054986,
+    "parent_validation_ap50": 0.08762297953716647,
+    "gain": 0.03821187276833213,
+    "final_test_pending": true
+  },
+  "weapons_test_ap50": 0.0813091703974187,
+  "gpu_snapshot": "74 percent utilization,964/2048MiB",
+  "disk_free_bytes": 2716237824,
+  "app_port8000": "offline, connection refused",
+  "source_and_plan_hashes": "unchanged",
+  "action": "Status inspection only; existing training and progress viewer left running"
+}

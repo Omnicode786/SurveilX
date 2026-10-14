@@ -1,0 +1,843 @@
+{
+  "frozen_files": 275,
+  "changed": [],
+  "g5_completed": [
+    {
+      "version": "cuda-g5-weapons-cls-v1",
+      "weights_sha256": "d148971a635f6d662cdcff7aa020273ebfa688023c4ad56b61f1c3ea29496477",
+      "comparison": {
+        "metric": "map50",
+        "before": 0.03150283568674828,
+        "after": 0.03150283568674828,
+        "delta": 0.0,
+        "classes": [
+          {
+            "class": "firearm",
+            "metric": "ap50",
+            "before": 0.000547710848670411,
+            "after": 0.000547710848670411,
+            "delta": 0.0,
+            "details": {
+              "class_id": 0,
+              "ground_truth": 33,
+              "ap50": 0.000547710848670411
+            }
+          },
+          {
+            "class": "knife",
+            "metric": "ap50",
+            "before": 0.0419478200103238,
+            "after": 0.0419478200103238,
+            "delta": 0.0,
+            "details": {
+              "class_id": 1,
+              "ground_truth": 34,
+              "ap50": 0.0419478200103238
+            }
+          },
+          {
+            "class": "machete",
+            "metric": "ap50",
+            "before": 0.06407390951302418,
+            "after": 0.06407390951302418,
+            "delta": 0.0,
+            "details": {
+              "class_id": 2,
+              "ground_truth": 34,
+              "ap50": 0.06407390951302418
+            }
+          },
+          {
+            "class": "baseball_bat",
+            "metric": "ap50",
+            "before": 0.019441902374974746,
+            "after": 0.019441902374974746,
+            "delta": 0.0,
+            "details": {
+              "class_id": 3,
+              "ground_truth": 26,
+              "ap50": 0.019441902374974746
+            }
+          }
+        ],
+        "validation_selection": {
+          "split": "validation",
+          "selected": "parent",
+          "parent_map50": 0.07747213451967665,
+          "parent_reference_bce_loss": 2.6745285391807556,
+          "selected_map50": 0.07747213451967665
+        },
+        "test_is_selection_criterion": false,
+        "independent_acceptance": false,
+        "evaluation_dataset_sha256": "772a80081dd508952124989f0f94c0a4174e95e611afc9c85f4229b4945ffca6",
+        "parent_re_evaluated": false
+      }
+    },
+    {
+      "version": "cuda-g5-weapons-cls-v2",
+      "weights_sha256": "3f62d42a3be3c8a8ce626bd509ca20db5baaab880f7f3a14e8d1c96be596930f",
+      "comparison": {
+        "metric": "map50",
+        "before": 0.03150283568674828,
+        "after": 0.03150283568674828,
+        "delta": 0.0,
+        "classes": [
+          {
+            "class": "firearm",
+            "metric": "ap50",
+            "before": 0.000547710848670411,
+            "after": 0.000547710848670411,
+            "delta": 0.0,
+            "details": {
+              "class_id": 0,
+              "ground_truth": 33,
+              "ap50": 0.000547710848670411
+            }
+          },
+          {
+            "class": "knife",
+            "metric": "ap50",
+            "before": 0.0419478200103238,
+            "after": 0.0419478200103238,
+            "delta": 0.0,
+            "details": {
+              "class_id": 1,
+              "ground_truth": 34,
+              "ap50": 0.0419478200103238
+            }
+          },
+          {
+            "class": "machete",
+            "metric": "ap50",
+            "before": 0.06407390951302418,
+            "after": 0.06407390951302418,
+            "delta": 0.0,
+            "details": {
+              "class_id": 2,
+              "ground_truth": 34,
+              "ap50": 0.06407390951302418
+            }
+          },
+          {
+            "class": "baseball_bat",
+            "metric": "ap50",
+            "before": 0.019441902374974746,
+            "after": 0.019441902374974746,
+            "delta": 0.0,
+            "details": {
+              "class_id": 3,
+              "ground_truth": 26,
+              "ap50": 0.019441902374974746
+            }
+          }
+        ],
+        "validation_selection": {
+          "split": "validation",
+          "selected": "parent",
+          "parent_map50": 0.07747213451967665,
+          "parent_reference_bce_loss": 2.6745285391807556,
+          "selected_map50": 0.07747213451967665
+        },
+        "test_is_selection_criterion": false,
+        "independent_acceptance": false,
+        "evaluation_dataset_sha256": "772a80081dd508952124989f0f94c0a4174e95e611afc9c85f4229b4945ffca6",
+        "parent_re_evaluated": false
+      }
+    },
+    {
+      "version": "cuda-g5-ppe-center-v1",
+      "weights_sha256": "d7131a9e1e621b53260efd817ebc7a27ec52964f6dc2d3f65735c28ff9318c96",
+      "comparison": {
+        "metric": "map50",
+        "before": 0.05266888438857279,
+        "after": 0.05266888438857279,
+        "delta": 0.0,
+        "classes": [
+          {
+            "class": "person",
+            "metric": "ap50",
+            "before": 0.2493290680462754,
+            "after": 0.2493290680462754,
+            "delta": 0.0,
+            "details": {
+              "class_id": 0,
+              "ground_truth": 245,
+              "ap50": 0.2493290680462754
+            }
+          },
+          {
+            "class": "ear",
+            "metric": "ap50",
+            "before": 0.03491098547723637,
+            "after": 0.03491098547723637,
+            "delta": 0.0,
+            "details": {
+              "class_id": 1,
+              "ground_truth": 124,
+              "ap50": 0.03491098547723637
+            }
+          },
+          {
+            "class": "earmuffs",
+            "metric": "ap50",
+            "before": 0.00176017601760176,
+            "after": 0.00176017601760176,
+            "delta": 0.0,
+            "details": {
+              "class_id": 2,
+              "ground_truth": 13,
+              "ap50": 0.00176017601760176
+            }
+          },
+          {
+            "class": "face",
+            "metric": "ap50",
+            "before": 0.19479504595373326,
+            "after": 0.19479504595373326,
+            "delta": 0.0,
+            "details": {
+              "class_id": 3,
+              "ground_truth": 101,
+              "ap50": 0.19479504595373326
+            }
+          },
+          {
+            "class": "face_guard",
+            "metric": "ap50",
+            "before": 0.0035812091847482615,
+            "after": 0.0035812091847482615,
+            "delta": 0.0,
+            "details": {
+              "class_id": 4,
+              "ground_truth": 6,
+              "ap50": 0.0035812091847482615
+            }
+          },
+          {
+            "class": "face_mask",
+            "metric": "ap50",
+            "before": 0.02099006629634926,
+            "after": 0.02099006629634926,
+            "delta": 0.0,
+            "details": {
+              "class_id": 5,
+              "ground_truth": 42,
+              "ap50": 0.02099006629634926
+            }
+          },
+          {
+            "class": "foot",
+            "metric": "ap50",
+            "before": 0.0036108402140477606,
+            "after": 0.0036108402140477606,
+            "delta": 0.0,
+            "details": {
+              "class_id": 6,
+              "ground_truth": 60,
+              "ap50": 0.0036108402140477606
+            }
+          },
+          {
+            "class": "tools",
+            "metric": "ap50",
+            "before": 0.0003847535012568614,
+            "after": 0.0003847535012568614,
+            "delta": 0.0,
+            "details": {
+              "class_id": 7,
+              "ground_truth": 84,
+              "ap50": 0.0003847535012568614
+            }
+          },
+          {
+            "class": "glasses",
+            "metric": "ap50",
+            "before": 0.0023356181772023355,
+            "after": 0.0023356181772023355,
+            "delta": 0.0,
+            "details": {
+              "class_id": 8,
+              "ground_truth": 62,
+              "ap50": 0.0023356181772023355
+            }
+          },
+          {
+            "class": "gloves",
+            "metric": "ap50",
+            "before": 0.010287909213084773,
+            "after": 0.010287909213084773,
+            "delta": 0.0,
+            "details": {
+              "class_id": 9,
+              "ground_truth": 92,
+              "ap50": 0.010287909213084773
+            }
+          },
+          {
+            "class": "helmet",
+            "metric": "ap50",
+            "before": 0.014929606052418639,
+            "after": 0.014929606052418639,
+            "delta": 0.0,
+            "details": {
+              "class_id": 10,
+              "ground_truth": 42,
+              "ap50": 0.014929606052418639
+            }
+          },
+          {
+            "class": "hands",
+            "metric": "ap50",
+            "before": 0.09367298517839526,
+            "after": 0.09367298517839526,
+            "delta": 0.0,
+            "details": {
+              "class_id": 11,
+              "ground_truth": 205,
+              "ap50": 0.09367298517839526
+            }
+          },
+          {
+            "class": "head",
+            "metric": "ap50",
+            "before": 0.1757464001910679,
+            "after": 0.1757464001910679,
+            "delta": 0.0,
+            "details": {
+              "class_id": 12,
+              "ground_truth": 226,
+              "ap50": 0.1757464001910679
+            }
+          },
+          {
+            "class": "medical_suit",
+            "metric": "ap50",
+            "before": 0.015121512151215122,
+            "after": 0.015121512151215122,
+            "delta": 0.0,
+            "details": {
+              "class_id": 13,
+              "ground_truth": 44,
+              "ap50": 0.015121512151215122
+            }
+          },
+          {
+            "class": "shoes",
+            "metric": "ap50",
+            "before": 0.01379629762667211,
+            "after": 0.01379629762667211,
+            "delta": 0.0,
+            "details": {
+              "class_id": 14,
+              "ground_truth": 105,
+              "ap50": 0.01379629762667211
+            }
+          },
+          {
+            "class": "safety_suit",
+            "metric": "ap50",
+            "before": 0.008858780614903595,
+            "after": 0.008858780614903595,
+            "delta": 0.0,
+            "details": {
+              "class_id": 15,
+              "ground_truth": 6,
+              "ap50": 0.008858780614903595
+            }
+          },
+          {
+            "class": "safety_vest",
+            "metric": "ap50",
+            "before": 0.05125978070952876,
+            "after": 0.05125978070952876,
+            "delta": 0.0,
+            "details": {
+              "class_id": 16,
+              "ground_truth": 45,
+              "ap50": 0.05125978070952876
+            }
+          }
+        ],
+        "validation_selection": {
+          "split": "validation",
+          "selected": "parent",
+          "parent_map50": 0.08762297953716647,
+          "parent_reference_bce_loss": 2.312955907873205,
+          "selected_map50": 0.08762297953716647
+        },
+        "test_is_selection_criterion": false,
+        "independent_acceptance": false,
+        "evaluation_dataset_sha256": "612b1197c555d4dce77f41772ee39834718ba588cb95c1616bce6023e064dd6c",
+        "parent_re_evaluated": false
+      }
+    },
+    {
+      "version": "cuda-g5-ppe-coverage-v2",
+      "weights_sha256": "d7131a9e1e621b53260efd817ebc7a27ec52964f6dc2d3f65735c28ff9318c96",
+      "comparison": {
+        "metric": "map50",
+        "before": 0.05266888438857279,
+        "after": 0.05266888438857279,
+        "delta": 0.0,
+        "classes": [
+          {
+            "class": "person",
+            "metric": "ap50",
+            "before": 0.2493290680462754,
+            "after": 0.2493290680462754,
+            "delta": 0.0,
+            "details": {
+              "class_id": 0,
+              "ground_truth": 245,
+              "ap50": 0.2493290680462754
+            }
+          },
+          {
+            "class": "ear",
+            "metric": "ap50",
+            "before": 0.03491098547723637,
+            "after": 0.03491098547723637,
+            "delta": 0.0,
+            "details": {
+              "class_id": 1,
+              "ground_truth": 124,
+              "ap50": 0.03491098547723637
+            }
+          },
+          {
+            "class": "earmuffs",
+            "metric": "ap50",
+            "before": 0.00176017601760176,
+            "after": 0.00176017601760176,
+            "delta": 0.0,
+            "details": {
+              "class_id": 2,
+              "ground_truth": 13,
+              "ap50": 0.00176017601760176
+            }
+          },
+          {
+            "class": "face",
+            "metric": "ap50",
+            "before": 0.19479504595373326,
+            "after": 0.19479504595373326,
+            "delta": 0.0,
+            "details": {
+              "class_id": 3,
+              "ground_truth": 101,
+              "ap50": 0.19479504595373326
+            }
+          },
+          {
+            "class": "face_guard",
+            "metric": "ap50",
+            "before": 0.0035812091847482615,
+            "after": 0.0035812091847482615,
+            "delta": 0.0,
+            "details": {
+              "class_id": 4,
+              "ground_truth": 6,
+              "ap50": 0.0035812091847482615
+            }
+          },
+          {
+            "class": "face_mask",
+            "metric": "ap50",
+            "before": 0.02099006629634926,
+            "after": 0.02099006629634926,
+            "delta": 0.0,
+            "details": {
+              "class_id": 5,
+              "ground_truth": 42,
+              "ap50": 0.02099006629634926
+            }
+          },
+          {
+            "class": "foot",
+            "metric": "ap50",
+            "before": 0.0036108402140477606,
+            "after": 0.0036108402140477606,
+            "delta": 0.0,
+            "details": {
+              "class_id": 6,
+              "ground_truth": 60,
+              "ap50": 0.0036108402140477606
+            }
+          },
+          {
+            "class": "tools",
+            "metric": "ap50",
+            "before": 0.0003847535012568614,
+            "after": 0.0003847535012568614,
+            "delta": 0.0,
+            "details": {
+              "class_id": 7,
+              "ground_truth": 84,
+              "ap50": 0.0003847535012568614
+            }
+          },
+          {
+            "class": "glasses",
+            "metric": "ap50",
+            "before": 0.0023356181772023355,
+            "after": 0.0023356181772023355,
+            "delta": 0.0,
+            "details": {
+              "class_id": 8,
+              "ground_truth": 62,
+              "ap50": 0.0023356181772023355
+            }
+          },
+          {
+            "class": "gloves",
+            "metric": "ap50",
+            "before": 0.010287909213084773,
+            "after": 0.010287909213084773,
+            "delta": 0.0,
+            "details": {
+              "class_id": 9,
+              "ground_truth": 92,
+              "ap50": 0.010287909213084773
+            }
+          },
+          {
+            "class": "helmet",
+            "metric": "ap50",
+            "before": 0.014929606052418639,
+            "after": 0.014929606052418639,
+            "delta": 0.0,
+            "details": {
+              "class_id": 10,
+              "ground_truth": 42,
+              "ap50": 0.014929606052418639
+            }
+          },
+          {
+            "class": "hands",
+            "metric": "ap50",
+            "before": 0.09367298517839526,
+            "after": 0.09367298517839526,
+            "delta": 0.0,
+            "details": {
+              "class_id": 11,
+              "ground_truth": 205,
+              "ap50": 0.09367298517839526
+            }
+          },
+          {
+            "class": "head",
+            "metric": "ap50",
+            "before": 0.1757464001910679,
+            "after": 0.1757464001910679,
+            "delta": 0.0,
+            "details": {
+              "class_id": 12,
+              "ground_truth": 226,
+              "ap50": 0.1757464001910679
+            }
+          },
+          {
+            "class": "medical_suit",
+            "metric": "ap50",
+            "before": 0.015121512151215122,
+            "after": 0.015121512151215122,
+            "delta": 0.0,
+            "details": {
+              "class_id": 13,
+              "ground_truth": 44,
+              "ap50": 0.015121512151215122
+            }
+          },
+          {
+            "class": "shoes",
+            "metric": "ap50",
+            "before": 0.01379629762667211,
+            "after": 0.01379629762667211,
+            "delta": 0.0,
+            "details": {
+              "class_id": 14,
+              "ground_truth": 105,
+              "ap50": 0.01379629762667211
+            }
+          },
+          {
+            "class": "safety_suit",
+            "metric": "ap50",
+            "before": 0.008858780614903595,
+            "after": 0.008858780614903595,
+            "delta": 0.0,
+            "details": {
+              "class_id": 15,
+              "ground_truth": 6,
+              "ap50": 0.008858780614903595
+            }
+          },
+          {
+            "class": "safety_vest",
+            "metric": "ap50",
+            "before": 0.05125978070952876,
+            "after": 0.05125978070952876,
+            "delta": 0.0,
+            "details": {
+              "class_id": 16,
+              "ground_truth": 45,
+              "ap50": 0.05125978070952876
+            }
+          }
+        ],
+        "validation_selection": {
+          "split": "validation",
+          "selected": "parent",
+          "parent_map50": 0.08762297953716647,
+          "parent_reference_bce_loss": 2.312955907873205,
+          "selected_map50": 0.08762297953716647
+        },
+        "test_is_selection_criterion": false,
+        "independent_acceptance": false,
+        "evaluation_dataset_sha256": "612b1197c555d4dce77f41772ee39834718ba588cb95c1616bce6023e064dd6c",
+        "parent_re_evaluated": false
+      }
+    },
+    {
+      "version": "cuda-g5-weapons-v2-full",
+      "weights_sha256": "3f62d42a3be3c8a8ce626bd509ca20db5baaab880f7f3a14e8d1c96be596930f",
+      "comparison": {
+        "metric": "map50",
+        "before": 0.03150283568674828,
+        "after": 0.03150283568674828,
+        "delta": 0.0,
+        "classes": [
+          {
+            "class": "firearm",
+            "metric": "ap50",
+            "before": 0.000547710848670411,
+            "after": 0.000547710848670411,
+            "delta": 0.0,
+            "details": {
+              "class_id": 0,
+              "ground_truth": 33,
+              "ap50": 0.000547710848670411
+            }
+          },
+          {
+            "class": "knife",
+            "metric": "ap50",
+            "before": 0.0419478200103238,
+            "after": 0.0419478200103238,
+            "delta": 0.0,
+            "details": {
+              "class_id": 1,
+              "ground_truth": 34,
+              "ap50": 0.0419478200103238
+            }
+          },
+          {
+            "class": "machete",
+            "metric": "ap50",
+            "before": 0.06407390951302418,
+            "after": 0.06407390951302418,
+            "delta": 0.0,
+            "details": {
+              "class_id": 2,
+              "ground_truth": 34,
+              "ap50": 0.06407390951302418
+            }
+          },
+          {
+            "class": "baseball_bat",
+            "metric": "ap50",
+            "before": 0.019441902374974746,
+            "after": 0.019441902374974746,
+            "delta": 0.0,
+            "details": {
+              "class_id": 3,
+              "ground_truth": 26,
+              "ap50": 0.019441902374974746
+            }
+          }
+        ],
+        "validation_selection": {
+          "split": "validation",
+          "selected": "parent",
+          "parent_map50": 0.07747213451967665,
+          "parent_reference_bce_loss": 2.6745285391807556,
+          "selected_map50": 0.07747213451967665
+        },
+        "test_is_selection_criterion": false,
+        "independent_acceptance": false,
+        "evaluation_dataset_sha256": "772a80081dd508952124989f0f94c0a4174e95e611afc9c85f4229b4945ffca6",
+        "parent_re_evaluated": false
+      }
+    },
+    {
+      "version": "cuda-g5-fire-scratch",
+      "weights_sha256": "767e34d730a14c80ee8264c4f05d023fba21d0af9fff534eb7518e4b0ae28c30",
+      "comparison": {
+        "metric": "map50",
+        "before": 0.40581288372500723,
+        "after": 0.40581288372500723,
+        "delta": 0.0,
+        "classes": [
+          {
+            "class": "smoke",
+            "metric": "ap50",
+            "before": 0.43130766372170426,
+            "after": 0.43130766372170426,
+            "delta": 0.0,
+            "details": {
+              "class_id": 0,
+              "ground_truth": 52,
+              "ap50": 0.43130766372170426
+            }
+          },
+          {
+            "class": "fire",
+            "metric": "ap50",
+            "before": 0.3803181037283102,
+            "after": 0.3803181037283102,
+            "delta": 0.0,
+            "details": {
+              "class_id": 1,
+              "ground_truth": 120,
+              "ap50": 0.3803181037283102
+            }
+          }
+        ],
+        "validation_selection": {
+          "split": "validation",
+          "selected": "parent",
+          "parent_map50": 0.3551608788558493,
+          "parent_reference_bce_loss": 2.292000482479731,
+          "selected_map50": 0.3551608788558493
+        },
+        "test_is_selection_criterion": false,
+        "independent_acceptance": false,
+        "evaluation_dataset_sha256": "2cd531599ee9a2d93f26735440eff6b40a9ddf9bc35bae1c0cd75c8fa810deb7",
+        "parent_re_evaluated": false
+      }
+    },
+    {
+      "version": "cuda-g5-fire-yolo",
+      "weights_sha256": "515c149ae05af6fffe499b99ac6c932c7d592214180faca29f211c07d6f53944",
+      "comparison": {
+        "metric": "map50",
+        "before": 0.5451982904247412,
+        "after": 0.5401604513025069,
+        "delta": -0.005037839122234322,
+        "classes": [
+          {
+            "class": "smoke",
+            "metric": "ap50",
+            "before": 0.5048158256788522,
+            "after": 0.489517037975825,
+            "delta": -0.015298787703027172,
+            "details": {
+              "class_id": 0,
+              "ground_truth": 52,
+              "ap50": 0.489517037975825
+            }
+          },
+          {
+            "class": "fire",
+            "metric": "ap50",
+            "before": 0.5855807551706304,
+            "after": 0.5908038646291887,
+            "delta": 0.005223109458558306,
+            "details": {
+              "class_id": 1,
+              "ground_truth": 120,
+              "ap50": 0.5908038646291887
+            }
+          }
+        ],
+        "validation_selection": {
+          "candidate_map50": 0.4143105837362632,
+          "selected": "candidate",
+          "split": "validation",
+          "parent_map50": 0.4032947630616638
+        },
+        "test_is_selection_criterion": false,
+        "independent_acceptance": false,
+        "evaluation_dataset_sha256": "2cd531599ee9a2d93f26735440eff6b40a9ddf9bc35bae1c0cd75c8fa810deb7",
+        "parent_re_evaluated": false
+      }
+    },
+    {
+      "version": "cuda-g5-weapons-yolo",
+      "weights_sha256": "5d22bdb19c756b9c4629a0262d52a8cf60f98d707f7aeeee9c3ccf6bd241124c",
+      "comparison": {
+        "metric": "map50",
+        "before": 0.5053979629824668,
+        "after": 0.5053979629824668,
+        "delta": 0.0,
+        "classes": [
+          {
+            "class": "firearm",
+            "metric": "ap50",
+            "before": 0.4796279492985376,
+            "after": 0.4796279492985376,
+            "delta": 0.0,
+            "details": {
+              "class_id": 0,
+              "ground_truth": 33,
+              "ap50": 0.4796279492985376
+            }
+          },
+          {
+            "class": "knife",
+            "metric": "ap50",
+            "before": 0.37980947523105557,
+            "after": 0.37980947523105557,
+            "delta": 0.0,
+            "details": {
+              "class_id": 1,
+              "ground_truth": 34,
+              "ap50": 0.37980947523105557
+            }
+          },
+          {
+            "class": "machete",
+            "metric": "ap50",
+            "before": 0.5116436620380235,
+            "after": 0.5116436620380235,
+            "delta": 0.0,
+            "details": {
+              "class_id": 2,
+              "ground_truth": 34,
+              "ap50": 0.5116436620380235
+            }
+          },
+          {
+            "class": "baseball_bat",
+            "metric": "ap50",
+            "before": 0.6505107653622505,
+            "after": 0.6505107653622505,
+            "delta": 0.0,
+            "details": {
+              "class_id": 3,
+              "ground_truth": 26,
+              "ap50": 0.6505107653622505
+            }
+          }
+        ],
+        "validation_selection": {
+          "candidate_map50": 0.5227276973856209,
+          "selected": "parent",
+          "split": "validation",
+          "parent_map50": 0.5597870955386586
+        },
+        "test_is_selection_criterion": false,
+        "independent_acceptance": false,
+        "evaluation_dataset_sha256": "772a80081dd508952124989f0f94c0a4174e95e611afc9c85f4229b4945ffca6",
+        "parent_re_evaluated": false
+      }
+    }
+  ],
+  "disk_free": 3456462848,
+  "tests": {
+    "full_safe_suite": 202,
+    "deselected_real_scene_training": 1,
+    "focused": 26,
+    "ruff": "passed"
+  }
+}

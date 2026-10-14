@@ -5,6 +5,8 @@ export type Epoch = {
   validation_map50?: number;
   learning_rate?: number;
   metric_source?: string;
+  loss_recipe?: string;
+  quality_bootstrap?: number;
   elapsed_seconds?: number;
   training?: {
     losses?: Record<string, number | null>;
@@ -35,6 +37,7 @@ export function EpochDetails({ epoch }: { epoch?: Epoch | null }) {
     <summary>Latest recorded epoch {epoch.epoch ?? ""}</summary>
     <p>Validation AP50: {value(epoch.validation_map50)} · Precision: {value(metrics?.precision)} · Recall: {value(metrics?.recall)} · F1: {value(metrics?.f1)}</p>
     <p>Learning rate: {value(epoch.learning_rate)} · Elapsed: {value(epoch.elapsed_seconds)} seconds</p>
+    {epoch.loss_recipe && <p>Objective: {epoch.loss_recipe.replaceAll("-", " ")} {epoch.quality_bootstrap != null && `· Quality bootstrap: ${value(epoch.quality_bootstrap)}`}</p>}
     <div className="table-panel"><table>
       <thead><tr><th>Objective</th><th>Training loss</th><th>Validation loss</th></tr></thead>
       <tbody>{Object.entries(epoch.metric_source ? { box_regression: "Box regression", classification: "Classification", distribution_focal: "Distribution focal" } : { loss: "Total", objectness: "Objectness", classification: "Classification", box_giou: "GIoU", box_l1: "Smooth L1" }).map(([key, label]) =>

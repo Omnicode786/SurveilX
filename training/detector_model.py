@@ -87,10 +87,14 @@ class SVADetector(nn.Module):
         if classes < 1 or width < 8 or depth < 1 or context_dim < 1:
             raise ValueError("classes/context_dim/depth must be positive and width at least 8")
         self.config = dict(classes=classes, width=width, depth=depth, context_dim=context_dim)
-        if architecture_version not in (1, 2):
+        if architecture_version not in (1, 2, 3):
             raise ValueError("Unsupported SVA detector architecture version")
-        if architecture_version == 2:
-            self.config["architecture_version"] = 2
+        if architecture_version >= 2:
+            self.config["architecture_version"] = architecture_version
+        if architecture_version == 3:
+            from training.detector_v3 import SVAV3Core
+            self.v3 = SVAV3Core(classes, width, depth, context_dim)
+            return
         self.stem = nn.Sequential(ConvNorm(3, width, stride=2), ConvNorm(width, width * 2, stride=2))
         self.stages = nn.ModuleList()
         previous = width * 2
@@ -135,13 +139,35 @@ class SVADetector(nn.Module):
     def configure_trainable_scope(self, scope="all"):
         if scope not in {"all", "classification"}:
             raise ValueError("Trainable scope must be all or classification")
+        if hasattr(self, "v3") and scope != "all":
+            raise ValueError("V3 semantic and quality changes require end-to-end training")
         prefixes = ("class_tower.", "classifier.", "class_refinement.")
         for name, parameter in self.named_parameters():
             parameter.requires_grad_(scope == "all" or name.startswith(prefixes))
 
+    def load_legacy_backbone(self, state):
+        """Checked v1/v2 feature transfer; quality heads remain newly initialized."""
+        if not hasattr(self, "v3"):
+            raise ValueError("Backbone transfer requires v3")
+        version = 2 if any(k.startswith("class_refinement.") for k in state) else 1
+        legacy = SVADetector(**{**self.config, "architecture_version": version})
+        legacy.load_state_dict(state, strict=True)
+        mapped = {}
+        for key, value in state.items():
+            if key.startswith(("stem.", "stages.")):
+                mapped["v3." + key] = value
+            elif key.startswith("laterals."):
+                parts = key.split(".")
+                parts[1] = str(int(parts[1]) + 1)
+                mapped["v3." + ".".join(parts)] = value
+        self.load_state_dict(mapped, strict=False)
+        return sorted(mapped)
+
     def forward(self, images, context=None, zone_map=None):
         if images.ndim != 4 or images.shape[1] != 3 or min(images.shape[-2:]) < 32:
             raise ValueError("images must have shape [B,3,H,W] with dimensions at least 32")
+        if hasattr(self, "v3"):
+            return self.v3(images, context, zone_map)
         b = images.shape[0]
         if context is None:
             context = images.new_zeros((b, self.config["context_dim"]))
@@ -287,7 +313,7 @@ def coverage_reservations(eligible, distance, areas):
 def assign_targets(flat, targets, return_metadata=False, assignment="center-v1"):
     """Scale-aware center assignment with a nearest-center fallback for tiny boxes."""
     batch, locations, classes = flat["classes"].shape
-    if assignment not in {"center-v1", "coverage-v2"}:
+    if assignment not in {"center-v1", "coverage-v2", "coverage-v3"}:
         raise ValueError("Unknown target assignment recipe")
     objectness = flat["classes"].new_zeros((batch, locations))
     class_targets = flat["classes"].new_zeros((batch, locations, classes))
@@ -303,7 +329,7 @@ def assign_targets(flat, targets, return_metadata=False, assignment="center-v1")
         sizes = boxes[:, 2:] - boxes[:, :2]
         # Assign each object to the pyramid whose nominal box is nearest in scale.
         desired_level = (
-            torch.floor(torch.log2(sizes.max(-1).values.clamp(min=1e-6) / 0.16)).long().clamp(0, 2)
+            torch.floor(torch.log2(sizes.max(-1).values.clamp(min=1e-6) / (0.08 if assignment == "coverage-v3" else 0.16))).long().clamp(0, 3 if assignment == "coverage-v3" else 2)
         )
         distance = ((points[:, None] - centers[None]) / steps[:, None]).abs().amax(-1)
         eligible = (distance <= 1.5) & (levels[:, None] == desired_level[None])
@@ -316,7 +342,7 @@ def assign_targets(flat, targets, return_metadata=False, assignment="center-v1")
         # Dense overlaps prefer the smaller object, while the center fallback covers small targets.
         cost = sizes.prod(-1)[None].expand(locations, -1).masked_fill(~eligible, float("inf"))
         best_cost, matched = cost.min(-1)
-        if assignment == "coverage-v2":
+        if assignment in {"coverage-v2", "coverage-v3"}:
             for location, obj in coverage_reservations(eligible, distance, sizes.prod(-1)).items():
                 matched[location] = obj
         positive = best_cost.isfinite()
@@ -349,7 +375,13 @@ def detection_loss(
     classification_focal_gamma=0.0,
     classification_focal_alpha=0.25,
     assignment="center-v1",
+    quality_warmup=0.0,
 ):
+    if levels[0].get("quality_scores", False):
+        if classification_weight != 1 or classification_focal_gamma != 0:
+            raise ValueError("V3 uses fixed dense quality loss, not legacy class weighting/focal flags")
+        from training.detector_v3 import v3_detection_loss
+        return v3_detection_loss(levels, targets, quality_warmup)
     flat = flatten_predictions(levels)
     object_target, class_target, box_target, owners = assign_targets(
         flat, targets, return_metadata=True, assignment=assignment
@@ -411,7 +443,9 @@ def python_nms(boxes, scores, threshold=0.5, limit=100):
 @torch.no_grad()
 def decode_detections(levels, score_threshold=0.05, iou_threshold=0.5, max_detections=100, pre_nms_topk=600):
     flat, decoded = flatten_predictions(levels), []
-    probabilities = flat["classes"].sigmoid() * flat["objectness"].sigmoid()
+    probabilities = flat["classes"].sigmoid()
+    if not levels[0].get("quality_scores", False):
+        probabilities = probabilities * flat["objectness"].sigmoid()
     scores, labels = probabilities.max(-1)
     for index in range(len(scores)):
         selected = torch.where(scores[index] >= score_threshold)[0]

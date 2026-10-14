@@ -1,0 +1,103 @@
+{
+  "stopped_at": 1791924252.8367345,
+  "processes_stopped": [
+    {
+      "pid": 16368,
+      "cmd": [
+        "C:\\Users\\muzam\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-u",
+        "-m",
+        "scripts.train_accuracy_campaign",
+        "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX\\data\\generations\\cuda-accuracy-g6-v3-1013\\plan.json"
+      ]
+    },
+    {
+      "pid": 19900,
+      "cmd": [
+        "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX\\.venv-cuda\\Scripts\\python.exe",
+        "-m",
+        "training.detection_pipeline",
+        "train",
+        "data\\datasets\\sh17-development-v2\\manifest.json",
+        "data\\runs\\cuda-g6-ppe-sva-v3",
+        "--initialize-from",
+        "data\\runs\\cuda-g4-ppe-scratch",
+        "--architecture-version",
+        "3",
+        "--transfer-from-legacy",
+        "--assignment",
+        "coverage-v3",
+        "--preprocessing",
+        "stretch",
+        "--epochs",
+        "48",
+        "--patience",
+        "16",
+        "--threads",
+        "3",
+        "--seed",
+        "42",
+        "--image-size",
+        "512",
+        "--batch-size",
+        "1",
+        "--balanced-sampling",
+        "--learning-rate",
+        "0.0003"
+      ]
+    },
+    {
+      "pid": 19544,
+      "cmd": [
+        "C:\\Users\\muzam\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-m",
+        "training.detection_pipeline",
+        "train",
+        "data\\datasets\\sh17-development-v2\\manifest.json",
+        "data\\runs\\cuda-g6-ppe-sva-v3",
+        "--initialize-from",
+        "data\\runs\\cuda-g4-ppe-scratch",
+        "--architecture-version",
+        "3",
+        "--transfer-from-legacy",
+        "--assignment",
+        "coverage-v3",
+        "--preprocessing",
+        "stretch",
+        "--epochs",
+        "48",
+        "--patience",
+        "16",
+        "--threads",
+        "3",
+        "--seed",
+        "42",
+        "--image-size",
+        "512",
+        "--batch-size",
+        "1",
+        "--balanced-sampling",
+        "--learning-rate",
+        "0.0003"
+      ]
+    }
+  ],
+  "completed": [
+    "cuda-g6-weapons-sva-v3"
+  ],
+  "interrupted": [
+    "cuda-g6-ppe-sva-v3"
+  ],
+  "cancelled_queued_jobs": 10,
+  "remaining_training_processes": [],
+  "ppe_last_completed_epoch": 19,
+  "ppe_best_validation_ap50": 0.1258348523054986,
+  "ppe_best_epoch": 19,
+  "preserved_ppe_files": [
+    "config.json",
+    "dataset_hashes.json",
+    "history.json",
+    "weights.pt"
+  ],
+  "gpu_after_stop": "0 MiB, 0 %"
+}

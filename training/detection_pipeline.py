@@ -368,6 +368,7 @@ def train(
     upgrade_from_v1=False,
     assignment="center-v1",
     preprocessing="stretch",
+    transfer_from_legacy=False,
 ):
     if epochs < 1 or batch_size < 1 or image_size < 64 or image_size % 32:
         raise ValueError("epochs/batch_size must be positive; image_size must be a multiple of 32 >=64")
@@ -378,7 +379,7 @@ def train(
     # Mean BCE divides by class count, unlike localization's per-positive mean.
     # Sum class terms per positive by default; a weight of one reproduces the old recipe.
     classification_weight = (
-        len(manifest["classes"]) if classification_weight is None else classification_weight
+        (1 if architecture_version == 3 else len(manifest["classes"])) if classification_weight is None else classification_weight
     )
     if not np.isfinite(classification_weight) or classification_weight <= 0:
         raise ValueError("Classification loss weight must be positive")
@@ -397,7 +398,15 @@ def train(
     torch.manual_seed(seed)
     torch.set_num_threads(max(1, min(threads, torch.get_num_threads())))
     device = torch_device()
-    if assignment not in {"center-v1", "coverage-v2"} or preprocessing not in {"stretch", "letterbox"}:
+    if architecture_version == 3:
+        assignment = "coverage-v3"
+        if classification_weight != 1 or classification_focal_gamma != 0 or trainable_scope != "all":
+            raise ValueError("V3 requires end-to-end dense quality loss without legacy focal/weight flags")
+    elif assignment == "coverage-v3":
+        raise ValueError("Four-level coverage assignment requires architecture v3")
+    if transfer_from_legacy and (architecture_version != 3 or not initialize_from or upgrade_from_v1):
+        raise ValueError("Explicit legacy backbone transfer requires v3 and a parent")
+    if assignment not in {"center-v1", "coverage-v2", "coverage-v3"} or preprocessing not in {"stretch", "letterbox"}:
         raise ValueError("Unknown assignment or preprocessing recipe")
     if upgrade_from_v1 and (not initialize_from or architecture_version != 2):
         raise ValueError("An explicit v1 upgrade requires a parent checkpoint and architecture version 2")
@@ -409,20 +418,27 @@ def train(
     if initialize_from:
         previous = Path(initialize_from).resolve()
         previous_manifest = json.loads((previous / "manifest.json").read_text(encoding="utf-8"))
+        parent_config = previous_manifest.get("model_config")
+        if transfer_from_legacy:
+            if not parent_config or parent_config.get("architecture_version", 1) not in (1, 2):
+                raise ValueError("Backbone transfer requires an exact legacy v1/v2 parent")
+            parent_config = {key: value for key, value in parent_config.items() if key != "architecture_version"}
         if (
             previous_manifest.get("task") != "detection"
             or previous_manifest.get("domain") != manifest.get("domain")
             or previous_manifest.get("classes") != manifest["classes"]
-            or previous_manifest.get("model_config") != (
+            or parent_config != (
                 {key: value for key, value in model.config.items() if key != "architecture_version"}
-                if upgrade_from_v1 else model.config)
-            or previous_manifest.get("config", {}).get("preprocessing", "stretch") != preprocessing
+                if upgrade_from_v1 or transfer_from_legacy else model.config)
+            or (not transfer_from_legacy and previous_manifest.get("config", {}).get("preprocessing", "stretch") != preprocessing)
         ):
             raise ValueError("Continuation requires identical task, domain, class order and architecture")
         if digest(previous / "weights.pt") != previous_manifest["weights_sha256"]:
             raise ValueError("Continuation checkpoint checksum mismatch")
         state = torch.load(previous / "weights.pt", map_location=device, weights_only=True)
-        if upgrade_from_v1:
+        if transfer_from_legacy:
+            transferred_keys = model.load_legacy_backbone(state)
+        elif upgrade_from_v1:
             model.load_v1_for_classification_upgrade(state)
         else:
             model.load_state_dict(state)
@@ -460,10 +476,13 @@ def train(
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
         optimizer, T_max=epochs, eta_min=learning_rate * 0.05
     )
+    if architecture_version == 3:
+        scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lambda step:
+            min(1., (step + 1) / 3) * (.05 + .95 * .5 * (1 + np.cos(np.pi * max(0, step - 3) / max(1, epochs - 3)))))
     started, history, best, best_epoch = time.perf_counter(), [], (-1.0, -float("inf")), 0
     selection = {"split": "validation", "selected": "candidate"}
     stopping = ValidationSelection(patience=patience)
-    if initialize_from:
+    if initialize_from and not transfer_from_legacy:
         predictions, targets, validation = predict(model, loaders["validation"], device, measure_loss=True)
         parent_map = evaluate_detections(predictions, targets, len(manifest["classes"]))["map50"] or 0
         best = (parent_map, -validation["loss"])
@@ -487,12 +506,17 @@ def train(
         "upgrade_from_v1": upgrade_from_v1,
         "assignment": assignment,
         "preprocessing": preprocessing,
+        "transfer_from_legacy": transfer_from_legacy,
+        "transferred_keys": transferred_keys if transfer_from_legacy else [],
         "trainable_parameters": sum(p.numel() for p in model.parameters() if p.requires_grad),
-        "loss_recipe": "positive-class-focal-v1" if classification_focal_gamma else "positive-class-sum-v2",
+        "loss_recipe": "dense-quality-focal-v3" if architecture_version == 3 else ("positive-class-focal-v1" if classification_focal_gamma else "positive-class-sum-v2"),
+        "quality_bootstrap_epochs": 6 if architecture_version == 3 else 0,
+        "lr_warmup_epochs": 3 if architecture_version == 3 else 0,
         "classification_focal_gamma": classification_focal_gamma,
         "classification_focal_alpha": classification_focal_alpha,
         "training_code_sha256": digest(Path(__file__)),
         "model_code_sha256": digest(Path(__file__).with_name("detector_model.py")),
+        "v3_model_code_sha256": digest(Path(__file__).with_name("detector_v3.py")) if architecture_version == 3 else None,
         "geometry_code_sha256": digest(Path(__file__).with_name("detection_geometry.py")),
         "observability_code_sha256": digest(Path(__file__).with_name("observability.py")),
     }
@@ -513,6 +537,7 @@ def train(
                 classification_focal_gamma=classification_focal_gamma,
                 classification_focal_alpha=classification_focal_alpha,
                 assignment=assignment,
+                quality_warmup=max(0., 1 - epoch / 5) if architecture_version == 3 else 0.,
             )
             if not torch.isfinite(result["loss"]):
                 raise RuntimeError("Non-finite training loss; candidate not saved as successful")
@@ -541,10 +566,13 @@ def train(
             "learning_rate": optimizer.param_groups[0]["lr"],
             "loss_recipe": run_config["loss_recipe"],
             "classification_weight": classification_weight,
-            "reference_validation_loss_recipe": "objectness_focal_plus_class_BCE_mean_plus_3GIoU_plus_2smoothL1",
+            "reference_validation_loss_recipe": "dense-quality-focal-v3" if architecture_version == 3 else "objectness_focal_plus_class_BCE_mean_plus_3GIoU_plus_2smoothL1",
             "selection": stopping.report(epoch + 1, epochs),
             "elapsed_seconds": time.perf_counter() - started,
         }
+        if architecture_version == 3:
+            row["selection"]["criterion"] = "validation_AP50_then_lower_reference_quality_loss"
+            row["quality_bootstrap"] = max(0., 1 - epoch / 5)
         history.append(row)
         history_path = output / "history.tmp"
         history_path.write_text(json.dumps(history, indent=2), encoding="utf-8")
@@ -605,6 +633,10 @@ def train(
         else "absent; zero context",
         "outperforms_yolo": "not established; requires matched held-out benchmark and hardware budget",
     }
+    if architecture_version == 3:
+        artifact["stopping"]["criterion"] = "validation_AP50_then_lower_reference_quality_loss"
+        artifact["score_semantics"] = "dense class-localization quality; objectness is auxiliary only"
+        artifact["initialization_scope"] = "legacy_backbone_and_laterals_only" if transfer_from_legacy else "full_checkpoint" if initialize_from else "random"
     (output / "manifest.json").write_text(json.dumps(artifact, indent=2), encoding="utf-8")
     return artifact
 
@@ -632,10 +664,11 @@ def main():
     training.add_argument("--classification-weight", type=float)
     training.add_argument("--classification-focal-gamma", type=float, default=0.0)
     training.add_argument("--classification-focal-alpha", type=float, default=0.25)
-    training.add_argument("--architecture-version", type=int, choices=(1, 2), default=1)
+    training.add_argument("--architecture-version", type=int, choices=(1, 2, 3), default=1)
+    training.add_argument("--transfer-from-legacy", action="store_true")
     training.add_argument("--trainable-scope", choices=("all", "classification"), default="all")
     training.add_argument("--upgrade-from-v1", action="store_true")
-    training.add_argument("--assignment", choices=("center-v1", "coverage-v2"), default="center-v1")
+    training.add_argument("--assignment", choices=("center-v1", "coverage-v2", "coverage-v3"), default="center-v1")
     training.add_argument("--preprocessing", choices=("stretch", "letterbox"), default="stretch")
     args = vars(parser.parse_args())
     args.pop("command")

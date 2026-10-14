@@ -1,8 +1,10 @@
 # Completion status
 
+> 2026-10-13 update: GPU training is now explicitly authorized and the frozen14-job g5 campaign is running serially. Earlier no-training completion notes describe the 2026-10-05 snapshot. No new accuracy results, downloads or activation. See `CONTINUE.md` for live process/log identities.
+
 Verified 2026-10-05. SurveilX is a working local development application. Its multi-domain models are not yet reliable enough for full operational acceptance. Code completion and measured model quality are separate milestones; no single completion percentage represents both.
 
-**Current restriction:** no training, downloads, model activation or acceptance. Research paper, complete acceleration deployment, full hardware coverage, complete production verification and production infrastructure completion remain excluded.
+**Historical 2026-10-05 restriction:** no training, downloads, model activation or acceptance. Training was reauthorized on2026-10-13; downloads/activation/acceptance remain excluded. Research paper, complete acceleration deployment, full hardware coverage, complete production verification and production infrastructure completion remain excluded.
 
 | Area | Implemented and verified locally | Remaining evidence or work |
 |---|---|---|
@@ -29,3 +31,7 @@ Fire scratch improved, while weapons/PPE retained identical parent weights after
 The non-training suite passed **192 tests, with one real-training test deselected**. After adding YOLO CSV telemetry, **16 focused tests passed**, including the new test; repository Ruff and TypeScript/Vite build passed. Thus 193 distinct safe tests are covered across these runs, not one 193-test full-suite run. Existing dependency/deprecation warnings remain.
 
 Browser checks verified the dataset coverage table against SH17's 17 classes and showed its three sparse evaluation warnings. Checkpoint/epoch controls were inspected in the running application. See [non-training completion record](nontraining-completion.md), [tracking format](tracking-evaluation.md), and `CONTINUE.md` for exact evidence and next steps.
+
+## Architecture revision — 2026-10-13
+
+SVA v3 is implemented with four-scale bidirectional features and dense quality-aware classification. It remains untrained; g5 continues its frozen older recipes. Three new-domain v3 trials are prepared only, with GPU-memory validation still required. See [v3 design and evidence](sva-v3-design.md).

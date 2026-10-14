@@ -4,6 +4,7 @@ import argparse
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import time
@@ -51,6 +52,10 @@ def verify_expansion(previous, expanded):
 
 
 def verify_job(job):
+    for relative, fingerprint in job.get("code_sha256", {}).items():
+        source = (Path.cwd() / relative).resolve()
+        if not source.is_relative_to(Path.cwd().resolve()) or digest(source) != fingerprint:
+            raise ValueError("Training source changed since experiment planning")
     dataset, parent, _ = paths(job)
     metadata = read(parent / "manifest.json")
     if digest(dataset) != job["dataset_sha256"]:
@@ -140,6 +145,7 @@ def command_for(job, resume_checkpoint=None):
         "architecture-version",
         "trainable-scope",
         "upgrade-from-v1",
+        "transfer-from-legacy",
         "assignment",
         "preprocessing",
     }
@@ -328,6 +334,11 @@ def run(plan_path):
             version = job["version"]
             item = journal["jobs"].setdefault(version, {})
             try:
+                if digest(plan_path) != fingerprint:
+                    raise ValueError("Campaign plan changed while running; no further training permitted")
+                reserve = plan.get("minimum_free_disk_bytes", 0)
+                if reserve and shutil.disk_usage(directory).free < reserve:
+                    raise RuntimeError("Campaign disk reserve reached; preserve artifacts and free space before resuming")
                 manifest, parent, counts = verify_job(job)
                 _, _, output = paths(job)
                 artifact = output / "manifest.json"
@@ -344,7 +355,10 @@ def run(plan_path):
                     item.update(state="running", command=command, log=str(log_path), resumed=resumable)
                     item["resumed_at" if resumable else "started"] = time.time()
                     with log_path.open("a" if resumable else "w", encoding="utf-8") as log:
-                        process = subprocess.Popen(command, stdout=log, stderr=subprocess.STDOUT)
+                        environment = os.environ.copy()
+                        if plan.get("required_cuda"):
+                            environment["SURVEILX_REQUIRE_CUDA"] = "1"
+                        process = subprocess.Popen(command, stdout=log, stderr=subprocess.STDOUT, env=environment)
                         item["pid"] = process.pid
                         save(journal_path, journal)
                         write_report(directory, plan, journal)
@@ -352,6 +366,8 @@ def run(plan_path):
                     if code or not artifact.exists():
                         raise RuntimeError(f"Training failed with code {code}; see {log_path}")
                 candidate = read(artifact)
+                if plan.get("required_cuda") and candidate.get("device") != "cuda":
+                    raise ValueError("CUDA campaign candidate was not trained on CUDA")
                 verify_recipe(job, candidate)
                 initialization = candidate.get(
                     "initialization", candidate.get("config", {}).get("initialization")

@@ -156,7 +156,8 @@ def diagnose(dataset, run, output):
             flat = flatten_predictions(heads)
             classes = flat["classes"][0].sigmoid()
             objectness = flat["objectness"][0, :, 0].sigmoid()
-            scores, labels = (classes * objectness[:, None]).max(-1)
+            quality_scoring = heads[0].get("quality_scores", False)
+            scores, labels = (classes if quality_scoring else classes * objectness[:, None]).max(-1)
             raw = {"boxes": flat["boxes"][0], "scores": scores, "labels": labels,
                    "objectness": objectness, "class_probabilities": classes}
             decoded = decode_detections(heads, score_threshold=0.001)[0]
@@ -173,9 +174,9 @@ def diagnose(dataset, run, output):
                 row["image"] = sample["image"]
                 per_class_rows[label].append(row)
             all_rows.extend(rows)
-            object_target, class_target, _ = assign_targets(flat, target_batch)
+            object_target, class_target, _ = assign_targets(flat, target_batch, assignment="coverage-v3" if quality_scoring else "center-v1")
             positive = object_target[0].bool()
-            if positive.any():
+            if positive.any() and not quality_scoring:
                 probability = flat["classes"][0, positive].sigmoid()
                 expected = class_target[0, positive]
                 correct_probability = (probability * expected + (1 - probability) * (1 - expected)).clamp(1e-7, 1 - 1e-7)
@@ -185,9 +186,9 @@ def diagnose(dataset, run, output):
                 for label, mask in (("true_class", expected.bool()), ("other_classes", ~expected.bool())):
                     gradient_sums[label + "_bce"] += float(bce_gradient[mask].sum())
                     gradient_sums[label + "_focal"] += float((bce_gradient * ratio)[mask].sum())
-            levels.update({str(level): int((positive & (flat["levels"] == level)).sum()) for level in range(3)})
+            levels.update({str(level): int((positive & (flat["levels"] == level)).sum()) for level in range(len(heads))})
             losses = {}
-            for recipe, gamma in (("common_bce", 0), ("focal_gamma2_alpha025", 2)):
+            for recipe, gamma in ((("dense_quality_v3", 0),) if quality_scoring else (("common_bce", 0), ("focal_gamma2_alpha025", 2))):
                 measured = detection_loss(heads, target_batch,
                     classification_weight=info["config"].get("classification_weight", 1),
                     classification_focal_gamma=gamma, classification_focal_alpha=0.25)
@@ -207,7 +208,8 @@ def diagnose(dataset, run, output):
             "confidence": "Correct-class raw localization exists but none passes raw floor .001 and frozen calibrated threshold",
             "decoder_matching": "Eligible correct-class raw localization lost through top600, classwise NMS .5, final100 or one-to-one competition",
             "confusion": "Class predicted by highest-IoU raw anchor, conditional on IoU >=.50; separate from exclusive counts",
-            "losses": "Image-mean forward snapshots of BOTH BCE and focal; not historical epoch losses or causal ablation",
+            "losses": "Image-mean reference quality loss for v3, BCE/focal for legacy; not historical epoch losses or causal ablation",
+            "score_mode": "dense_class_quality" if info.get("model_config", {}).get("architecture_version") == 3 else "objectness_times_class",
         },
         "counts": {key: counts[key] for key in CATEGORIES}, "ground_truth": len(all_rows),
         "per_class": {name: dict(values) for name, values in by_class.items()},
@@ -220,7 +222,7 @@ def diagnose(dataset, run, output):
             for key in loss_rows[0][recipe]} for recipe in loss_rows[0]},
         "analytic_focal_to_bce_absolute_logit_gradient_ratio": {
             key: gradient_sums[key + "_focal"] / max(gradient_sums[key + "_bce"], 1e-12)
-            for key in ("true_class", "other_classes")},
+            for key in ("true_class", "other_classes")} if not quality_scoring else None,
         "validation_metrics": evaluate_detections(calibrated_predictions(predictions, calibration), targets,
             len(manifest["classes"]), calibration["threshold"]),
         "elapsed_seconds": time.perf_counter() - started,

@@ -32,6 +32,21 @@ def fixture(tmp_path, monkeypatch):
     return plan_path, job, metadata
 
 
+def test_campaign_rejects_changed_or_external_source(tmp_path, monkeypatch):
+    _, job, _ = fixture(tmp_path, monkeypatch)
+    monkeypatch.chdir(tmp_path)
+    source = tmp_path / "trainer.py"
+    source.write_text("frozen recipe")
+    job["code_sha256"] = {"trainer.py": runner.digest(source)}
+    runner.verify_job(job)
+    source.write_text("changed recipe")
+    with pytest.raises(ValueError, match="Training source changed"):
+        runner.verify_job(job)
+    job["code_sha256"] = {"../outside.py": "irrelevant"}
+    with pytest.raises(ValueError, match="Training source changed"):
+        runner.verify_job(job)
+
+
 def test_campaign_reuses_completed_but_rejects_changed_weights(tmp_path, monkeypatch):
     plan, job, metadata = fixture(tmp_path, monkeypatch)
     calls = []
@@ -141,3 +156,26 @@ def test_yolo_resolution_and_batch_aliases_match_recorded_recipe():
     job = {"pipeline": "yolo", "options": {"imgsz": 512, "batch": 4}}
     candidate = {"task": "detection", "architecture": "yolo_rai", "config": {"image_size": 512, "batch_size": 4}}
     runner.verify_recipe(job, candidate)
+
+
+def test_campaign_disk_reserve_prevents_launch(tmp_path, monkeypatch):
+    plan, _, _ = fixture(tmp_path, monkeypatch)
+    data = json.loads(plan.read_text())
+    data["minimum_free_disk_bytes"] = 100
+    plan.write_text(json.dumps(data))
+    monkeypatch.setattr(runner.shutil, "disk_usage", lambda _: SimpleNamespace(free=99))
+    monkeypatch.setattr(runner.subprocess, "Popen", lambda *a, **k: pytest.fail("Must not launch"))
+    result = runner.run(plan)
+    assert result["state"] == "completed_with_failures"
+    assert "disk reserve" in result["jobs"]["candidate"]["error"]
+
+
+def test_training_cuda_requirement_rejects_cpu_fallback(monkeypatch):
+    import torch
+    from surveilx.accelerators import torch_device
+    monkeypatch.setenv("SURVEILX_REQUIRE_CUDA", "1")
+    monkeypatch.setattr(torch.cuda, "is_available", lambda: False)
+    with pytest.raises(RuntimeError, match="CPU fallback"):
+        torch_device()
+    monkeypatch.setattr(torch.cuda, "is_available", lambda: True)
+    assert torch_device() == "cuda"

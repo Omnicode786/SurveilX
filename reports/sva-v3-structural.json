@@ -1,0 +1,91 @@
+{
+  "scope": "Untrained architecture structural verification; no optimizer/training",
+  "models": [
+    {
+      "version": 1,
+      "parameters": 1403566,
+      "head_shapes": [
+        [
+          1,
+          17,
+          16,
+          16
+        ],
+        [
+          1,
+          17,
+          8,
+          8
+        ],
+        [
+          1,
+          17,
+          4,
+          4
+        ]
+      ],
+      "finite": true
+    },
+    {
+      "version": 2,
+      "parameters": 1423246,
+      "head_shapes": [
+        [
+          1,
+          17,
+          16,
+          16
+        ],
+        [
+          1,
+          17,
+          8,
+          8
+        ],
+        [
+          1,
+          17,
+          4,
+          4
+        ]
+      ],
+      "finite": true
+    },
+    {
+      "version": 3,
+      "parameters": 1619004,
+      "head_shapes": [
+        [
+          1,
+          17,
+          32,
+          32
+        ],
+        [
+          1,
+          17,
+          16,
+          16
+        ],
+        [
+          1,
+          17,
+          8,
+          8
+        ],
+        [
+          1,
+          17,
+          4,
+          4
+        ]
+      ],
+      "finite": true
+    }
+  ],
+  "sources": {
+    "training/detector_model.py": "670f2d09f76d44b624d9496d9ebe51db84c4f1e40333c3ebdde1ccbba807fab7",
+    "training/detector_v3.py": "71d62b3007aa43bdf8da486e208d7047f0c1c05dbb0ec9e63d469123a7594a44",
+    "training/detection_pipeline.py": "ee592380fb2e7cae30f8b6309fee4ddfa57036fc2f038d103bff75d128505da8"
+  }
+}

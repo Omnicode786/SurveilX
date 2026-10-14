@@ -50,6 +50,8 @@ class ONNXScratchDetector(ScratchDetector):
     def __init__(self, directory, export_directory, providers, provider_options=None):
         self.directory = Path(directory).resolve()
         self.manifest = json.loads((self.directory / "manifest.json").read_text())
+        if self.manifest.get("model_config", {}).get("architecture_version", 1) == 3:
+            raise ValueError("SVA v3 four-level quality-score ONNX contract requires separate export validation; use PyTorch")
         export_directory = Path(export_directory).resolve()
         report = json.loads((export_directory / "report.json").read_text())
         graph = export_directory / "detector.onnx"

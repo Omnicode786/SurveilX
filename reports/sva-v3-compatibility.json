@@ -1,0 +1,43 @@
+{
+  "scope": "Synthetic existing-weight legacy parity; no optimizer/training; structural v3 accuracy unvalidated",
+  "legacy_checks": [
+    {
+      "model": "cuda-g4-fire-scratch",
+      "strict_load": true,
+      "legacy_forward_bitwise_equal": true,
+      "legacy_loss_bitwise_equal": true
+    },
+    {
+      "model": "cuda-g4-weapons-scratch",
+      "strict_load": true,
+      "legacy_forward_bitwise_equal": true,
+      "legacy_loss_bitwise_equal": true
+    },
+    {
+      "model": "cuda-g4-ppe-scratch",
+      "strict_load": true,
+      "legacy_forward_bitwise_equal": true,
+      "legacy_loss_bitwise_equal": true
+    },
+    {
+      "model": "cuda-g5-weapons-cls-v2",
+      "strict_load": true,
+      "legacy_forward_bitwise_equal": true,
+      "legacy_loss_bitwise_equal": true
+    }
+  ],
+  "frozen_files": 275,
+  "changed": [],
+  "g5_plan_hash_intact": true,
+  "g5_state": "running",
+  "g5_jobs": {
+    "cuda-g5-weapons-cls-v1": "completed",
+    "cuda-g5-weapons-cls-v2": "completed",
+    "cuda-g5-ppe-center-v1": "completed",
+    "cuda-g5-ppe-coverage-v2": "completed",
+    "cuda-g5-weapons-v2-full": "completed",
+    "cuda-g5-fire-scratch": "completed",
+    "cuda-g5-fire-yolo": "running"
+  },
+  "free_disk_bytes": 3823063040
+}
