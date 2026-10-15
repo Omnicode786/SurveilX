@@ -2,6 +2,8 @@
 
 A local command center for adaptive multi-camera monitoring, incident review and reproducible detection/video-event training. Works on an ordinary CPU computer, with optional accelerator integrations. This is a tested development prototype; deployment and research gaps are tracked explicitly in [phase status](docs/phase-status.md). The research paper is excluded.
 
+Current model/training status: **training stopped by user request**; weapons SVA v3 completed, PPE is partial and ten jobs were cancelled. See [verified results and limitations](docs/training-status.md). No model was activated.
+
 ## Run on Windows
 
 ```powershell

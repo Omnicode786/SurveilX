@@ -1,10 +1,10 @@
 # Completion status
 
-> 2026-10-13 update: GPU training is now explicitly authorized and the frozen14-job g5 campaign is running serially. Earlier no-training completion notes describe the 2026-10-05 snapshot. No new accuracy results, downloads or activation. See `CONTINUE.md` for live process/log identities.
+> Current status (2026-10-15): training stopped by user; g6 has one completed weapons run, one interrupted PPE run and ten cancelled jobs. No training may resume without renewed authorization. See [training status](training-status.md) for verified results and limits.
 
 Verified 2026-10-05. SurveilX is a working local development application. Its multi-domain models are not yet reliable enough for full operational acceptance. Code completion and measured model quality are separate milestones; no single completion percentage represents both.
 
-**Historical 2026-10-05 restriction:** no training, downloads, model activation or acceptance. Training was reauthorized on2026-10-13; downloads/activation/acceptance remain excluded. Research paper, complete acceleration deployment, full hardware coverage, complete production verification and production infrastructure completion remain excluded.
+**Current restriction:** training is stopped by user request as of 2026-10-14. Downloads, model activation and acceptance remain excluded. Research paper, complete acceleration deployment, full hardware coverage, complete production verification and production infrastructure completion remain excluded.
 
 | Area | Implemented and verified locally | Remaining evidence or work |
 |---|---|---|
@@ -12,11 +12,13 @@ Verified 2026-10-05. SurveilX is a working local development application. Its mu
 | Learning | Versioned imports, reviewed labels, split/hash/group checks, replay, calibration, lineage, acceptance/canary/rollback; on-demand per-class dataset coverage UI | Independent site labels and longitudinal retention evidence; automatic training remains disabled |
 | Tracking | Class-aware global IoU assignment; offline MOTA/IDF1/per-class evaluator and synthetic correctness tests | Reviewed identity-labeled sequences, occlusion evaluation and real tracking measurements |
 | Observability | Epoch losses, validation metrics, LR, elapsed time and assignment telemetry where recorded; selected checkpoint and stopping state; legacy and YOLO CSV compatibility | Historical fields absent from saved records remain unavailable |
-| Models | 56 completed artifact records verified; g4 complete; SVA v2 classification/assignment/letterbox improvements implemented | New architecture remains untrained; every-class 0.50 target unmet; no superiority over YOLO established |
+| Models | Historical g4/g5 candidates; SVA v3 weapons completed with test AP50 0.0813; PPE v3 partial checkpoint preserved | PPE final evaluation unavailable; ten g6 jobs cancelled; every-class 0.50 target unmet; no superiority over YOLO established |
 | Events/policies | Fall/fighting development candidates; configurable traffic, industrial, zone, PPE and temporal policies | Theft/collision supervision and trained candidates; reviewed signal/state/relation targets; independent fall/fighting footage |
 | Hardware | CPU and laptop CUDA exercised historically; provider inventory and simulations; measured batch tuning | Full accelerator deployment and physical hardware coverage explicitly deferred |
 
-## Latest held-out development results
+## Earlier g4 held-out development results
+
+The newer weapons v3 test AP50 is 0.0813; PPE v3 has validation-only evidence. See [current training results](training-status.md). The table below is the g4 baseline snapshot.
 
 AP50 measures detection ranking/localization, not percentage of correctly classified frames. Candidate scores do not establish site reliability or authorize activation.
 
@@ -34,4 +36,4 @@ Browser checks verified the dataset coverage table against SH17's 17 classes and
 
 ## Architecture revision — 2026-10-13
 
-SVA v3 is implemented with four-scale bidirectional features and dense quality-aware classification. It remains untrained; g5 continues its frozen older recipes. Three new-domain v3 trials are prepared only, with GPU-memory validation still required. See [v3 design and evidence](sva-v3-design.md).
+SVA v3 is implemented with four-scale bidirectional features and dense quality-aware classification. Its weapons development run completed; PPE was interrupted, and other g6 jobs were cancelled. CUDA memory was profiled and PPE used batch 1. No v3 model is accepted or active. See [current results](training-status.md) and [v3 design and evidence](sva-v3-design.md).

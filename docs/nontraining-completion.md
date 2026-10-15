@@ -1,8 +1,8 @@
 # Non-training completion pass — 2026-10-05
 
-> 2026-10-13 update: GPU training is now explicitly authorized and the frozen14-job g5 campaign is running serially. Earlier no-training completion notes describe the 2026-10-05 snapshot. No new accuracy results, downloads or activation. See `CONTINUE.md` for live process/log identities.
+> Current status (2026-10-15): training stopped by user; g6 has one completed weapons run, one interrupted PPE run and ten cancelled jobs. No training may resume without renewed authorization. See [training status](training-status.md) for verified results and limits.
 
-## Completed
+## Completed in the historical 2026-10-05 pass
 
 - Replaced order-dependent greedy tracking with class-aware global IoU assignment; preserves expiry and ID lifecycle. Optional SciPy acceleration has a tested NumPy fallback. Assignment changes can alter runtime track IDs; policy behavior is covered by the safe suite, but crossing/occlusion field performance remains unmeasured.
 - Added a read-only labeled-sequence tracking evaluator, CLI, per-class identity metrics and synthetic correctness report. No existing real tracking labels were available.

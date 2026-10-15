@@ -1,6 +1,6 @@
 # SurveilX continuation checkpoint
 
-Last updated: 2026-10-14. Read this file first after interruptions, then verify running processes and artifacts before resuming. This is a workspace progress record, not a research paper.
+Last updated: 2026-10-15. Read this file first after interruptions, then verify running processes and artifacts before resuming. This is a workspace progress record, not a research paper.
 
 ## User requirements
 
@@ -14,19 +14,25 @@ Last updated: 2026-10-14. Read this file first after interruptions, then verify 
 - Use Python and native libraries; add custom C++ only for measured bottlenecks.
 - Research paper excluded. Never equate implemented code, synthetic tests, downloaded weights or class names with validated real-domain capability.
 
+## Documentation refresh (2026-10-15)
+
+- User requested updated docs and GitHub push. Reverified g6 stopped_by_user, unchanged plan hash, completed weapons weights checksum, PPE partial files and zero training processes. One completed, one interrupted, ten cancelled. No training started.
+- Current public summary: docs/training-status.md, with separate validation/test/per-class results, sampled CUDA measurements, missing-label limitations and preservation/retry rules. README, completion/phase status and v3 design corrected; non-training pass clearly historical. Subsequent sections are chronological snapshots, superseded by this current summary and explicit stop instruction.
+- Most recent safe full-suite evidence remains202 tests passed/one real-training test deselected before g6, not a new accuracy/production verification. Datasets, weights and environment files remain local/ignored. Documentation checks: all relative Markdown links resolve across seven touched documents; results/campaign counts checked against local status and histories; git diff --check passed. Only documentation is staged for the authorized GitHub push. No training or model changes.
+
 ## Training explicitly stopped by user (2026-10-14)
 
 - Latest instruction: END TRAINING. G6 runner16368 and its active PPE process tree terminated, runner first to prevent launching queued jobs. Verified zero remaining training/campaign processes. Do not start, resume or queue training without new user authorization. Read-only progress viewer may remain open; it cannot train.
 - Completed weapons v3 preserved (test AP50 0.081309 vs parent0.031503). PPE interrupted after epoch19/48; best validation AP50 0.125835 at epoch19. Saved weights/history/config/dataset hashes preserved, but no completed PPE manifest/calibration/test result. Ten unstarted jobs marked cancelled. No model activation/acceptance or artifact deletion.
 - Original immutable plan unchanged. status-before-user-stop-1014.json, runner.stopped-by-user-1014.lock and reports/g6-user-stop-1014.json preserve exact stopping evidence. status.json is stopped_by_user. Partial SVA output has no verified optimizer-resume contract; any future retry requires explicit authorization and a new version, never overwrite it. Earlier RUNNING notes are historical and superseded.
 
-## Latest setup inspection (2026-10-14)
+## Historical setup inspection before stop (2026-10-14)
 
 - One serial g6 runner16368, one PPE training job19544 (venv launcher19900), one progress viewer19136 (launcher5064); no competing campaigns.1/12 completed,1 active,10 queued,zero failed. Weapons final test AP50 0.031503 ->0.081309; stopped30 epochs after best14 plus patience16. PPE epoch19/48, best validation AP50 0.125835 vs legacy validation 0.087623; final test pending.
 - GPU snapshot74%,964/2048MiB; free disk2.716GB above1.5GB launch guard. Running plan and all frozen training source hashes unchanged; runner-error.log empty. Do not edit hashed sources or start another trainer.
 - App currently OFFLINE: localhost8000 health and capabilities connections refused; no uvicorn process found. Training/progress viewer are independent and continue normally. Status-only inspection did not restart services or change models. Restore API separately if needed after checking startup/camera/auto-training behavior and GPU competition. reports/current-setup-1014.json.
 
-## Latest authorized restart (2026-10-13)
+## Historical authorized restart (2026-10-13)
 
 - Duplicate-process check: one actual g6 training job, zero pytest/test workers or competing trainers. Windows venv launchers plus their actual Python children are a single process chain, not duplicate runs. Removed obsolete g5 read-only viewer processes17972/14964 and its dedicated terminal14064; preserved g6 progress viewer and all model/data files. Main runner16368 continues. Weapons v3 completed; PPE v3 active at epoch4/48; ten jobs queued. reports/g6-duplicate-process-check.json contains current results and exact terminated viewer commands.
 - Latest live check: g6 weapons v3 completed epoch22/48; best validation AP50 0.149588 at epoch14 versus legacy parent validation 0.077472 (+0.072116). Latest AP50 0.106983; stale8/16. Zero completed jobs, one active, eleven queued; no errors. GPU snapshot64% and1090/2048MiB, disk3.440GB free. Plan and all frozen training source hashes unchanged. reports/g6-latest-progress.json. Do not compare these validation values with the prior test AP0.031503 or claim final test improvement; allow current run to continue.
@@ -40,7 +46,7 @@ Last updated: 2026-10-14. Read this file first after interruptions, then verify 
 - Verification this pass:202 safe full-suite tests passed, one real scene training test deselected;26 focused passed;Ruff passed. All275 frozen files and eight completed g5 weight hashes unchanged. Disk3.456GB before launch. No download/activation/deletion.
 - Next: inspect g6 status/history/per-class validation and GPU/disk; do not start a second runner or edit hashed training sources. V3 is new-head feature transfer, not exact optimizer resume; old PPE partial preserved without last.pt and therefore restarted under a NEW version from completed g4 parent. New score semantics require separate calibration; no model accepted or activated. Missing labeled theft/collision/state/relation and independent-site data remain prerequisites.
 
-## Latest SVA v3 architecture pass (2026-10-13)
+## Historical SVA v3 architecture pass (2026-10-13)
 
 - User requested a research-backed architecture revision for higher accuracy. Primary papers/author implementations reviewed: EfficientDet, GFL, VarifocalNet, TOOD and FCOS. Findings, exact changes, limitations and source links: `docs/sva-v3-design.md`. No perfect-accuracy or YOLO-superiority claim.
 - Implemented opt-in SVA v3 in `training/detector_v3.py`: stride4/8/16/32 features, learned normalized bidirectional fusion, stronger shared semantics/decoupled class tower, class dropout, dense quality-aware class supervision including background, direct class-quality decode (auxiliary objectness not multiplied), four-level coverage, six-epoch quality bootstrap and three-epoch LR warmup/cosine. Default17-class width24/depth2 has1,619,004 parameters (~15.35% above v1). V3 remains UNTRAINED, UNVALIDATED FOR ACCURACY and inactive.
