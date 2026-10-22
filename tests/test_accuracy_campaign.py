@@ -166,7 +166,8 @@ def test_campaign_disk_reserve_prevents_launch(tmp_path, monkeypatch):
     monkeypatch.setattr(runner.shutil, "disk_usage", lambda _: SimpleNamespace(free=99))
     monkeypatch.setattr(runner.subprocess, "Popen", lambda *a, **k: pytest.fail("Must not launch"))
     result = runner.run(plan)
-    assert result["state"] == "completed_with_failures"
+    assert result["state"] == "resource_limited"
+    assert result["jobs"]["candidate"]["state"] == "not_started_resource_limit"
     assert "disk reserve" in result["jobs"]["candidate"]["error"]
 
 
@@ -179,3 +180,29 @@ def test_training_cuda_requirement_rejects_cpu_fallback(monkeypatch):
         torch_device()
     monkeypatch.setattr(torch.cuda, "is_available", lambda: True)
     assert torch_device() == "cuda"
+
+
+def test_campaign_checks_commit_before_starting_child(tmp_path, monkeypatch):
+    plan, _, _ = fixture(tmp_path, monkeypatch)
+    data = json.loads(plan.read_text())
+    data["minimum_available_commit_bytes"] = 100
+    plan.write_text(json.dumps(data))
+    monkeypatch.setattr(runner, "available_commit_bytes", lambda: 99)
+    monkeypatch.setattr(runner.subprocess, "Popen", lambda *a, **k: pytest.fail("Must not launch"))
+    result = runner.run(plan)
+    assert result["state"] == "resource_limited"
+    assert "commit" in result["error"]
+
+
+def test_old_resource_error_becomes_history_on_clean_continuation(tmp_path, monkeypatch):
+    plan, _, _ = fixture(tmp_path, monkeypatch)
+    original = {"plan_sha256": runner.digest(plan), "jobs": {}, "state": "resource_limited", "error": "old disk pressure"}
+    (plan.parent / "status.json").write_text(json.dumps(original))
+    # Preserve a synthetic partial so this unit test cannot launch any process.
+    out = tmp_path / "runs/candidate"
+    out.mkdir(parents=True)
+    (out / "weights.pt").write_bytes(b"partial")
+    monkeypatch.setattr(runner.subprocess, "Popen", lambda *a, **k: pytest.fail("No training permitted"))
+    result = runner.run(plan)
+    assert "error" not in result
+    assert result["historical_errors"][0]["error"] == "old disk pressure"

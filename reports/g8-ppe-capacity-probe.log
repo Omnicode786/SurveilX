@@ -1,0 +1,2 @@
+{"status": "completed", "batch": 1, "image_size": 512, "model": "routing-g7b-ppe-sva-v3", "kind": "scratch", "peak_reserved_mib": 880.0, "median_step_seconds": 0.8798128999997061, "images_per_second": 1.136605294148715, "objects_in_batch": 154, "saved_weights": false}
+{"status": "completed", "batch": 2, "image_size": 512, "model": "routing-g7b-ppe-sva-v3", "kind": "scratch", "peak_reserved_mib": 1686.0, "median_step_seconds": 1.5488217000001896, "images_per_second": 1.291304221783408, "objects_in_batch": 263, "saved_weights": false}

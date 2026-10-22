@@ -15,7 +15,7 @@ import numpy as np
 from scripts.register_run import register
 from scripts.train_domain_generation import save
 from surveilx.config import settings
-from surveilx.training_runtime import training_interpreter
+from surveilx.training_runtime import training_interpreter, available_commit_bytes
 from training.datasets import digest, validate_manifest
 
 
@@ -148,6 +148,14 @@ def command_for(job, resume_checkpoint=None):
         "transfer-from-legacy",
         "assignment",
         "preprocessing",
+        "accumulation-steps",
+        "initialize-partial",
+        "partial-sha256",
+        "partial-dataset-sha256",
+        "augmentation",
+        "training-profile",
+        "effective-batch-size",
+        "training-decode-mode",
     }
     for key, value in job["options"].items():
         if key not in allowed:
@@ -327,6 +335,9 @@ def run(plan_path):
         if journal["plan_sha256"] != fingerprint:
             journal = None
             raise ValueError("Campaign plan changed; choose a new campaign directory")
+        if journal.get("error"):
+            journal.setdefault("historical_errors", []).append({"state": journal.get("state"),
+                "error": journal.pop("error"), "updated": journal.get("updated")})
         journal.update(state="running", pid=os.getpid(), updated=time.time())
         save(journal_path, journal)
         write_report(directory, plan, journal)
@@ -337,8 +348,30 @@ def run(plan_path):
                 if digest(plan_path) != fingerprint:
                     raise ValueError("Campaign plan changed while running; no further training permitted")
                 reserve = plan.get("minimum_free_disk_bytes", 0)
+                resource_error = None
                 if reserve and shutil.disk_usage(directory).free < reserve:
-                    raise RuntimeError("Campaign disk reserve reached; preserve artifacts and free space before resuming")
+                    resource_error = "Campaign disk reserve reached; preserve artifacts and free space before resuming"
+                if plan.get("minimum_available_ram_bytes"):
+                    import psutil
+                    if psutil.virtual_memory().available < plan["minimum_available_ram_bytes"]:
+                        resource_error = "Available RAM below campaign reserve; no next job launched"
+                if plan.get("minimum_available_commit_bytes"):
+                    committed = available_commit_bytes()
+                    if committed is not None and committed < plan["minimum_available_commit_bytes"]:
+                        resource_error = "Available Windows commit below campaign reserve; no next job launched"
+                if plan.get("minimum_free_gpu_mib"):
+                    try:
+                        free = subprocess.check_output(["nvidia-smi", "--query-gpu=memory.free", "--format=csv,noheader,nounits"], text=True, timeout=5)
+                        if float(free.strip().splitlines()[0]) < plan["minimum_free_gpu_mib"]:
+                            resource_error = "Free VRAM below campaign reserve; no next job launched"
+                    except (OSError, ValueError, subprocess.SubprocessError):
+                        resource_error = "Cannot verify free GPU memory; no next job launched"
+                if resource_error:
+                    item.update(version=version, state="not_started_resource_limit", error=resource_error)
+                    journal.update(state="resource_limited", error=resource_error, updated=time.time())
+                    save(journal_path, journal)
+                    write_report(directory, plan, journal)
+                    return journal
                 manifest, parent, counts = verify_job(job)
                 _, _, output = paths(job)
                 artifact = output / "manifest.json"
@@ -358,6 +391,8 @@ def run(plan_path):
                         environment = os.environ.copy()
                         if plan.get("required_cuda"):
                             environment["SURVEILX_REQUIRE_CUDA"] = "1"
+                        if plan.get("gpu_memory_fraction") is not None:
+                            environment["SURVEILX_GPU_MEMORY_FRACTION"] = str(plan["gpu_memory_fraction"])
                         process = subprocess.Popen(command, stdout=log, stderr=subprocess.STDOUT, env=environment)
                         item["pid"] = process.pid
                         save(journal_path, journal)

@@ -35,10 +35,12 @@ class AdaptedYOLODetector:
         from training.detection_pipeline import calibrate_scores
         from surveilx.model_profiles import runtime_profile
 
-        profile = runtime_profile(self.manifest, resolution)
+        profile = runtime_profile(self.manifest, resolution) if resolution is not None else None
         size = profile["image_size"] if profile else self.manifest["config"]["image_size"]
         calibration = profile["calibration"] if profile else self.calibration
-        square = cv2.resize(frame, (size, size))
+        from training.detection_geometry import prepare_image, transform_boxes
+        square, geometry = prepare_image(frame, size, self.manifest.get("config", {}).get("preprocessing", "stretch"))
+        square = cv2.cvtColor(square, cv2.COLOR_RGB2BGR)
         result = self.model.predict(
             square, imgsz=size, device=self.device, conf=0.001, iou=0.5, max_det=100, verbose=False
         )[0]
@@ -46,8 +48,8 @@ class AdaptedYOLODetector:
         threshold = calibration.get("threshold", 0.25)
         return [
             Detection(box.tolist(), self.classes[int(label)], float(score))
-            for box, label, score in zip(result.boxes.xyxyn.cpu(), result.boxes.cls.cpu(), scores)
-            if score >= threshold
+            for box, label, score in zip(transform_boxes(result.boxes.xyxyn.cpu().numpy(), geometry, inverse=True), result.boxes.cls.cpu(), scores)
+            if score >= threshold and box[2] > box[0] and box[3] > box[1]
         ]
 
 
@@ -87,7 +89,7 @@ class ScratchDetector:
 
         # An arbitrary size remains forbidden. Optimized artifacts may expose only
         # explicitly recalibrated, validation-selected profiles.
-        profile = runtime_profile(self.manifest, resolution)
+        profile = runtime_profile(self.manifest, resolution) if resolution is not None else None
         size = profile["image_size"] if profile else self.manifest["config"]["image_size"]
         calibration = profile["calibration"] if profile else self.calibration
         image, geometry = prepare_image(frame, size, self.manifest["config"].get("preprocessing", "stretch"))

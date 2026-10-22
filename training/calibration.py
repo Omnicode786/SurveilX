@@ -58,6 +58,7 @@ def metrics(logits, labels, temperature=1.0):
         "accuracy": float(correct.mean()),
         "ece": float(ece),
         "brier": float(np.square(probs - one_hot).sum(1).mean()),
+        "nll": float(-np.log(probs[np.arange(len(labels)), labels].clip(1e-12)).mean()),
         "risk_coverage": coverage,
         "samples": len(labels),
         "confusion_matrix": confusion.tolist(),

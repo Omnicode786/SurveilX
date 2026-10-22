@@ -1,0 +1,9 @@
+{
+  "purged_only": "pip HTTP response/wheel download cache; no installed libraries, project data or model artifacts removed",
+  "reported_files": 2674,
+  "reported_mb": 4978.8,
+  "free_disk_bytes": 7103877120,
+  "plan_sha256": "6b9139bd644660fe8fe528763e45d9b374fd4a88d7d419b514bc04e61d0c48a2",
+  "training_source_hashes_verified": 29,
+  "prior_state": "resource_limited"
+}

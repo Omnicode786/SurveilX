@@ -47,6 +47,7 @@ class Capture:
         self.outputs = []
         self.detector = "pending"
         self.calibration = "uncalibrated"
+        self.category_routes = {}
         self.tracker = Tracker()
         self.buffer = deque(maxlen=30)
         self.candidate_since = None
@@ -158,6 +159,7 @@ class Capture:
                 "motion": self.motion,
                 "brightness": self.brightness,
                 "calibration": self.calibration,
+                "category_routes": self.category_routes,
                 "secondary_evidence": self.secondary_result,
                 "risk": "review" if self.candidate_since else "no active zone observation",
             }
@@ -185,6 +187,8 @@ class Runtime:
         self.learned_detector = None
         self.active_models = {"event": None, "detection": None}
         self.experts = {}
+        self.category_routers = {}
+        self.event_failed_until = {}
         self.started = False
         if settings.detector_path:
             try:
@@ -213,6 +217,7 @@ class Runtime:
 
     def install_model(self, task, expert, model_id):
         with self.sva_lock:
+            self.category_routers.clear()
             if task == "detection":
                 self.learned_detector = expert
             elif task == "event":
@@ -222,6 +227,8 @@ class Runtime:
             else:
                 self.experts[task] = expert
             self.active_models[task] = model_id
+            live_versions = {getattr(value, "version", "default") for value in self.experts.values()}
+            self.event_failed_until = {k: v for k, v in self.event_failed_until.items() if k in live_versions}
 
     def restore_models(self):
         """Restore only committed deployment state; never guess between stale stage flags."""
@@ -303,6 +310,7 @@ class Runtime:
             "heartbeat": self.heartbeat,
             "error": self.error,
             "active_models": dict(self.active_models),
+            "category_routing": {str(key): router.status() for key, router in self.category_routers.items()},
             "mean_latency_ms": float(np.mean(self.latencies)) if self.latencies else None,
             "p95_latency_ms": float(np.percentile(self.latencies, 95)) if self.latencies else None,
             "cameras": self.snapshots(),
@@ -375,6 +383,28 @@ class Runtime:
             choices = ([(selected_key, detector)] if selected_key == "detection" else []) + specialists
             selected_key, detector = choices[capture.expert_cursor % len(choices)]
             capture.expert_cursor += 1
+        # Only models already loaded through explicit deployment enter automatic routing.
+        # Missing/incompatible validation evidence preserves the historical slot behavior.
+        deployed = ([("detection", learned)] if learned and selected_key == "detection" else []) + specialists
+        if specialists and learned and all(value is not learned for _, value in deployed):
+            if (capture.synthetic == bool(learned.manifest.get("synthetic", False))
+                    and capture.environment == learned.manifest.get("domain")):
+                deployed.append(("detection", learned))
+        if deployed:
+            from surveilx.model_selection import evaluation_for
+            from surveilx.model_router import CategoryRouter
+            signature = tuple(sorted((slot, value.version) for slot, value in deployed))
+            router = self.category_routers.get(signature)
+            if router is None:
+                candidates = [{"version": value.version, "manifest": value.manifest, "expert": value,
+                    "runtime_device": getattr(value, "device", None),
+                    "evaluation": evaluation_for(settings.data_dir, value.version, value.manifest)}
+                    for _, value in deployed]
+                router = CategoryRouter(candidates if all(c["evaluation"] for c in candidates) else [])
+                if router.routes:
+                    self.category_routers[signature] = router
+            if router.routes:
+                detector, selected_key = router, "category-routing"
         # Keep tracks, temporal history and occupancy persistence isolated by artifact.
         key = (selected_key, getattr(detector, "version", detector.name))
         if capture.expert_key != key:
@@ -407,6 +437,7 @@ class Runtime:
         except Exception as exc:
             self.error = f"Expert failed: {type(exc).__name__}; baseline fallback"
             detector = self.synthetic_detector if capture.synthetic else self.baseline
+            selected_key = "fallback"
             detections = detector.infer(frame, 320)
             capture.tracker = Tracker()
             capture.entity_history.clear()
@@ -434,12 +465,30 @@ class Runtime:
             ]
             if events:
                 event_slot, expert = events[capture.expert_cursor % len(events)]
+                from surveilx.model_selection import evaluation_for, rank_categories, contract
+                candidates = [{"version": value.version, "manifest": value.manifest,
+                    "evaluation": evaluation_for(settings.data_dir, value.version, value.manifest)}
+                    for _, value in events]
+                # Separate scene/entity contracts and different event corpora are never ranked together.
+                if len({contract(c["manifest"]) for c in candidates}) == 1 and all(c["evaluation"] for c in candidates):
+                    ranked = rank_categories(candidates)
+                    scores = {}
+                    for route in ranked:
+                        if route["category"] in {"normal", "background"}:
+                            continue
+                        for candidate in [route["selected"], *route["fallbacks"]]:
+                            scores.setdefault(candidate["version"], []).append(candidate["score"])
+                    if scores:
+                        winner = max(scores, key=lambda version: (float(np.mean(scores[version])), version))
+                        event_slot, expert = next((slot, value) for slot, value in events if value.version == winner)
         if not specialists:
             capture.expert_cursor += 1
         capture.secondary_result = None
         scene_expert = bool(expert and getattr(expert, "scene", False))
         if expert and (capture.candidate_since is not None or scene_expert):
             try:
+                if self.event_failed_until.get(getattr(expert, "version", "default"), 0) > time.monotonic():
+                    raise RuntimeError("Temporal expert is in recovery cooldown")
                 capture.secondary_result = expert.infer(
                     list(capture.scene_history if scene_expert else capture.entity_history),
                     capture.synthetic,
@@ -449,6 +498,25 @@ class Runtime:
             except Exception as exc:
                 capture.secondary_result = {"decision": "abstain", "reason": "Secondary expert failed"}
                 self.error = f"Secondary expert failed: {type(exc).__name__}; primary detections retained"
+                from surveilx.model_selection import contract
+                failed_version = getattr(expert, "version", "default")
+                if self.event_failed_until.get(failed_version, 0) <= time.monotonic():
+                    self.event_failed_until[failed_version] = time.monotonic() + 15
+                for fallback_slot, fallback in events:
+                    if (fallback is expert or contract(fallback.manifest) != contract(expert.manifest)
+                            or self.event_failed_until.get(fallback.version, 0) > time.monotonic()):
+                        continue
+                    try:
+                        fallback_scene = bool(getattr(fallback, "scene", False))
+                        capture.secondary_result = fallback.infer(
+                            list(capture.scene_history if fallback_scene else capture.entity_history),
+                            capture.synthetic, capture.environment,
+                            **({"timestamps": list(capture.scene_times)} if fallback_scene else {}))
+                        event_slot, expert = fallback_slot, fallback
+                        self.event_failed_until.pop(fallback.version, None)
+                        break
+                    except Exception:
+                        self.event_failed_until[fallback.version] = time.monotonic() + 15
         elapsed = (time.perf_counter() - started) * 1000
         self.latencies.append(elapsed)
         now = time.monotonic()
@@ -460,6 +528,9 @@ class Runtime:
             capture.calibration = (
                 "fitted_detection_correctness" if getattr(detector, "calibrated", False) else "uncalibrated"
             )
+            capture.category_routes = detector.status() if selected_key == "category-routing" else {}
+            if capture.category_routes:
+                capture.calibration = "component_calibrated; pooled_reliability_unvalidated"
             capture.latency_ms = elapsed
             capture.last_service = now
         occupied = False
@@ -485,6 +556,7 @@ class Runtime:
                 "model": detector.name,
                 "model_version": getattr(detector, "version", None),
                 "expert_slot": selected_key,
+                "category_routes": capture.category_routes,
                 "calibration": capture.calibration,
                 "decision": self.decision,
                 "power": self.power,

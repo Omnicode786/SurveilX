@@ -62,6 +62,12 @@ def torch_device():
     import torch
 
     if torch.cuda.is_available():
+        fraction = os.environ.get("SURVEILX_GPU_MEMORY_FRACTION")
+        if fraction:
+            value = float(fraction)
+            if not 0.25 <= value <= 0.9:
+                raise ValueError("CUDA memory fraction must be between0.25 and0.9")
+            torch.cuda.set_per_process_memory_fraction(value)
         return "cuda"
     if os.environ.get("SURVEILX_REQUIRE_CUDA") == "1":
         raise RuntimeError("This training campaign requires CUDA; CPU fallback is disabled")

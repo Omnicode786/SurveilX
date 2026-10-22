@@ -2,7 +2,7 @@
 
 A local command center for adaptive multi-camera monitoring, incident review and reproducible detection/video-event training. Works on an ordinary CPU computer, with optional accelerator integrations. This is a tested development prototype; deployment and research gaps are tracked explicitly in [phase status](docs/phase-status.md). The research paper is excluded.
 
-Current model/training status: **training stopped by user request**; weapons SVA v3 completed, PPE is partial and ten jobs were cancelled. See [verified results and limitations](docs/training-status.md). No model was activated.
+Current model/training status: **capacity-tuned G8c CUDA campaign running**, with nine serial, versioned jobs using existing data. The app and visible progress terminal are available; no learned model is automatically activated. Fine-tuning warmup, native checkpoint selection and prepared-data resume checks were corrected, but accuracy gains must still be measured. See [training status](docs/training-status.md), [diagnosis](docs/g7-stagnation-diagnosis.md) and the [performance dashboard](http://127.0.0.1:8000/performance).
 
 ## Run on Windows
 
@@ -60,6 +60,7 @@ The live verifier requires the server running and exercises generated streams, e
 | Objectives, losses, calibration, scheduler | [Mathematical foundations](docs/mathematical-foundations.md) |
 | Data and later generations | [Adapters](docs/dataset-adapters.md), [training](docs/data-and-training.md) |
 | Measurements and limitations | [Detection benchmark](docs/detection-benchmark.md), [evaluation](docs/evaluation.md) |
+| Category routing and current comparisons | [Model selection](docs/model-selection.md), [results](docs/selection-results-1015.md) |
 | CPU, CUDA, FPGA, containers | [Deployment](docs/deployment.md) |
 | Prior art | [Literature and novelty map](docs/literature-and-novelty.md) |
 

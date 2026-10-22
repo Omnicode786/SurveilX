@@ -21,6 +21,22 @@ class EpochLossSummary:
         self.positives = 0
         self.per_level = None
         self.objects = {}
+        self.score_totals = {}
+        self.class_positives = None
+        self.decode_totals = {"images": 0, "reduced_images": 0, "fallback_images": 0,
+            "source_bgr_bytes": 0, "decoded_bytes": 0, "maximum_decoded_bytes": 0}
+
+    def record_decodes(self, targets):
+        for target in targets:
+            row = target.get("image_decode")
+            if not row:
+                continue
+            self.decode_totals["images"] += 1
+            self.decode_totals["reduced_images"] += row["factor"] > 1
+            self.decode_totals["fallback_images"] += bool(row["fallback"])
+            for key in ("source_bgr_bytes", "decoded_bytes"):
+                self.decode_totals[key] += int(row[key])
+            self.decode_totals["maximum_decoded_bytes"] = max(self.decode_totals["maximum_decoded_bytes"], row["decoded_bytes"])
 
     def update(self, result, images):
         self.batches += 1
@@ -43,6 +59,17 @@ class EpochLossSummary:
         for key in ("assigned_objects", "unassigned_objects"):
             if key in result:
                 self.objects[key] = self.objects.get(key, 0) + int(result[key])
+        for key in ("positive_iou_sum", "positive_iou_under_half", "positive_true_score_sum",
+                    "background_max_score_sum", "background_locations"):
+            if key in result:
+                self.score_totals[key] = self.score_totals.get(key, 0) + float(result[key])
+        if "per_class_positive_counts" in result:
+            counts = [int(value) for value in result["per_class_positive_counts"]]
+            if self.class_positives is None:
+                self.class_positives = [0] * len(counts)
+            if len(self.class_positives) != len(counts):
+                raise ValueError("Class count changed within epoch telemetry")
+            self.class_positives = [a + b for a, b in zip(self.class_positives, counts, strict=True)]
 
     def report(self):
         return {
@@ -56,6 +83,15 @@ class EpochLossSummary:
             "positive_assignments": self.positives,
             "positives_per_level": self.per_level,
             "assignment_scope": "sum over sampled images; includes sampler repetitions",
+            "image_decode": dict(self.decode_totals) if self.decode_totals["images"] else None,
+            "score_quality": {
+                "positive_iou_mean": self.score_totals.get("positive_iou_sum", 0) / max(1, self.positives),
+                "positive_iou_under_half": self.score_totals.get("positive_iou_under_half", 0),
+                "positive_true_class_score_mean": self.score_totals.get("positive_true_score_sum", 0) / max(1, self.positives),
+                "background_max_class_score_mean": self.score_totals.get("background_max_score_sum", 0) / max(1, self.score_totals.get("background_locations", 0)),
+                "per_class_positive_counts": self.class_positives,
+                "scope": "Positive-location weighted raw v3 quality scores; not calibrated probability or AP",
+            } if self.score_totals else None,
             **self.objects,
         }
 

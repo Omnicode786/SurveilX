@@ -1,0 +1,17 @@
+{
+  "scope": "Generated-source application plumbing only, not model accuracy or real-camera acceptance",
+  "camera_id": "4b5c48fa-a645-413f-8cad-73161c7f4158",
+  "frames_advance": true,
+  "jpeg_stream": true,
+  "encrypted_evidence_roundtrip": true,
+  "titled_review_frame": true,
+  "observed_labels": [
+    "synthetic_entity"
+  ],
+  "incident_id": "187db9b7-e95f-4c78-977d-ad06777246b6",
+  "acknowledgement": true,
+  "websocket": true,
+  "detector": "synthetic-color-fixture",
+  "frame_count": 38,
+  "test_camera_disabled": true
+}

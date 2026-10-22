@@ -664,6 +664,15 @@ def models(user=Depends(current_user)):
     return listing(ModelVersion)
 
 
+@app.get("/api/model-performance")
+def model_performance(user=Depends(current_user)):
+    """Read-only development comparisons; never changes approval or deployment state."""
+    from surveilx.model_selection import catalog
+    from surveilx.hardware import probe
+    return {**catalog(settings.data_dir, listing(ModelVersion), runtime.active_models.values()),
+            "runtime": runtime.status(), "resources": probe().json(), "generations": generation_status(user)}
+
+
 @app.get("/api/models/{model_id}")
 def get_model(model_id: str, user=Depends(current_user)):
     with transaction() as session:

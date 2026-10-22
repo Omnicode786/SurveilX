@@ -91,20 +91,25 @@ def validate_detection_manifest(path):
 
 
 class DetectionImages(Dataset):
-    def __init__(self, root, samples, image_size=256, augment=False, preprocessing="stretch"):
+    def __init__(self, root, samples, image_size=256, augment=False, preprocessing="stretch", augmentation="basic-v1", decode_mode="full-v1"):
         self.root, self.samples, self.image_size, self.augment = Path(root), samples, image_size, augment
         if preprocessing not in {"stretch", "letterbox"}:
             raise ValueError("Unknown detection preprocessing")
         self.preprocessing = preprocessing
+        if augmentation not in {"basic-v1", "robust-v2"}:
+            raise ValueError("Unknown augmentation recipe")
+        self.augmentation = augmentation
+        if decode_mode not in {"full-v1", "bounded-jpeg-v1"}:
+            raise ValueError("Unknown image decode contract")
+        self.decode_mode = decode_mode
 
     def __len__(self):
         return len(self.samples)
 
     def __getitem__(self, index):
         sample = self.samples[index]
-        image = cv2.imread(str(resolve_asset(self.root, sample["image"])))
-        if image is None:
-            raise ValueError(f"Cannot decode image: {sample['image']}")
+        from training.image_io import read_detection_image
+        image, decode_info = read_detection_image(resolve_asset(self.root, sample["image"]), self.image_size, self.decode_mode)
         image, geometry = prepare_image(image, self.image_size, self.preprocessing)
         image = image.astype(np.float32) / 255
         boxes = transform_boxes(sample["boxes"], geometry)
@@ -120,12 +125,19 @@ class DetectionImages(Dataset):
                 image, zone = image[:, ::-1].copy(), zone[:, ::-1].copy()
                 boxes[:, [0, 2]] = 1 - boxes[:, [2, 0]]
             image = np.clip(image * random.uniform(0.8, 1.2) + random.uniform(-0.06, 0.06), 0, 1)
+            if self.augmentation == "robust-v2":
+                # Photometric only: preserve boxes, zones, context and tiny objects.
+                if random.random() < 0.20:
+                    image = np.power(image, random.uniform(0.7, 1.5))
+                if random.random() < 0.10:
+                    blurred = cv2.GaussianBlur(image, (3, 3), 0.6)
+                    image = 0.75 * image + 0.25 * blurred
         return (
             torch.from_numpy(image.transpose(2, 0, 1).copy()),
             torch.tensor(sample.get("context", [0, 0, 0, 0]), dtype=torch.float32),
             torch.from_numpy(zone[None].copy()),
             {"boxes": torch.from_numpy(boxes), "labels": torch.tensor(sample["labels"], dtype=torch.long),
-             "geometry": geometry},
+             "geometry": geometry, "image_decode": decode_info},
         )
 
 
@@ -180,13 +192,13 @@ def match_predictions(predictions, targets, iou_threshold=0.5):
     return records
 
 
-def evaluate_detections(predictions, targets, num_classes, score_threshold=0.25):
+def evaluate_detections(predictions, targets, num_classes, score_threshold=0.25, iou_threshold=0.5):
     """Shared evaluator: tensor/array lists of boxes/scores/labels, normalized xyxy.
 
     AP50 uses 101-point interpolated precision, per-class matching at IoU >= .5.
     Prediction input should use a low score floor (e.g. .001), not display filtering.
     """
-    records = match_predictions(predictions, targets)
+    records = match_predictions(predictions, targets, iou_threshold=iou_threshold)
     counts = np.zeros(num_classes, dtype=int)
     for target in targets:
         for label in torch.as_tensor(target["labels"]).tolist():
@@ -199,15 +211,25 @@ def evaluate_detections(predictions, targets, num_classes, score_threshold=0.25)
         precision = cumulative / np.maximum(np.arange(len(correct)) + 1, 1)
         recall = cumulative / max(int(counts[label]), 1)
         ap = float(np.mean([np.max(precision[recall >= q], initial=0) for q in np.linspace(0, 1, 101)]))
-        per_class.append(
-            {"class_id": label, "ground_truth": int(counts[label]), "ap50": ap if counts[label] else None}
-        )
+        accepted_class = [r for r in selected if r["score"] >= score_threshold]
+        class_tp = sum(r["correct"] for r in accepted_class)
+        class_precision = class_tp / max(len(accepted_class), 1)
+        class_recall = class_tp / max(int(counts[label]), 1)
+        per_class.append({
+            "class_id": label, "ground_truth": int(counts[label]), "ap50": ap if counts[label] and iou_threshold == 0.5 else None,
+            "ap_iou": ap if counts[label] else None,
+            "precision": class_precision, "recall": class_recall,
+            "f1": 2 * class_precision * class_recall / max(class_precision + class_recall, 1e-12),
+            "true_positives": class_tp, "false_positives": len(accepted_class) - class_tp,
+            "false_negatives": int(counts[label]) - class_tp,
+        })
     accepted = [r for r in records if r["score"] >= score_threshold]
     tp = sum(r["correct"] for r in accepted)
     precision, recall = tp / max(len(accepted), 1), tp / max(int(counts.sum()), 1)
-    aps = [item["ap50"] for item in per_class if item["ap50"] is not None]
+    aps = [item["ap_iou"] for item in per_class if item["ap_iou"] is not None]
     return {
-        "map50": float(np.mean(aps)) if aps else None,
+        "map50": float(np.mean(aps)) if aps and iou_threshold == 0.5 else None,
+        "map_iou": float(np.mean(aps)) if aps else None,
         "precision": precision,
         "recall": recall,
         "f1": 2 * precision * recall / max(precision + recall, 1e-12),
@@ -216,9 +238,9 @@ def evaluate_detections(predictions, targets, num_classes, score_threshold=0.25)
         "false_negatives": int(counts.sum()) - tp,
         "ground_truth": int(counts.sum()),
         "score_threshold": score_threshold,
-        "iou_threshold": 0.5,
+        "iou_threshold": iou_threshold,
         "per_class": per_class,
-        "ap_definition": "101-point interpolated precision at IoU 0.50, class-aware one-to-one matching",
+        "ap_definition": f"101-point interpolated precision at IoU {iou_threshold:.2f}, class-aware one-to-one matching",
     }
 
 
@@ -334,6 +356,7 @@ def predict(model, loader, device, measure_loss=False):
             result = detection_loss(output, target)
             losses.append(float(result["loss"]))
             summary.update(result, len(images))
+            summary.record_decodes(target)
     return (
         predictions,
         targets,
@@ -369,7 +392,20 @@ def train(
     assignment="center-v1",
     preprocessing="stretch",
     transfer_from_legacy=False,
+    accumulation_steps=1,
+    initialize_partial=None,
+    partial_sha256=None,
+    partial_dataset_sha256=None,
+    resume_from=None,
+    resume_sha256=None,
+    augmentation="basic-v1",
+    training_decode_mode="bounded-jpeg-v1",
 ):
+    from training.checkpointing import atomic_save, step_accumulated, save_training_state, load_training_state, restore_rng
+    if accumulation_steps < 1:
+        raise ValueError("Gradient accumulation must be positive")
+    if initialize_partial and (resume_from or not partial_sha256 or not partial_dataset_sha256):
+        raise ValueError("Partial initialization requires a pinned checksum and cannot also resume")
     if epochs < 1 or batch_size < 1 or image_size < 64 or image_size % 32:
         raise ValueError("epochs/batch_size must be positive; image_size must be a multiple of 32 >=64")
     if not np.isfinite(learning_rate) or learning_rate <= 0 or (patience is not None and patience < 1):
@@ -397,6 +433,7 @@ def train(
     np.random.seed(seed)
     torch.manual_seed(seed)
     torch.set_num_threads(max(1, min(threads, torch.get_num_threads())))
+    cv2.setNumThreads(max(1, min(threads, 2)))
     device = torch_device()
     if architecture_version == 3:
         assignment = "coverage-v3"
@@ -443,7 +480,21 @@ def train(
         else:
             model.load_state_dict(state)
         initialization = previous_manifest["weights_sha256"]
+    if initialize_partial:
+        partial = Path(initialize_partial).resolve()
+        partial_config = json.loads((partial / "config.json").read_text(encoding="utf-8"))
+        if (partial_config.get("model") != model.config
+                or partial_dataset_sha256 != digest(manifest_path)
+                or partial_config.get("initialization") != initialization
+                or partial_config.get("preprocessing", "stretch") != preprocessing
+                or digest(partial / "weights.pt") != partial_sha256
+                or json.loads((partial / "dataset_hashes.json").read_text(encoding="utf-8")) != asset_hashes):
+            raise ValueError("Partial checkpoint model, geometry, dataset content or checksum differs")
+        model.load_state_dict(torch.load(partial / "weights.pt", map_location=device, weights_only=True), strict=True)
     model.configure_trainable_scope(trainable_scope)
+    quality_bootstrap_epochs = (
+        6 if architecture_version == 3 and (not initialize_from or transfer_from_legacy) and not initialize_partial else 0
+    )
     training_samples = [s for s in manifest["samples"] if s["split"] == "train"]
     sampler = (
         WeightedRandomSampler(
@@ -463,11 +514,14 @@ def train(
                 image_size=image_size,
                 augment=split == "train",
                 preprocessing=preprocessing,
+                augmentation=augmentation,
+                decode_mode=training_decode_mode if split == "train" else "full-v1",
             ),
             batch_size=batch_size,
             shuffle=split == "train" and sampler is None,
             sampler=sampler if split == "train" else None,
             num_workers=0,
+            pin_memory=device == "cuda",
             collate_fn=collate_detection,
         )
         for split in SPLITS
@@ -481,20 +535,35 @@ def train(
             min(1., (step + 1) / 3) * (.05 + .95 * .5 * (1 + np.cos(np.pi * max(0, step - 3) / max(1, epochs - 3)))))
     started, history, best, best_epoch = time.perf_counter(), [], (-1.0, -float("inf")), 0
     selection = {"split": "validation", "selected": "candidate"}
+    initial_validation_metrics = None
     stopping = ValidationSelection(patience=patience)
-    if initialize_from and not transfer_from_legacy:
+    if (initialize_from and not transfer_from_legacy) or initialize_partial:
         predictions, targets, validation = predict(model, loaders["validation"], device, measure_loss=True)
-        parent_map = evaluate_detections(predictions, targets, len(manifest["classes"]))["map50"] or 0
+        initial_validation_metrics = evaluate_detections(predictions, targets, len(manifest["classes"]))
+        parent_map = initial_validation_metrics["map50"] or 0
         best = (parent_map, -validation["loss"])
-        selection.update(parent_map50=parent_map, selected="parent")
-        selection["parent_reference_bce_loss"] = validation["loss"]
+        selection.update({"initialization_map50" if initialize_partial else "parent_map50": parent_map},
+                         selected="partial_initialization" if initialize_partial else "parent")
+        selection["parent_reference_quality_loss" if architecture_version == 3 else "parent_reference_bce_loss"] = validation["loss"]
         stopping = ValidationSelection(patience, parent_map, validation["loss"])
-        torch.save(model.state_dict(), output / "weights.pt")
+        stopping.selected = selection["selected"]
+        atomic_save(model.state_dict(), output / "weights.pt")
     run_config = {
         "epochs": epochs,
         "seed": seed,
         "image_size": image_size,
         "batch_size": batch_size,
+        "accumulation_steps": accumulation_steps,
+        "effective_batch_size": batch_size * accumulation_steps,
+        "partial_initialization_sha256": partial_sha256 if initialize_partial else None,
+        "initialize_partial": str(initialize_partial) if initialize_partial else None,
+        "partial_sha256": partial_sha256,
+        "partial_dataset_sha256": partial_dataset_sha256,
+        "dataset_sha256": digest(manifest_path),
+        "classes": manifest["classes"],
+        "domain": manifest.get("domain"),
+        "augmentation": augmentation,
+        "training_decode_mode": training_decode_mode,
         "learning_rate": learning_rate,
         "threads": threads,
         "initialization": initialization,
@@ -510,7 +579,7 @@ def train(
         "transferred_keys": transferred_keys if transfer_from_legacy else [],
         "trainable_parameters": sum(p.numel() for p in model.parameters() if p.requires_grad),
         "loss_recipe": "dense-quality-focal-v3" if architecture_version == 3 else ("positive-class-focal-v1" if classification_focal_gamma else "positive-class-sum-v2"),
-        "quality_bootstrap_epochs": 6 if architecture_version == 3 else 0,
+        "quality_bootstrap_epochs": quality_bootstrap_epochs,
         "lr_warmup_epochs": 3 if architecture_version == 3 else 0,
         "classification_focal_gamma": classification_focal_gamma,
         "classification_focal_alpha": classification_focal_alpha,
@@ -524,33 +593,58 @@ def train(
         json.dumps({**run_config, "model": model.config}, indent=2), encoding="utf-8"
     )
     (output / "dataset_hashes.json").write_text(json.dumps(asset_hashes, indent=2), encoding="utf-8")
-    for epoch in range(epochs):
+    resume_recipe = {"dataset": digest(manifest_path), "model": model.config,
+        "config": run_config}
+    start_epoch = 0
+    if resume_from:
+        saved = load_training_state(resume_from, resume_sha256, resume_recipe)
+        model.load_state_dict(saved["model"])
+        optimizer.load_state_dict(saved["optimizer"])
+        scheduler.load_state_dict(saved["scheduler"])
+        restore_rng(saved, sampler)
+        start_epoch, history = saved["epoch"], saved["history"]
+        state = saved["best_state"]
+        stopping = ValidationSelection(patience, state["map50"], state["loss"])
+        stopping.best_epoch, stopping.stale_epochs = state["epoch"], state["stale"]
+        selection = state["selection"]
+        stopping.selected = selection["selected"]
+        atomic_save(state["weights"], output / "weights.pt")
+        (output / "history.json").write_text(json.dumps(history, indent=2), encoding="utf-8")
+        started -= history[-1]["elapsed_seconds"] if history else 0
+    for epoch in range(start_epoch, start_epoch if stopping.should_stop else epochs):
         model.train()
         losses = []
         summary = EpochLossSummary()
+        optimizer.zero_grad(set_to_none=True)
+        pending = 0
         for images, context, zones, targets in loaders["train"]:
-            optimizer.zero_grad(set_to_none=True)
             result = detection_loss(
-                model(images.to(device), context.to(device), zones.to(device)),
+                model(images.to(device, non_blocking=device == "cuda"),
+                      context.to(device, non_blocking=device == "cuda"), zones.to(device, non_blocking=device == "cuda")),
                 targets,
                 classification_weight=classification_weight,
                 classification_focal_gamma=classification_focal_gamma,
                 classification_focal_alpha=classification_focal_alpha,
                 assignment=assignment,
-                quality_warmup=max(0., 1 - epoch / 5) if architecture_version == 3 else 0.,
+                quality_warmup=max(0., 1 - epoch / max(1, quality_bootstrap_epochs - 1)) if quality_bootstrap_epochs else 0.,
             )
             if not torch.isfinite(result["loss"]):
                 raise RuntimeError("Non-finite training loss; candidate not saved as successful")
             result["loss"].backward()
-            torch.nn.utils.clip_grad_norm_(model.parameters(), 5.0)
-            optimizer.step()
+            pending += 1
+            if pending == accumulation_steps:
+                step_accumulated(optimizer, model, pending)
+                pending = 0
             losses.append(float(result["loss"].detach()))
             summary.update(result, len(images))
+            summary.record_decodes(targets)
+        if pending:
+            step_accumulated(optimizer, model, pending)
         predictions, targets, validation = predict(model, loaders["validation"], device, measure_loss=True)
         metrics = evaluate_detections(predictions, targets, len(manifest["classes"]))
         if stopping.observe(epoch + 1, metrics["map50"] or 0, validation["loss"]):
             selection["selected"] = "candidate"
-            torch.save(model.state_dict(), output / "weights.pt")
+            atomic_save(model.state_dict(), output / "weights.pt")
         best, best_epoch = stopping.best, stopping.best_epoch
         for class_row in metrics["per_class"]:
             class_row["class_name"] = manifest["classes"][class_row["class_id"]]
@@ -572,15 +666,28 @@ def train(
         }
         if architecture_version == 3:
             row["selection"]["criterion"] = "validation_AP50_then_lower_reference_quality_loss"
-            row["quality_bootstrap"] = max(0., 1 - epoch / 5)
+            row["quality_bootstrap"] = max(0., 1 - epoch / max(1, quality_bootstrap_epochs - 1)) if quality_bootstrap_epochs else 0.
         history.append(row)
         history_path = output / "history.tmp"
         history_path.write_text(json.dumps(history, indent=2), encoding="utf-8")
         history_path.replace(output / "history.json")
         print(json.dumps(row), flush=True)
         scheduler.step()
+        save_training_state(output / "last.training.pt", model, optimizer, scheduler, epoch + 1,
+            resume_recipe, {"weights": torch.load(output / "weights.pt", map_location="cpu", weights_only=True),
+                "map50": stopping.best[0], "loss": -stopping.best[1], "epoch": stopping.best_epoch,
+                "stale": stopping.stale_epochs, "selection": selection}, history, sampler)
         if stopping.should_stop:
             break
+    # Aggregate parent retention must not erase evidence of class-specific learning.
+    atomic_save(model.state_dict(), output / "trained_candidate.weights.pt")
+    trained_candidate = {"checkpoint": "trained_candidate.weights.pt",
+        "weights_sha256": digest(output / "trained_candidate.weights.pt"),
+        "dataset_sha256": digest(manifest_path),
+        "validation_metrics": history[-1].get("validation_metrics", {}) if history else {},
+        "parent_validation_metrics": initial_validation_metrics or {},
+        "calibrated": False, "deployment_eligible": False,
+        "scope": "Final trained epoch before restoring aggregate selection; validation only; not deployment-ready"}
     model.load_state_dict(torch.load(output / "weights.pt", map_location=device, weights_only=True))
     predictions, targets, _ = predict(model, loaders["calibration"], device)
     calibration = fit_detection_calibration(predictions, targets)
@@ -613,6 +720,7 @@ def train(
         "stopping": stopping.report(len(history), epochs),
         "history_schema_version": 2,
         "validation_selection": {**selection, "selected_map50": best[0]},
+        "trained_candidate": trained_candidate,
         "calibration": calibration,
         "calibrated": calibration["status"] == "fitted",
         "metrics": metrics,
@@ -670,6 +778,14 @@ def main():
     training.add_argument("--upgrade-from-v1", action="store_true")
     training.add_argument("--assignment", choices=("center-v1", "coverage-v2", "coverage-v3"), default="center-v1")
     training.add_argument("--preprocessing", choices=("stretch", "letterbox"), default="stretch")
+    training.add_argument("--accumulation-steps", type=int, default=1)
+    training.add_argument("--initialize-partial")
+    training.add_argument("--partial-sha256")
+    training.add_argument("--partial-dataset-sha256")
+    training.add_argument("--resume-from")
+    training.add_argument("--resume-sha256")
+    training.add_argument("--augmentation", choices=("basic-v1", "robust-v2"), default="basic-v1")
+    training.add_argument("--training-decode-mode", choices=("full-v1", "bounded-jpeg-v1"), default="bounded-jpeg-v1")
     args = vars(parser.parse_args())
     args.pop("command")
     args["manifest_path"] = args.pop("manifest")

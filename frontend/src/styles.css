@@ -1315,3 +1315,15 @@ textarea {
     scroll-behavior: auto !important;
   }
 }
+
+.performance { display: grid; gap: 18px; }
+.performance .panel { padding: 20px; min-width: 0; }
+.performance .table-wrap { overflow-x: auto; }
+.performance table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.performance th, .performance td { text-align: left; vertical-align: top; padding: 12px; border-bottom: 1px solid var(--line); }
+.performance small { display: block; opacity: .7; margin-top: 4px; }
+.performance details { padding: 10px 0; border-bottom: 1px solid var(--line); }
+.performance summary { cursor: pointer; font-weight: 600; }
+.performance pre { max-width: 100%; overflow: auto; font-size: 12px; }
+.performance p { line-height: 1.6; overflow-wrap: anywhere; }
+@media(max-width: 680px) { .performance .panel { padding: 14px; } .performance th, .performance td { padding: 8px; } }

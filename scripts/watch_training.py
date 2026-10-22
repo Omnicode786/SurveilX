@@ -98,6 +98,16 @@ def format_epoch(row):
     if training.get("positive_assignments") is not None:
         lines.append(f"positive assignments {training.get('positive_assignments')}; "
                      f"FPN {training.get('positives_per_level')}; unassigned objects {training.get('unassigned_objects')}")
+    if row.get("learning_rate_groups"):
+        lines.append("LR ranges: " + ", ".join(
+            f"group {key} {number(value.get('minimum'))}..{number(value.get('maximum'))}"
+            for key, value in row["learning_rate_groups"].items()))
+    if row.get("optimizer_step_attempts") is not None:
+        lines.append(f"optimizer step attempts {row['optimizer_step_attempts']}; "
+                     f"batch {row.get('physical_batch_size')}; nominal effective batch {row.get('nominal_effective_batch_size')}")
+    quality = training.get("score_quality", {})
+    if quality:
+        lines.append(f"score quality: {quality}")
     if metrics.get("per_class"):
         lines.append("class AP50: " + ", ".join(f"{item.get('class_name', item['class_id'])}={number(item.get('ap50'))}"
                      for item in metrics["per_class"]))

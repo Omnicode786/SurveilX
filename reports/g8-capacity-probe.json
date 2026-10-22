@@ -1,0 +1,59 @@
+{
+  "scope": "Local train-sample forward/backward/AdamW capacity only; no saved weights or accuracy evaluation",
+  "gpu": "NVIDIA GeForce MX130",
+  "memory_fraction": 0.85,
+  "cpu_threads": 3,
+  "measurements": [
+    {
+      "status": "completed",
+      "batch": 4,
+      "image_size": 512,
+      "model": "cuda-g4-ppe-yolo",
+      "kind": "yolo",
+      "peak_reserved_mib": 752.0,
+      "median_step_seconds": 0.43117609999990236,
+      "images_per_second": 9.276952038855832,
+      "objects_in_batch": 465,
+      "saved_weights": false
+    },
+    {
+      "status": "completed",
+      "batch": 8,
+      "image_size": 512,
+      "model": "cuda-g4-ppe-yolo",
+      "kind": "yolo",
+      "peak_reserved_mib": 1396.0,
+      "median_step_seconds": 0.777342200000021,
+      "images_per_second": 10.291477807328334,
+      "objects_in_batch": 772,
+      "saved_weights": false
+    },
+    {
+      "status": "oom_at_budget",
+      "batch": 12,
+      "image_size": 512,
+      "model": "cuda-g4-ppe-yolo",
+      "kind": "yolo"
+    },
+    {
+      "status": "completed",
+      "batch": 8,
+      "image_size": 448,
+      "model": "accuracy-g3-weapons-yolo",
+      "kind": "yolo",
+      "peak_reserved_mib": 1074.0,
+      "median_step_seconds": 0.5812859000006938,
+      "images_per_second": 13.76259083523349,
+      "objects_in_batch": 26,
+      "saved_weights": false
+    },
+    {
+      "status": "oom_at_budget",
+      "batch": 4,
+      "image_size": 384,
+      "model": "cuda-g6-weapons-sva-v3",
+      "kind": "scratch"
+    }
+  ],
+  "state": "completed"
+}

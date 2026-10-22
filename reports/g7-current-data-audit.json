@@ -1,0 +1,377 @@
+{
+  "dangerous-items-development-v1": {
+    "train_images": 399,
+    "classes": 4,
+    "empty_train_images": 0,
+    "recorded_groups": 399,
+    "maximum_source_pixels": 600000,
+    "source_images_over_12MP": 0,
+    "per_class": [
+      {
+        "class": "firearm",
+        "objects": {
+          "train": 114,
+          "validation": 26,
+          "calibration": 18,
+          "test": 33
+        },
+        "training_images": 106,
+        "recorded_train_groups": 106,
+        "median_short_side_pixels": 97.81333333333333,
+        "under_8px": 0,
+        "under_8px_if_halved": 1,
+        "scale_caveat": "Halved is configured scale-bound sensitivity, not actual observed augmentation"
+      },
+      {
+        "class": "knife",
+        "objects": {
+          "train": 120,
+          "validation": 28,
+          "calibration": 18,
+          "test": 34
+        },
+        "training_images": 111,
+        "recorded_train_groups": 111,
+        "median_short_side_pixels": 109.75999999999999,
+        "under_8px": 0,
+        "under_8px_if_halved": 1,
+        "scale_caveat": "Halved is configured scale-bound sensitivity, not actual observed augmentation"
+      },
+      {
+        "class": "machete",
+        "objects": {
+          "train": 112,
+          "validation": 27,
+          "calibration": 17,
+          "test": 34
+        },
+        "training_images": 104,
+        "recorded_train_groups": 104,
+        "median_short_side_pixels": 113.49333333333337,
+        "under_8px": 0,
+        "under_8px_if_halved": 0,
+        "scale_caveat": "Halved is configured scale-bound sensitivity, not actual observed augmentation"
+      },
+      {
+        "class": "baseball_bat",
+        "objects": {
+          "train": 97,
+          "validation": 23,
+          "calibration": 16,
+          "test": 26
+        },
+        "training_images": 96,
+        "recorded_train_groups": 96,
+        "median_short_side_pixels": 115.73333333333335,
+        "under_8px": 0,
+        "under_8px_if_halved": 0,
+        "scale_caveat": "Halved is configured scale-bound sensitivity, not actual observed augmentation"
+      }
+    ]
+  },
+  "sh17-development-v2": {
+    "train_images": 631,
+    "classes": 17,
+    "empty_train_images": 0,
+    "recorded_groups": 205,
+    "maximum_source_pixels": 32669000,
+    "source_images_over_12MP": 142,
+    "per_class": [
+      {
+        "class": "person",
+        "objects": {
+          "train": 1305,
+          "validation": 316,
+          "calibration": 301,
+          "test": 245
+        },
+        "training_images": 608,
+        "recorded_train_groups": 199,
+        "median_short_side_pixels": 92.72883200000001,
+        "under_8px": 53,
+        "under_8px_if_halved": 149,
+        "scale_caveat": "Halved is configured scale-bound sensitivity, not actual observed augmentation"
+      },
+      {
+        "class": "ear",
+        "objects": {
+          "train": 577,
+          "validation": 129,
+          "calibration": 124,
+          "test": 124
+        },
+        "training_images": 324,
+        "recorded_train_groups": 126,
+        "median_short_side_pixels": 7.111168000000021,
+        "under_8px": 323,
+        "under_8px_if_halved": 500,
+        "scale_caveat": "Halved is configured scale-bound sensitivity, not actual observed augmentation"
+      },
+      {
+        "class": "earmuffs",
+        "objects": {
+          "train": 135,
+          "validation": 30,
+          "calibration": 34,
+          "test": 13
+        },
+        "training_images": 100,
+        "recorded_train_groups": 26,
+        "median_short_side_pixels": 42.63372799999999,
+        "under_8px": 5,
+        "under_8px_if_halved": 13,
+        "scale_caveat": "Halved is configured scale-bound sensitivity, not actual observed augmentation"
+      },
+      {
+        "class": "face",
+        "objects": {
+          "train": 649,
+          "validation": 176,
+          "calibration": 124,
+          "test": 101
+        },
+        "training_images": 388,
+        "recorded_train_groups": 137,
+        "median_short_side_pixels": 31.53715200000002,
+        "under_8px": 86,
+        "under_8px_if_halved": 163,
+        "scale_caveat": "Halved is configured scale-bound sensitivity, not actual observed augmentation"
+      },
+      {
+        "class": "face_guard",
+        "objects": {
+          "train": 74,
+          "validation": 15,
+          "calibration": 20,
+          "test": 6
+        },
+        "training_images": 72,
+        "recorded_train_groups": 33,
+        "median_short_side_pixels": 63.317503999999985,
+        "under_8px": 3,
+        "under_8px_if_halved": 5,
+        "scale_caveat": "Halved is configured scale-bound sensitivity, not actual observed augmentation"
+      },
+      {
+        "class": "face_mask",
+        "objects": {
+          "train": 202,
+          "validation": 34,
+          "calibration": 40,
+          "test": 42
+        },
+        "training_images": 100,
+        "recorded_train_groups": 36,
+        "median_short_side_pixels": 21.24799999999999,
+        "under_8px": 44,
+        "under_8px_if_halved": 89,
+        "scale_caveat": "Halved is configured scale-bound sensitivity, not actual observed augmentation"
+      },
+      {
+        "class": "foot",
+        "objects": {
+          "train": 180,
+          "validation": 33,
+          "calibration": 49,
+          "test": 60
+        },
+        "training_images": 100,
+        "recorded_train_groups": 58,
+        "median_short_side_pixels": 18.641407999999956,
+        "under_8px": 36,
+        "under_8px_if_halved": 76,
+        "scale_caveat": "Halved is configured scale-bound sensitivity, not actual observed augmentation"
+      },
+      {
+        "class": "tools",
+        "objects": {
+          "train": 574,
+          "validation": 59,
+          "calibration": 61,
+          "test": 84
+        },
+        "training_images": 197,
+        "recorded_train_groups": 79,
+        "median_short_side_pixels": 12.24703999999997,
+        "under_8px": 200,
+        "under_8px_if_halved": 317,
+        "scale_caveat": "Halved is configured scale-bound sensitivity, not actual observed augmentation"
+      },
+      {
+        "class": "glasses",
+        "objects": {
+          "train": 179,
+          "validation": 47,
+          "calibration": 26,
+          "test": 62
+        },
+        "training_images": 154,
+        "recorded_train_groups": 51,
+        "median_short_side_pixels": 22.27558399999998,
+        "under_8px": 24,
+        "under_8px_if_halved": 64,
+        "scale_caveat": "Halved is configured scale-bound sensitivity, not actual observed augmentation"
+      },
+      {
+        "class": "gloves",
+        "objects": {
+          "train": 461,
+          "validation": 114,
+          "calibration": 105,
+          "test": 92
+        },
+        "training_images": 205,
+        "recorded_train_groups": 86,
+        "median_short_side_pixels": 17.760256000000027,
+        "under_8px": 134,
+        "under_8px_if_halved": 217,
+        "scale_caveat": "Halved is configured scale-bound sensitivity, not actual observed augmentation"
+      },
+      {
+        "class": "helmet",
+        "objects": {
+          "train": 261,
+          "validation": 96,
+          "calibration": 70,
+          "test": 42
+        },
+        "training_images": 103,
+        "recorded_train_groups": 60,
+        "median_short_side_pixels": 12.255231999999978,
+        "under_8px": 84,
+        "under_8px_if_halved": 160,
+        "scale_caveat": "Halved is configured scale-bound sensitivity, not actual observed augmentation"
+      },
+      {
+        "class": "hands",
+        "objects": {
+          "train": 1104,
+          "validation": 279,
+          "calibration": 230,
+          "test": 205
+        },
+        "training_images": 414,
+        "recorded_train_groups": 146,
+        "median_short_side_pixels": 21.61971200000005,
+        "under_8px": 198,
+        "under_8px_if_halved": 398,
+        "scale_caveat": "Halved is configured scale-bound sensitivity, not actual observed augmentation"
+      },
+      {
+        "class": "head",
+        "objects": {
+          "train": 1184,
+          "validation": 299,
+          "calibration": 266,
+          "test": 226
+        },
+        "training_images": 566,
+        "recorded_train_groups": 191,
+        "median_short_side_pixels": 33.69676800000002,
+        "under_8px": 188,
+        "under_8px_if_halved": 350,
+        "scale_caveat": "Halved is configured scale-bound sensitivity, not actual observed augmentation"
+      },
+      {
+        "class": "medical_suit",
+        "objects": {
+          "train": 34,
+          "validation": 34,
+          "calibration": 2,
+          "test": 44
+        },
+        "training_images": 27,
+        "recorded_train_groups": 13,
+        "median_short_side_pixels": 185.189888,
+        "under_8px": 0,
+        "under_8px_if_halved": 0,
+        "scale_caveat": "Halved is configured scale-bound sensitivity, not actual observed augmentation"
+      },
+      {
+        "class": "shoes",
+        "objects": {
+          "train": 742,
+          "validation": 148,
+          "calibration": 162,
+          "test": 105
+        },
+        "training_images": 231,
+        "recorded_train_groups": 116,
+        "median_short_side_pixels": 16.128000000000043,
+        "under_8px": 188,
+        "under_8px_if_halved": 370,
+        "scale_caveat": "Halved is configured scale-bound sensitivity, not actual observed augmentation"
+      },
+      {
+        "class": "safety_suit",
+        "objects": {
+          "train": 168,
+          "validation": 28,
+          "calibration": 25,
+          "test": 6
+        },
+        "training_images": 100,
+        "recorded_train_groups": 48,
+        "median_short_side_pixels": 66.51135999999997,
+        "under_8px": 2,
+        "under_8px_if_halved": 11,
+        "scale_caveat": "Halved is configured scale-bound sensitivity, not actual observed augmentation"
+      },
+      {
+        "class": "safety_vest",
+        "objects": {
+          "train": 233,
+          "validation": 56,
+          "calibration": 51,
+          "test": 45
+        },
+        "training_images": 87,
+        "recorded_train_groups": 59,
+        "median_short_side_pixels": 22.476287999999954,
+        "under_8px": 38,
+        "under_8px_if_halved": 99,
+        "scale_caveat": "Halved is configured scale-bound sensitivity, not actual observed augmentation"
+      }
+    ]
+  },
+  "dfire-development-v2": {
+    "train_images": 1284,
+    "classes": 2,
+    "empty_train_images": 239,
+    "recorded_groups": 3,
+    "maximum_source_pixels": 11000000,
+    "source_images_over_12MP": 0,
+    "per_class": [
+      {
+        "class": "smoke",
+        "objects": {
+          "train": 790,
+          "validation": 61,
+          "calibration": 57,
+          "test": 52
+        },
+        "training_images": 737,
+        "recorded_train_groups": 3,
+        "median_short_side_pixels": 114.13333333333331,
+        "under_8px": 4,
+        "under_8px_if_halved": 32,
+        "scale_caveat": "Halved is configured scale-bound sensitivity, not actual observed augmentation"
+      },
+      {
+        "class": "fire",
+        "objects": {
+          "train": 1275,
+          "validation": 72,
+          "calibration": 64,
+          "test": 120
+        },
+        "training_images": 639,
+        "recorded_train_groups": 3,
+        "median_short_side_pixels": 21.448648648648685,
+        "under_8px": 122,
+        "under_8px_if_halved": 469,
+        "scale_caveat": "Halved is configured scale-bound sensitivity, not actual observed augmentation"
+      }
+    ]
+  }
+}

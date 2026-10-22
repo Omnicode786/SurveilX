@@ -60,3 +60,27 @@ def test_retry_rejects_plan_mutation_while_waiting(tmp_path, monkeypatch):
         queue.queue(directory, predecessor)
     assert json.loads((directory / "queue.json").read_text())["state"] == "failed"
     assert not (directory / "queue.lock").exists()
+
+
+def test_retry_obeys_user_stop(tmp_path, monkeypatch):
+    directory, predecessor = setup_queue(tmp_path, "stopped_by_user")
+    monkeypatch.setattr(queue.subprocess, "run", lambda *a, **k: pytest.fail("user stopped campaign"))
+    with pytest.raises(RuntimeError, match="Predecessor campaign failed"):
+        queue.queue(directory, predecessor)
+    assert not (directory / "queue.lock").exists()
+
+
+def test_retry_waits_for_resources_before_launch(tmp_path, monkeypatch):
+    directory, predecessor = setup_queue(tmp_path, "completed")
+    (directory / "status.json").write_text('{"state":"completed"}')
+    reasons = iter(["commit pressure", None])
+    monkeypatch.setattr(queue, "resource_wait_reason", lambda plan: next(reasons))
+    slept = []
+    monkeypatch.setattr(queue.time, "sleep", lambda seconds: slept.append(seconds))
+
+    def launch(*args, **kwargs):
+        assert slept == [30]
+        return SimpleNamespace(returncode=0)
+
+    monkeypatch.setattr(queue.subprocess, "run", launch)
+    assert queue.queue(directory, predecessor)["state"] == "completed"

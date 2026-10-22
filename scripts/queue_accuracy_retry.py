@@ -11,9 +11,23 @@ import time
 from scripts.train_accuracy_campaign import read
 from scripts.train_domain_generation import save
 from training.datasets import digest
+from surveilx.training_runtime import available_commit_bytes
 
 
 TERMINAL_STATES = {"completed", "completed_with_failures"}
+
+
+def resource_wait_reason(plan):
+    if plan.get("minimum_available_ram_bytes"):
+        import psutil
+
+        if psutil.virtual_memory().available < plan["minimum_available_ram_bytes"]:
+            return "Waiting for available physical RAM; no retry training launched"
+    if plan.get("minimum_available_commit_bytes"):
+        available = available_commit_bytes()
+        if available is not None and available < plan["minimum_available_commit_bytes"]:
+            return "Waiting for Windows commit headroom; no retry training launched"
+    return None
 
 
 def queue(directory, predecessor):
@@ -44,12 +58,20 @@ def queue(directory, predecessor):
             save(status_path, state)
             if predecessor_state in TERMINAL_STATES:
                 break
-            if predecessor_state in {"failed", "interrupted"}:
+            if predecessor_state in {"failed", "interrupted", "stopped_by_user", "cancelled"}:
                 raise RuntimeError("Predecessor campaign failed; preserve and inspect its journal")
             time.sleep(30)
 
         if digest(plan_path) != state["plan_sha256"]:
             raise ValueError("Frozen campaign plan changed while waiting; preserve the generation")
+        plan = read(plan_path)
+        while reason := resource_wait_reason(plan):
+            state.update(state="waiting", resource_wait=reason, updated=time.time())
+            save(status_path, state)
+            time.sleep(30)
+            if digest(plan_path) != state["plan_sha256"]:
+                raise ValueError("Frozen campaign plan changed while waiting for resources")
+        state.pop("resource_wait", None)
         state.update(state="training", updated=time.time())
         save(status_path, state)
         with (directory / "runner.log").open("a", encoding="utf-8") as log:

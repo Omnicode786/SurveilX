@@ -34,6 +34,7 @@ import {
 } from "./detections";
 import { AcceptancePanel, AnnotationEditor, LearningPanel } from "./learning";
 import { CapabilitiesPanel } from "./capabilities";
+import { ModelPerformance } from "./performance";
 import { PolicyPanel } from "./policies";
 import { NotificationSettings } from "./notifications";
 
@@ -69,6 +70,7 @@ const navigation = [
   ["controllers", "Controller", Radio],
   ["hardware", "Hardware", Cpu],
   ["models", "Model registry", Box],
+  ["performance", "Model performance", Activity],
   ["capabilities", "Task coverage", Shield],
   ["datasets", "Datasets", Database],
   ["experiments", "Experiments", FlaskConical],
@@ -1043,6 +1045,7 @@ function App() {
           )}
           {page === "learning" && <LearningPanel request={api} user={user} />}
           {page === "capabilities" && <CapabilitiesPanel request={api} />}
+          {page === "performance" && <ModelPerformance request={api} />}
           {page === "alerts" && (
             <NotificationSettings request={api} user={{ role: user.role }} />
           )}

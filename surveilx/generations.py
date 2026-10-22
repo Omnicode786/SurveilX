@@ -137,8 +137,11 @@ def read_generation(path, data_dir):
         if re.fullmatch(r"[a-zA-Z0-9_-]{1,100}", version):
             directory = data_dir / "runs" / version
             try:
-                if (directory / "history.json").exists():
-                    history = json.loads((directory / "history.json").read_text())
+                history_path = directory / "history.json"
+                if not history_path.exists():
+                    history_path = directory / "native_history.json"
+                if history_path.exists():
+                    history = json.loads(history_path.read_text(encoding="utf-8"))
                     completed_epochs = len(history)
                     latest_epoch = history[-1] if history else None
                 elif (directory / "fit/results.csv").exists():

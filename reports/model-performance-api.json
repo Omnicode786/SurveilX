@@ -1,0 +1,76 @@
+{
+  "statuses": {
+    "/health": 200,
+    "/api/model-performance": 200,
+    "/api/controller/status": 200,
+    "/api/cameras": 200,
+    "/performance": 200
+  },
+  "models": 67,
+  "validation_reports": 57,
+  "recommendations": 47,
+  "active_models": {
+    "event": null,
+    "detection": null
+  },
+  "partial_runs": [
+    "accuracy-g3-weapons-scratch",
+    "accuracy-ppe-g3-scratch",
+    "cuda-g5-ppe-yolo",
+    "cuda-g6-ppe-sva-v3",
+    "routing-g7-ppe-sva-v3",
+    "routing-g7-ppe-yolo"
+  ],
+  "errors": [],
+  "resources": {
+    "os": "Windows",
+    "architecture": "AMD64",
+    "cores": 6,
+    "ram_gb": 15.795906066894531,
+    "available_gb": 2.589305877685547,
+    "cpu_percent": 0.0,
+    "memory_percent": 83.6,
+    "gpu": {
+      "name": "NVIDIA GeForce MX130",
+      "memory_mb": 2048.0,
+      "used_mb": 885.0,
+      "utilization": 64.0,
+      "temperature_c": null,
+      "power_w": null
+    },
+    "temperature_c": null,
+    "battery_percent": 89,
+    "plugged_in": true,
+    "identity": {
+      "cpu_name": "Intel(R) Core(TM) i7-8850H CPU @ 2.60GHz",
+      "display_adapters": [
+        "Intel(R) UHD Graphics 630",
+        "NVIDIA GeForce MX130"
+      ],
+      "manufacturer": "Dell Inc.",
+      "computer_model": "Latitude 5591"
+    }
+  },
+  "generation_states": {
+    "accuracy-g2": "completed",
+    "accuracy-g3": "completed_with_failures",
+    "accuracy-g3b-weapons-scratch": "completed",
+    "accuracy-ppe-g3": "completed_with_failures",
+    "accuracy-ppe-g3b-scratch": "completed",
+    "accuracy-routing-g7-1015": "running",
+    "cuda-accuracy-g4a": "completed",
+    "cuda-accuracy-g4b": "completed",
+    "cuda-accuracy-g5-1013": "stopped_by_user",
+    "cuda-accuracy-g6-v3-1013": "stopped_by_user",
+    "cuda-fighting-g2": "completed",
+    "dangerous-items-g1": "completed",
+    "dfire-g1": "completed",
+    "efficiency-accuracy-g1": "completed",
+    "efficiency-accuracy-pilot": "completed",
+    "fighting-g1": "completed",
+    "sh17-g1": "failed",
+    "sh17-g2": "completed",
+    "urfall-g1": "completed",
+    "accuracy-routing-g7b-ppe-retry-1015": "waiting"
+  }
+}

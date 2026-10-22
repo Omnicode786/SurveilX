@@ -100,11 +100,20 @@ def v3_detection_loss(levels, targets, quality_warmup=0.0):
     positive = obj.bool()
     denominator = positive.sum().clamp(min=1)
     object_loss = focal_loss(flat["objectness"].squeeze(-1), obj).sum() / denominator
+    probabilities = flat["classes"].detach().sigmoid()
+    telemetry = {"background_max_score_sum": probabilities.amax(-1)[~positive].sum(),
+        "background_locations": (~positive).sum()}
     if positive.any():
         predicted, truth = flat["boxes"][positive], boxes[positive]
         intersection = (torch.minimum(predicted[:, 2:], truth[:, 2:]) - torch.maximum(predicted[:, :2], truth[:, :2])).clamp(min=0).prod(-1)
         union = ((predicted[:, 2:] - predicted[:, :2]).clamp(min=0).prod(-1) + (truth[:, 2:] - truth[:, :2]).prod(-1) - intersection).clamp(min=1e-8)
         quality = (intersection / union).detach().clamp(0, 1)
+        # Observe semantic scoring separately from localization and bootstrap targets.
+        true_labels = classes[positive].argmax(-1)
+        telemetry.update({"positive_iou_sum": quality.sum(),
+            "positive_iou_under_half": (quality < 0.5).sum(),
+            "positive_true_score_sum": probabilities[positive].gather(1, true_labels[:, None]).sum(),
+            "per_class_positive_counts": torch.bincount(true_labels, minlength=classes.shape[-1])})
         quality = quality_warmup + (1 - quality_warmup) * quality
         classes[positive] *= quality[:, None]
         box_loss = generalized_iou_loss(predicted, truth).mean()
@@ -117,4 +126,5 @@ def v3_detection_loss(levels, targets, quality_warmup=0.0):
             "objectness": object_loss, "classification": class_loss, "box_giou": box_loss, "box_l1": size_loss,
             "positives": positive.sum().detach(),
             "positives_per_level": torch.bincount(flat["levels"].expand(len(targets), -1)[positive], minlength=4).detach(),
-            "assigned_objects": assigned, "unassigned_objects": sum(len(t["labels"]) for t in targets) - assigned}
+            "assigned_objects": assigned, "unassigned_objects": sum(len(t["labels"]) for t in targets) - assigned,
+            **telemetry}

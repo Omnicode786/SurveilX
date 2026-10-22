@@ -1,0 +1,156 @@
+{
+  "processes": [
+    {
+      "pid": 4200,
+      "cmdline": [
+        "C:\\Users\\muzam\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-u",
+        "-m",
+        "scripts.queue_accuracy_retry",
+        "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX/data/generations/accuracy-routing-g7b-ppe-retry-1015",
+        "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX/data/generations/accuracy-routing-g7-1015/status.json"
+      ],
+      "name": "python.exe",
+      "ppid": 12040
+    },
+    {
+      "pid": 5284,
+      "cmdline": [
+        "C:\\Users\\muzam\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-m",
+        "training.yolo_pipeline",
+        "train",
+        "data\\datasets\\sh17-development-v2\\manifest.json",
+        "data\\runs\\routing-g7-ppe-yolo",
+        "--initialize-from",
+        "data\\runs\\cuda-g4-ppe-yolo",
+        "--threads",
+        "2",
+        "--seed",
+        "42",
+        "--epochs",
+        "12",
+        "--patience",
+        "6",
+        "--imgsz",
+        "512",
+        "--batch",
+        "4",
+        "--learning-rate",
+        "0.0001",
+        "--preprocessing",
+        "stretch"
+      ],
+      "name": "python.exe",
+      "ppid": 16992
+    },
+    {
+      "pid": 6688,
+      "cmdline": [
+        "C:\\Users\\muzam\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-u",
+        "-m",
+        "scripts.train_accuracy_campaign",
+        "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX/data/generations/accuracy-routing-g7-1015/plan.json"
+      ],
+      "name": "python.exe",
+      "ppid": 8364
+    },
+    {
+      "pid": 8364,
+      "cmdline": [
+        "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX\\.venv\\Scripts\\python.exe",
+        "-u",
+        "-m",
+        "scripts.train_accuracy_campaign",
+        "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX/data/generations/accuracy-routing-g7-1015/plan.json"
+      ],
+      "name": "python.exe",
+      "ppid": 10000
+    },
+    {
+      "pid": 8664,
+      "cmdline": [
+        "C:\\Users\\muzam\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-m",
+        "uvicorn",
+        "surveilx.api:app",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "8000"
+      ],
+      "name": "python.exe",
+      "ppid": 14556
+    },
+    {
+      "pid": 12040,
+      "cmdline": [
+        "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX\\.venv\\Scripts\\python.exe",
+        "-u",
+        "-m",
+        "scripts.queue_accuracy_retry",
+        "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX/data/generations/accuracy-routing-g7b-ppe-retry-1015",
+        "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX/data/generations/accuracy-routing-g7-1015/status.json"
+      ],
+      "name": "python.exe",
+      "ppid": 3984
+    },
+    {
+      "pid": 14556,
+      "cmdline": [
+        "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX\\.venv\\Scripts\\python.exe",
+        "-m",
+        "uvicorn",
+        "surveilx.api:app",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "8000"
+      ],
+      "name": "python.exe",
+      "ppid": 20244
+    },
+    {
+      "pid": 16992,
+      "cmdline": [
+        "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX\\.venv-cuda\\Scripts\\python.exe",
+        "-m",
+        "training.yolo_pipeline",
+        "train",
+        "data\\datasets\\sh17-development-v2\\manifest.json",
+        "data\\runs\\routing-g7-ppe-yolo",
+        "--initialize-from",
+        "data\\runs\\cuda-g4-ppe-yolo",
+        "--threads",
+        "2",
+        "--seed",
+        "42",
+        "--epochs",
+        "12",
+        "--patience",
+        "6",
+        "--imgsz",
+        "512",
+        "--batch",
+        "4",
+        "--learning-rate",
+        "0.0001",
+        "--preprocessing",
+        "stretch"
+      ],
+      "name": "python.exe",
+      "ppid": 6688
+    }
+  ],
+  "campaign_state": "running",
+  "jobs": {
+    "routing-g7-weapons-letterbox": "completed",
+    "routing-g7-fighting": "completed",
+    "routing-g7-ppe-sva-v3": "failed",
+    "routing-g7-ppe-yolo": "running"
+  },
+  "retry_state": "waiting",
+  "free_disk_bytes": 6180569088,
+  "available_ram_bytes": 3250446336
+}

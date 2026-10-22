@@ -1,0 +1,53 @@
+{
+  "timestamp": 1792047060.6735635,
+  "full_suite": {
+    "passed": 212,
+    "warnings": 6
+  },
+  "later_focused_selection": 12,
+  "retry_queue_tests": 5,
+  "ruff": "passed",
+  "frontend_build": "passed",
+  "bundle": "index-DCfMcO0G.js",
+  "browser": {
+    "modelsOrComparisonDetails": 228,
+    "pageErrors": [],
+    "mobileDocumentOverflow": false,
+    "authenticated": true
+  },
+  "live_generated_flow": {
+    "scope": "Generated-source application plumbing only, not model accuracy or real-camera acceptance",
+    "camera_id": "4b5c48fa-a645-413f-8cad-73161c7f4158",
+    "frames_advance": true,
+    "jpeg_stream": true,
+    "encrypted_evidence_roundtrip": true,
+    "titled_review_frame": true,
+    "observed_labels": [
+      "synthetic_entity"
+    ],
+    "incident_id": "187db9b7-e95f-4c78-977d-ad06777246b6",
+    "acknowledgement": true,
+    "websocket": true,
+    "detector": "synthetic-color-fixture",
+    "frame_count": 38,
+    "test_camera_disabled": true
+  },
+  "preexisting_artifact_files_unchanged": 298,
+  "campaign_state": "running",
+  "jobs": {
+    "routing-g7-weapons-letterbox": "completed",
+    "routing-g7-fighting": "completed",
+    "routing-g7-ppe-sva-v3": "failed",
+    "routing-g7-ppe-yolo": "running"
+  },
+  "retry_state": "waiting",
+  "active_learned_deployments": 0,
+  "free_disk_bytes": 6166339584,
+  "progress_watchers": [
+    12356,
+    19044
+  ],
+  "incomplete": "Running/pending training, exact transient decode failure cause, independent site/event/identity data, sparse/absent categories, pooled calibration and real-camera field reliability",
+  "evaluation_finalizer_tests": 2,
+  "evaluation_finalizer": "waiting for both campaigns; CPU evaluation only"
+}

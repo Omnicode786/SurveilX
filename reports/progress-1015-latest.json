@@ -1,0 +1,88 @@
+{
+  "checked_at": "2026-10-15T13:02:17+05:00",
+  "main_state": "completed_with_failures",
+  "main_completed": 7,
+  "main_failed": 1,
+  "results": [
+    {
+      "version": "routing-g7-weapons-letterbox",
+      "state": "completed",
+      "metric": "map50",
+      "before": 0.5040670865327479,
+      "after": 0.5145233146983795,
+      "delta": 0.010456228165631631,
+      "checkpoint_verified": true
+    },
+    {
+      "version": "routing-g7-fighting",
+      "state": "completed",
+      "metric": "accuracy",
+      "before": 0.7,
+      "after": 0.7,
+      "delta": 0.0,
+      "checkpoint_verified": true
+    },
+    {
+      "version": "routing-g7-ppe-sva-v3",
+      "state": "failed",
+      "metric": null,
+      "before": null,
+      "after": null,
+      "delta": null
+    },
+    {
+      "version": "routing-g7-ppe-yolo",
+      "state": "completed",
+      "metric": "map50",
+      "before": 0.32234350933382755,
+      "after": 0.32234350933382755,
+      "delta": 0.0,
+      "checkpoint_verified": true
+    },
+    {
+      "version": "routing-g7-fire-yolo",
+      "state": "completed",
+      "metric": "map50",
+      "before": 0.5401604513025069,
+      "after": 0.5401604513025069,
+      "delta": 0.0,
+      "checkpoint_verified": true
+    },
+    {
+      "version": "routing-g7-fire-scratch",
+      "state": "completed",
+      "metric": "map50",
+      "before": 0.40581288372500723,
+      "after": 0.40581288372500723,
+      "delta": 0.0,
+      "checkpoint_verified": true
+    },
+    {
+      "version": "routing-g7-fall",
+      "state": "completed",
+      "metric": "accuracy",
+      "before": 1.0,
+      "after": 1.0,
+      "delta": 0.0,
+      "checkpoint_verified": true
+    },
+    {
+      "version": "routing-g7-person",
+      "state": "completed",
+      "metric": "map50",
+      "before": 0.9391518529921732,
+      "after": 0.9391518529921732,
+      "delta": 0.0,
+      "checkpoint_verified": true
+    }
+  ],
+  "retry_state": "running",
+  "retry_pid": 17696,
+  "retry_first_epoch_completed": false,
+  "gpu_snapshot": {
+    "utilization_percent": 87,
+    "used_mib": 910,
+    "total_mib": 2048
+  },
+  "scope": "Read-only progress check; no new training, acceptance or deployment launched"
+}

@@ -1,0 +1,35 @@
+{
+  "source_sha256": "c93e0fa70989323bf076b81dc6aac18ef171e4da1a3db613afab6272fa0f9fca",
+  "modes": {
+    "full-v1": {
+      "mode": "full-v1",
+      "factor": 1,
+      "fallback": false,
+      "source_pixels": 32669000,
+      "decoded_bytes": 98007000,
+      "source_bgr_bytes": 98007000,
+      "seconds": 1.0284568000006402,
+      "shape": [
+        7000,
+        4667,
+        3
+      ]
+    },
+    "bounded-jpeg-v1": {
+      "mode": "bounded-jpeg-v1",
+      "factor": 4,
+      "fallback": false,
+      "source_pixels": 32669000,
+      "decoded_bytes": 6126750,
+      "source_bgr_bytes": 98007000,
+      "seconds": 0.786209100000633,
+      "shape": [
+        1750,
+        1167,
+        3
+      ]
+    }
+  },
+  "resized_mean_absolute_pixel_difference": 3.150054931640625,
+  "scope": "Single valid real image decode measurement, not full process peak memory or an accuracy benchmark; normalized labels unchanged"
+}

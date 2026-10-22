@@ -85,7 +85,8 @@ def predict_artifact(run, dataset_path, dataset):
 
             expert = AdaptedYOLODetector(run)
             predictions, targets, _ = predict_split(
-                expert.model, dataset_path, dataset, "test", metadata["config"]["image_size"], expert.device
+                expert.model, dataset_path, dataset, "test", metadata["config"]["image_size"], expert.device,
+                metadata["config"].get("preprocessing", "stretch")
             )
         else:
             raise ValueError("Unsupported detector architecture")

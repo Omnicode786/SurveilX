@@ -1,0 +1,86 @@
+{
+  "time": "2026-10-15T13:51:35.076742+05:00",
+  "real_training_launched_this_diagnosis": false,
+  "frozen_files_verified": 298,
+  "changed_frozen_files": [],
+  "plans": {
+    "accuracy-routing-g7-1015": {
+      "plan_sha256": "6b9139bd644660fe8fe528763e45d9b374fd4a88d7d419b514bc04e61d0c48a2",
+      "state": "completed_with_failures",
+      "completed_weights_verified": [
+        "routing-g7-weapons-letterbox",
+        "routing-g7-fighting",
+        "routing-g7-ppe-yolo",
+        "routing-g7-fire-yolo",
+        "routing-g7-fire-scratch",
+        "routing-g7-fall",
+        "routing-g7-person"
+      ],
+      "sources_changed_after_stop": true
+    },
+    "accuracy-routing-g7b-ppe-retry-1015": {
+      "plan_sha256": "933aaab8028dd320547e28a480cb5d1adb4865dad8b902e7762b550cef8e3ad3",
+      "state": "stopped_by_user",
+      "completed_weights_verified": [],
+      "sources_changed_after_stop": true
+    }
+  },
+  "retry_partial_files_verified": 5,
+  "saved_yolo_candidates_verified": 4,
+  "training_or_orchestration_processes": [],
+  "read_only_viewer_pids": [],
+  "api_pids": [
+    18488,
+    18736
+  ],
+  "tests": {
+    "full_safe": {
+      "passed": 228,
+      "deselected_real_training": 3,
+      "warnings": 6
+    },
+    "final_focused": {
+      "passed": 28,
+      "deselected": 2
+    },
+    "ruff": "passed",
+    "frontend_build": "passed; index-CdL67iQm.js"
+  },
+  "no_activation_or_acceptance": true,
+  "no_dataset_or_checkpoint_deletion": true,
+  "no_dataset_download": true,
+  "post_pc_restart_verified_at": "2026-10-15T21:45:41.119676+05:00",
+  "authenticated_api": {
+    "statuses": {
+      "/health": 200,
+      "/api/controller/status": 200,
+      "/api/cameras": 200,
+      "/performance": 200
+    },
+    "model_performance": 200,
+    "models": 72,
+    "recommendations": 47,
+    "unpromoted_candidates": 4,
+    "active_models": {
+      "event": null,
+      "detection": null
+    },
+    "errors": []
+  },
+  "browser": {
+    "modelsOrComparisonDetails": 247,
+    "unpromotedCandidates": 4,
+    "smokeComparisonVisible": true,
+    "pageErrors": [],
+    "mobileDocumentOverflow": false,
+    "authenticated": true
+  },
+  "post_restart_integrity": {
+    "frozen_files": 298,
+    "partial_files": 5,
+    "completed_g7_weights": 7,
+    "saved_candidates": 4,
+    "plans": 2,
+    "all_unchanged": true
+  }
+}

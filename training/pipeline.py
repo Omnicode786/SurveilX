@@ -53,7 +53,9 @@ def predict(model, loader, device):
 
 
 def train(manifest_path, output, epochs=5, seed=42, ablation="full", initialize_from=None,
-          finetune_all=False, learning_rate=0.002, augment=False, patience=None, threads=4, batch_size=8):
+          finetune_all=False, learning_rate=0.002, augment=False, patience=None, threads=4, batch_size=8,
+          resume_from=None, resume_sha256=None):
+    from training.checkpointing import atomic_save, save_training_state, load_training_state, restore_rng
     if epochs < 1 or threads < 1 or batch_size < 1 or not np.isfinite(learning_rate) or learning_rate <= 0:
         raise ValueError("Epochs, threads and learning rate must be positive")
     if patience is not None and patience < 1:
@@ -122,8 +124,25 @@ def train(manifest_path, output, epochs=5, seed=42, ablation="full", initialize_
         logits, labels = predict(model, loaders["validation"], device)
         best = F.cross_entropy(torch.tensor(logits), torch.tensor(labels)).item()
         parent_loss = best
-        torch.save(model.state_dict(), output / "weights.pt")
-    for epoch in range(epochs):
+        atomic_save(model.state_dict(), output / "weights.pt")
+    recipe = {"task": "event", "dataset_sha256": digest(manifest_path), "classes": manifest["classes"],
+        "architecture": flags, "epochs": epochs, "batch_size": batch_size, "seed": seed,
+        "learning_rate": learning_rate, "augment": augment, "finetune_all": finetune_all,
+        "initialization": initialization, "patience": patience,
+        "training_code_sha256": digest(Path(__file__)), "model_code_sha256": digest(Path(__file__).with_name("models.py"))}
+    start_epoch = 0
+    if resume_from:
+        saved = load_training_state(resume_from, resume_sha256, recipe)
+        model.load_state_dict(saved["model"])
+        optimizer.load_state_dict(saved["optimizer"])
+        scheduler.load_state_dict(saved["scheduler"])
+        restore_rng(saved)
+        start_epoch, history = saved["epoch"], saved["history"]
+        best, best_epoch, stale = (saved["best_state"][k] for k in ("loss", "epoch", "stale"))
+        atomic_save(saved["best_state"]["weights"], output / "weights.pt")
+        (output / "history.json").write_text(json.dumps(history, indent=2), encoding="utf-8")
+        started -= history[-1].get("elapsed_seconds", 0) if history else 0
+    for epoch in range(start_epoch, start_epoch if patience is not None and stale >= patience else epochs):
         model.train()
         losses = []
         for clip, boxes, context, label in loaders["train"]:
@@ -140,16 +159,24 @@ def train(manifest_path, output, epochs=5, seed=42, ablation="full", initialize_
         validation_logits, validation_labels = predict(model, loaders["validation"], device)
         val_loss = F.cross_entropy(torch.tensor(validation_logits), torch.tensor(validation_labels)).item()
         history.append(
-            {"epoch": epoch + 1, "train_loss": float(np.mean(losses)), "validation_loss": val_loss}
+            {"epoch": epoch + 1, "train_loss": float(np.mean(losses)), "validation_loss": val_loss,
+             "validation_metrics": metrics(validation_logits, validation_labels),
+             "learning_rate": optimizer.param_groups[0]["lr"], "elapsed_seconds": time.perf_counter() - started,
+             "validation_metric_scope": "uncalibrated validation logits; calibration fit separately after selection"}
         )
         if val_loss < best:
             best, best_epoch, stale = val_loss, epoch + 1, 0
-            torch.save(model.state_dict(), output / "weights.pt")
+            atomic_save(model.state_dict(), output / "weights.pt")
         else:
             stale += 1
-        (output / "history.json").write_text(json.dumps(history, indent=2))
+        history_temp = output / "history.tmp"
+        history_temp.write_text(json.dumps(history, indent=2), encoding="utf-8")
+        history_temp.replace(output / "history.json")
         print(json.dumps(history[-1]), flush=True)
         scheduler.step()
+        save_training_state(output / "last.training.pt", model, optimizer, scheduler, epoch + 1, recipe,
+            {"weights": torch.load(output / "weights.pt", map_location="cpu", weights_only=True),
+             "loss": best, "epoch": best_epoch, "stale": stale}, history)
         if patience and stale >= patience:
             break
     model.load_state_dict(torch.load(output / "weights.pt", map_location=device, weights_only=True))
@@ -247,6 +274,8 @@ def main():
     training.add_argument("--patience", type=int)
     training.add_argument("--threads", type=int, default=4)
     training.add_argument("--batch-size", type=int, default=8)
+    training.add_argument("--resume-from")
+    training.add_argument("--resume-sha256")
     args = parser.parse_args()
     if args.command == "generate":
         print(generate(args.directory, args.count, args.seed))
@@ -255,7 +284,8 @@ def main():
             json.dumps(
                 train(
                     args.manifest, args.output, args.epochs, args.seed, args.ablation, args.initialize_from,
-                    args.finetune_all, args.learning_rate, args.augment, args.patience, args.threads, args.batch_size
+                    args.finetune_all, args.learning_rate, args.augment, args.patience, args.threads, args.batch_size,
+                    args.resume_from, args.resume_sha256
                 ),
                 indent=2,
             )

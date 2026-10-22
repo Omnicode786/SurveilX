@@ -1,0 +1,23 @@
+const fs=require('fs');
+const {chromium}=require('C:/Users/muzam/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+let browser;
+(async()=>{
+ browser=await chromium.launch({headless:true,executablePath:'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'});
+ const page=await browser.newPage({viewport:{width:1440,height:1000}});const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.goto('http://127.0.0.1:8000/performance');
+ await page.getByLabel('Password',{exact:true}).fill(fs.readFileSync('data/initial-admin-password.txt','utf8').trim());
+ await page.getByRole('button',{name:'Enter command center'}).click();
+ await page.getByRole('heading',{name:'Best compatible model by category'}).waitFor({timeout:90000});
+ await page.getByRole('heading',{name:'Unpromoted trained candidates'}).waitFor();
+ const candidates=page.locator('.performance > section').filter({has:page.getByRole('heading',{name:'Unpromoted trained candidates'})});
+ if(await candidates.locator('details').count()!==4)throw new Error('Expected four preserved candidate comparisons; found '+await candidates.locator('details').count());
+ await candidates.locator('summary').filter({hasText:'routing-g7-fire-yolo'}).click();
+ await candidates.getByRole('cell',{name:'smoke',exact:true}).waitFor();
+ const models=await page.locator('.performance details').count();
+ await page.screenshot({path:'reports/model-performance-desktop.png',fullPage:false});
+ await page.setViewportSize({width:390,height:844}); await page.screenshot({path:'reports/model-performance-mobile.png',fullPage:false});
+ const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+2);
+ fs.writeFileSync('reports/model-performance-browser.json',JSON.stringify({modelsOrComparisonDetails:models,unpromotedCandidates:4,smokeComparisonVisible:true,pageErrors:errors,mobileDocumentOverflow:overflow,authenticated:true},null,2));
+ console.log(JSON.stringify({details:models,pageErrors:errors,mobileDocumentOverflow:overflow})); await browser.close();
+ if(errors.length||overflow)process.exitCode=1;
+})().catch(e=>{console.error('Browser verification failed: '+e.name+': '+e.message);process.exitCode=1}).finally(async()=>{if(browser)await browser.close()});

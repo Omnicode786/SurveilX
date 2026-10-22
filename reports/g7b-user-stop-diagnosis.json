@@ -1,0 +1,188 @@
+{
+  "time": "2026-10-15T13:09:45.663872+05:00",
+  "terminated": [
+    {
+      "pid": 4200,
+      "command": [
+        "C:\\Users\\muzam\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-u",
+        "-m",
+        "scripts.queue_accuracy_retry",
+        "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX/data/generations/accuracy-routing-g7b-ppe-retry-1015",
+        "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX/data/generations/accuracy-routing-g7-1015/status.json"
+      ],
+      "role": "scripts.queue_accuracy_retry"
+    },
+    {
+      "pid": 12040,
+      "command": [
+        "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX\\.venv\\Scripts\\python.exe",
+        "-u",
+        "-m",
+        "scripts.queue_accuracy_retry",
+        "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX/data/generations/accuracy-routing-g7b-ppe-retry-1015",
+        "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX/data/generations/accuracy-routing-g7-1015/status.json"
+      ],
+      "role": "scripts.queue_accuracy_retry"
+    },
+    {
+      "pid": 14780,
+      "command": [
+        "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX\\.venv\\Scripts\\python.exe",
+        "-m",
+        "scripts.train_accuracy_campaign",
+        "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX\\data\\generations\\accuracy-routing-g7b-ppe-retry-1015\\plan.json"
+      ],
+      "role": "scripts.train_accuracy_campaign"
+    },
+    {
+      "pid": 17696,
+      "command": [
+        "C:\\Users\\muzam\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-m",
+        "scripts.train_accuracy_campaign",
+        "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX\\data\\generations\\accuracy-routing-g7b-ppe-retry-1015\\plan.json"
+      ],
+      "role": "scripts.train_accuracy_campaign"
+    },
+    {
+      "pid": 13512,
+      "command": [
+        "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX\\.venv\\Scripts\\python.exe",
+        "-u",
+        "-m",
+        "scripts.finalize_model_evaluations",
+        "data/generations/accuracy-routing-g7-1015/status.json",
+        "data/generations/accuracy-routing-g7b-ppe-retry-1015/queue.json"
+      ],
+      "role": "scripts.finalize_model_evaluations"
+    },
+    {
+      "pid": 18368,
+      "command": [
+        "C:\\Users\\muzam\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-u",
+        "-m",
+        "scripts.finalize_model_evaluations",
+        "data/generations/accuracy-routing-g7-1015/status.json",
+        "data/generations/accuracy-routing-g7b-ppe-retry-1015/queue.json"
+      ],
+      "role": "scripts.finalize_model_evaluations"
+    },
+    {
+      "pid": 9620,
+      "command": [
+        "C:\\Users\\muzam\\OneDrive\\Desktop\\Programming\\SurveilX\\.venv-cuda\\Scripts\\python.exe",
+        "-m",
+        "training.detection_pipeline",
+        "train",
+        "data\\datasets\\sh17-development-v2\\manifest.json",
+        "data\\runs\\routing-g7b-ppe-sva-v3",
+        "--initialize-from",
+        "data\\runs\\cuda-g4-ppe-scratch",
+        "--threads",
+        "2",
+        "--seed",
+        "42",
+        "--epochs",
+        "8",
+        "--patience",
+        "4",
+        "--image-size",
+        "512",
+        "--batch-size",
+        "1",
+        "--learning-rate",
+        "0.0001",
+        "--architecture-version",
+        "3",
+        "--transfer-from-legacy",
+        "--assignment",
+        "coverage-v3",
+        "--preprocessing",
+        "stretch",
+        "--balanced-sampling",
+        "--accumulation-steps",
+        "4",
+        "--augmentation",
+        "robust-v2",
+        "--initialize-partial",
+        "data\\runs\\cuda-g6-ppe-sva-v3",
+        "--partial-sha256",
+        "c51013fddae799f4035ea44f2857b9b09cc6aabcb07002c46e276b21113457a2",
+        "--partial-dataset-sha256",
+        "612b1197c555d4dce77f41772ee39834718ba588cb95c1616bce6023e064dd6c"
+      ],
+      "role": "training.detection_pipeline"
+    },
+    {
+      "pid": 19244,
+      "command": [
+        "C:\\Users\\muzam\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-m",
+        "training.detection_pipeline",
+        "train",
+        "data\\datasets\\sh17-development-v2\\manifest.json",
+        "data\\runs\\routing-g7b-ppe-sva-v3",
+        "--initialize-from",
+        "data\\runs\\cuda-g4-ppe-scratch",
+        "--threads",
+        "2",
+        "--seed",
+        "42",
+        "--epochs",
+        "8",
+        "--patience",
+        "4",
+        "--image-size",
+        "512",
+        "--batch-size",
+        "1",
+        "--learning-rate",
+        "0.0001",
+        "--architecture-version",
+        "3",
+        "--transfer-from-legacy",
+        "--assignment",
+        "coverage-v3",
+        "--preprocessing",
+        "stretch",
+        "--balanced-sampling",
+        "--accumulation-steps",
+        "4",
+        "--augmentation",
+        "robust-v2",
+        "--initialize-partial",
+        "data\\runs\\cuda-g6-ppe-sva-v3",
+        "--partial-sha256",
+        "c51013fddae799f4035ea44f2857b9b09cc6aabcb07002c46e276b21113457a2",
+        "--partial-dataset-sha256",
+        "612b1197c555d4dce77f41772ee39834718ba588cb95c1616bce6023e064dd6c"
+      ],
+      "role": "training.detection_pipeline"
+    }
+  ],
+  "remaining_training_or_orchestration": [],
+  "preserved_partial_files": {
+    "config.json": {
+      "bytes": 4806,
+      "sha256": "198a97d0229f50bcf559d01309fa48158d28dd3b0dc3d1a0f839f168f77175a0"
+    },
+    "dataset_hashes.json": {
+      "bytes": 153109,
+      "sha256": "118eac76bfff8db1e38b63049224d5bd061574c6b46af334ac5327ee841fdfb2"
+    },
+    "history.json": {
+      "bytes": 9822,
+      "sha256": "63f9cf7f7563a563f7a92882c62f40d46efe2e601fceba52e9862807ccd7ac24"
+    },
+    "last.training.pt": {
+      "bytes": 26265925,
+      "sha256": "c66c8df9815c76b806e0cb7433cce137d788ee2742b7b0a937de3745e5a110d7"
+    },
+    "weights.pt": {
+      "bytes": 6554141,
+      "sha256": "01f96cab2c6847e5d07f12d28bd8915b5d729543dd8147cb2920865ea0743f86"
+    }
+  }
+}

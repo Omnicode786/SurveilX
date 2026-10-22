@@ -1,6 +1,6 @@
 # Phase status
 
-> Current training state (2026-10-15): stopped by user request. Weapons v3 completed; PPE interrupted; ten g6 jobs cancelled. Phase implementation is distinct from model quality and live activation. See [training status](training-status.md).
+> Current status (2026-10-15): user reauthorized training after the diagnosis. Capacity-tuned G8c is running nine serial CUDA jobs with new outputs and frozen sources; gains are not yet established. No learned model is activated. See [training status](training-status.md) and [diagnosis](g7-stagnation-diagnosis.md).
 
 Status as of 2026-10-05. This table distinguishes implemented code, executed evidence and remaining acceptance work. The full specification is a substantial development and deployment program; untested hardware, missing datasets or absent operator studies cannot be honestly marked complete.
 
