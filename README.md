@@ -51,6 +51,71 @@ Read [dataset compatibility](docs/dataset-adapters.md), [training workflow](docs
 
 The live verifier requires the server running and exercises generated streams, evidence, acknowledgment and feedback. It creates test audit activity. Reports are stored in `reports/`; training artifacts live in versioned `data/runs/` directories.
 
+## Team learning - click your assigned files
+
+This is the **code-reading plan for Ashar, Abdur Rehman, Ayaan and Owais**. Each file name below is a clickable link that opens the actual source or document in this repository. **Read in the listed order**; be ready to explain what the file receives, what it does, what it returns, and show one working example to the instructor.
+
+**Start here (everyone):** [Project README](README.md) -> [System diagrams](docs/diagrams.md) -> [Architecture](docs/architecture.md) -> [Implemented vs. pending features](docs/phase-status.md) -> [Current training evidence and limitations](docs/training-status.md).
+
+For explanations, the seven-session timetable, demo practice, and instructor viva questions, open the **[complete four-person learning and instructor defense guide](TEAM_LEARNING_GUIDE.md)**.
+
+### Abdur Rehman - Architecture, backend and API integration
+
+**Read in order:**
+1. [System diagrams](docs/diagrams.md) - follow the full camera-to-dashboard flow.
+2. [Architecture specification](docs/architecture.md) - learn why each module exists.
+3. [Configuration: `surveilx/config.py`](surveilx/config.py) - learn application settings and local defaults.
+4. [FastAPI endpoints: `surveilx/api.py`](surveilx/api.py) - follow login, cameras, incidents, and WebSocket routes.
+5. [Runtime integration: `surveilx/runtime.py`](surveilx/runtime.py) - see how API actions relate to running cameras.
+6. [Experiment jobs: `surveilx/jobs.py`](surveilx/jobs.py) - understand how offline training jobs are managed.
+7. [API tests: `tests/test_api.py`](tests/test_api.py) - show a real tested request.
+
+**Instructor task:** Draw the main architecture and trace *one* UI request through FastAPI to its response.
+
+### Ashar - Database, authentication, incidents and evidence
+
+**Read in order:**
+1. [Database models: `surveilx/database.py`](surveilx/database.py) - users, sessions, cameras, incidents, alerts, audit.
+2. [Security: `surveilx/security.py`](surveilx/security.py) - password hashing, sessions, roles, encryption keys.
+3. [Incident lifecycle: `surveilx/incidents.py`](surveilx/incidents.py) - legal state changes and invalid-transition checks.
+4. [Evidence handling: `surveilx/evidence.py`](surveilx/evidence.py) - saved frames/clips and encrypted bundles.
+5. [Notifications: `surveilx/notifications.py`](surveilx/notifications.py) - in-app alerts, grouping, acknowledgment and escalation.
+6. [Reviewed learning guide](docs/reviewed-learning.md) - understand why model predictions are not human-reviewed ground truth.
+7. [Security and incident tests: `tests/test_api.py`](tests/test_api.py) - follow role checks and incident-state tests.
+
+**Instructor task:** Explain how a detection becomes a *reviewable* incident, how evidence is protected, and why an alert is not proof of a real event.
+
+### Ayaan - React dashboard, frontend and live data
+
+**Read in order:**
+1. [Frontend dependencies: `frontend/package.json`](frontend/package.json) - React, TypeScript, Vite and build commands.
+2. [Main dashboard: `frontend/src/main.tsx`](frontend/src/main.tsx) - navigation, API calls, login and WebSocket updates.
+3. [Detection display: `frontend/src/detections.tsx`](frontend/src/detections.tsx) - labels, counts, confidence and evidence.
+4. [Incident rules UI: `frontend/src/policies.tsx`](frontend/src/policies.tsx) - configuring camera policies.
+5. [Learning panels: `frontend/src/learning.tsx`](frontend/src/learning.tsx) - annotation and reviewed learning screens.
+6. [Performance view: `frontend/src/performance.tsx`](frontend/src/performance.tsx) - model and training metrics.
+7. [Alerts UI: `frontend/src/notifications.tsx`](frontend/src/notifications.tsx) - notification settings and behavior.
+
+**Instructor task:** Demo login -> overview -> a **clearly labeled generated demo feed** -> detections/incident details, and explain how React receives HTTP/WebSocket data.
+
+### Owais - Cameras, scheduling, AI models and evaluation
+
+**Read in order:**
+1. [Camera processing: `surveilx/runtime.py`](surveilx/runtime.py) - capture, live frames, inference and camera health.
+2. [Detector and tracker: `surveilx/vision.py`](surveilx/vision.py) - HOG baseline, YOLO integration and tracking.
+3. [Global scheduler: `surveilx/controller.py`](surveilx/controller.py) - deadlines, priorities, inference cost and budgets.
+4. [Hardware governor: `surveilx/hardware.py`](surveilx/hardware.py) - CPU/RAM resource-aware operation.
+5. [Incident rules engine: `surveilx/policies.py`](surveilx/policies.py) - observations, zones and review candidates.
+6. [Scratch detector: `training/detector_model.py`](training/detector_model.py) - independent multiscale detector.
+7. [SVA v3: `training/detector_v3.py`](training/detector_v3.py) - revised four-scale detector architecture.
+8. [Video-event models: `training/models.py`](training/models.py) - SVA-Net and clip reasoning.
+9. [Adapted pretrained YOLO: `training/yolo_model.py`](training/yolo_model.py) - scene/zone adapters; **not** scratch YOLO.
+10. [Evaluation methods](docs/evaluation.md) and [runtime tests](tests/test_runtime.py) - know what was measured and how.
+
+**Instructor task:** Walk through one frame from capture to detector to scheduler/rules, and distinguish SVA-Detector, SVA-Net and pretrained YOLO.
+
+**Team rule:** Studying these files does **not** require changing code, starting new model training, activating candidate models, or presenting simulated results as real-camera accuracy.
+
 ## Documentation map
 
 | Topic | Reference |
