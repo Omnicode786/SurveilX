@@ -6,10 +6,9 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Literal
 
-import cv2
 from argon2.exceptions import VerifyMismatchError
 from fastapi import Depends, FastAPI, HTTPException, Query, Request, Response, WebSocket, WebSocketDisconnect
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, field_validator
 from sqlalchemy import select, text
@@ -26,6 +25,7 @@ from surveilx.adaptation import (
 )
 from surveilx.adaptation_worker import AdaptationPolicy, adaptation_worker
 from surveilx.acceptance import AcceptanceInput, accept_report, evaluation_jobs, verify_approved_artifact
+from surveilx.detection_preferences import DetectionSelection, COMMON, BACKGROUND, RULE_KINDS, category, label_key, model_labels
 from surveilx.config import settings
 from surveilx.database import (
     Alert,
@@ -72,6 +72,7 @@ async def lifespan(app):
     initialize_admin()
     if settings.demo:
         seed_demo()
+    restore_runtime_policy()
     runtime = Runtime()
     runtime.restore_models()
     jobs.recover_interrupted()
@@ -195,8 +196,8 @@ class CameraInput(BaseModel):
 def cameras(user=Depends(current_user)):
     with transaction() as session:
         values = [serialize(row) for row in session.scalars(select(Camera)).all()]
-    live = {row["id"]: row for row in runtime.snapshots()}
-    return [row | live.get(row["id"], {"status": "disabled"}) for row in values]
+    live = {row["id"]: row for row in runtime.snapshots()} if runtime.started else {}
+    return [row | live.get(row["id"], {"status": "paused" if row["enabled"] else "disabled"}) for row in values]
 
 
 @app.post("/api/cameras", status_code=201)
@@ -261,6 +262,54 @@ def delete_camera(camera_id: str, user=Depends(current_user)):
     return update_camera(camera_id, CameraPatch(enabled=False), user)
 
 
+@app.get("/api/cameras/{camera_id}/detection-options")
+def detection_options(camera_id: str, user=Depends(current_user)):
+    with transaction() as session:
+        camera = session.get(Camera, camera_id) or missing()
+        row = session.get(Record, f"detection-selection:{camera_id}")
+        selection = DetectionSelection.model_validate(row.payload) if row else DetectionSelection()
+        models = list(session.scalars(select(ModelVersion)).all())
+        labels = {label_key(label) for label in COMMON + selection.disabled_labels}
+        saved = set()
+        for model in models:
+            if (settings.data_dir / "runs" / model.version / "weights.pt").is_file():
+                saved.update(label_key(label) for label in model.manifest.get("classes", []))
+        labels.update(saved)
+        policy = session.get(Record, f"site-policy:{camera_id}")
+        rules = {rule["kind"] for rule in policy.payload.get("rules", [])} if policy else set()
+        labels.update(rules)
+        active = set()
+        if runtime.started and camera_id in runtime.cameras:
+            synthetic = runtime.cameras[camera_id].synthetic
+            experts = [(key, value) for key, value in runtime.experts.items()
+                       if value.manifest.get("domain") == camera.environment
+                       and bool(value.manifest.get("synthetic", False)) == synthetic]
+            for _, expert in experts:
+                active.update(label_key(label) for label in model_labels(expert))
+            if not any(key.startswith("detection") for key, _ in experts):
+                baseline = runtime.synthetic_detector if synthetic else runtime.yolo or runtime.baseline
+                active.update(label_key(label) for label in model_labels(baseline))
+        return {**selection.model_dump(), "options": [
+            {"id": label, "label": label.replace("_", " "), "group": category(label),
+             "enabled": selection.enabled(label), "status": "rule" if label in rules else "no_rule" if label in RULE_KINDS else "active" if label in active else "saved_model" if label in saved else "no_model"}
+            for label in sorted(labels - BACKGROUND)]}
+
+
+@app.put("/api/cameras/{camera_id}/detection-options")
+def save_detection_options(camera_id: str, body: DetectionSelection, user=Depends(current_user)):
+    require(user, "operator")
+    with transaction() as session:
+        session.get(Camera, camera_id) or missing()
+        row = session.get(Record, f"detection-selection:{camera_id}")
+        if row:
+            row.payload, row.timestamp = body.model_dump(), time.time()
+        else:
+            session.add(Record(id=f"detection-selection:{camera_id}", kind="detection_selection", payload=body.model_dump()))
+        audit(session, user.id, "detection_selection_updated", camera_id, **body.model_dump())
+    runtime.set_detection_selection(camera_id, body)
+    return detection_options(camera_id, user)
+
+
 @app.get("/api/cameras/{camera_id}/health")
 def camera_health(camera_id: str, user=Depends(current_user)):
     return get_camera(camera_id, user)
@@ -269,28 +318,30 @@ def camera_health(camera_id: str, user=Depends(current_user)):
 @app.get("/api/cameras/{camera_id}/stream")
 def camera_stream(camera_id: str, user=Depends(current_user)):
     capture = runtime.cameras.get(camera_id) or missing()
-    with capture.lock:
-        if capture.frame is None:
-            raise HTTPException(503, "Waiting for camera frame")
-        frame = capture.frame.copy()
-        outputs = list(capture.outputs)
-    h, w = frame.shape[:2]
-    for result in outputs:
-        x1, y1, x2, y2 = result["box"]
-        cv2.rectangle(frame, (int(x1 * w), int(y1 * h)), (int(x2 * w), int(y2 * h)), (130, 230, 200), 2)
-        cv2.putText(
-            frame,
-            f"{result['label']} #{result['track_id']}",
-            (int(x1 * w), max(15, int(y1 * h) - 8)),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.4,
-            (130, 230, 200),
-            1,
-        )
-    success, jpeg = cv2.imencode(".jpg", frame)
-    if not success:
-        raise HTTPException(503, "Frame encoding failed")
-    return Response(jpeg.tobytes(), media_type="image/jpeg")
+    jpeg, _ = capture.preview.encode(capture)
+    if jpeg is None:
+        raise HTTPException(503, "Waiting for camera frame")
+    return Response(jpeg, media_type="image/jpeg", headers={"Cache-Control": "no-store"})
+
+
+@app.get("/api/cameras/{camera_id}/live.mjpg")
+async def camera_live(camera_id: str, request: Request, user=Depends(current_user)):
+    capture = runtime.cameras.get(camera_id) or missing()
+
+    async def frames():
+        previous = None
+        while not capture.stop_event.is_set() and not await request.is_disconnected():
+            tick_started = time.monotonic()
+            jpeg, sequence = await asyncio.to_thread(capture.preview.encode, capture)
+            if jpeg is not None and sequence != previous:
+                previous = sequence
+                yield (b"--frame\r\nContent-Type: image/jpeg\r\n" +
+                       f"Content-Length: {len(jpeg)}\r\nX-Sequence: {sequence}\r\n\r\n".encode() + jpeg + b"\r\n")
+            await asyncio.sleep(max(0.001, 1 / 30 - (time.monotonic() - tick_started)))
+
+    return StreamingResponse(frames(), media_type="multipart/x-mixed-replace; boundary=frame",
+                             headers={"Cache-Control": "no-store", "X-Accel-Buffering": "no"})
+
 
 
 def listing(model, limit=200):
@@ -973,8 +1024,42 @@ def public_settings(user=Depends(current_user)):
             "retention_days",
             "max_cameras",
             "epoch_seconds",
+            "power_profile",
+            "runtime_budget_scale",
         ]
     }
+
+
+class RuntimePolicyInput(BaseModel):
+    power_profile: Literal["auto", "economy", "balanced", "performance"]
+    runtime_budget_scale: float = Field(default=1.0, ge=.25, le=2)
+
+
+def restore_runtime_policy():
+    with transaction() as session:
+        row = session.get(Record, "runtime-policy")
+        if row:
+            policy = RuntimePolicyInput.model_validate(row.payload)
+            settings.power_profile = policy.power_profile
+            settings.runtime_budget_scale = policy.runtime_budget_scale
+
+
+@app.patch("/api/settings/runtime")
+def update_runtime_policy(body: RuntimePolicyInput, user=Depends(current_user)):
+    require(user)
+    from surveilx.hardware import PowerGovernor
+    with transaction() as session:
+        row = session.get(Record, "runtime-policy")
+        if row:
+            row.payload, row.timestamp = body.model_dump(), time.time()
+        else:
+            session.add(Record(id="runtime-policy", kind="runtime_policy", payload=body.model_dump()))
+        audit(session, user.id, "runtime_policy_updated", "runtime-policy", **body.model_dump())
+    with runtime.lock:
+        settings.power_profile = body.power_profile
+        settings.runtime_budget_scale = body.runtime_budget_scale
+        runtime.governor = PowerGovernor(body.power_profile)
+    return body.model_dump()
 
 
 @app.get("/health")

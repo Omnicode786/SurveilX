@@ -1316,14 +1316,186 @@ textarea {
   }
 }
 
-.performance { display: grid; gap: 18px; }
-.performance .panel { padding: 20px; min-width: 0; }
-.performance .table-wrap { overflow-x: auto; }
-.performance table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.performance th, .performance td { text-align: left; vertical-align: top; padding: 12px; border-bottom: 1px solid var(--line); }
-.performance small { display: block; opacity: .7; margin-top: 4px; }
-.performance details { padding: 10px 0; border-bottom: 1px solid var(--line); }
-.performance summary { cursor: pointer; font-weight: 600; }
-.performance pre { max-width: 100%; overflow: auto; font-size: 12px; }
-.performance p { line-height: 1.6; overflow-wrap: anywhere; }
-@media(max-width: 680px) { .performance .panel { padding: 14px; } .performance th, .performance td { padding: 8px; } }
+.performance {
+  display: grid;
+  gap: 18px;
+}
+.performance .panel {
+  padding: 20px;
+  min-width: 0;
+}
+.performance .table-wrap {
+  overflow-x: auto;
+}
+.performance table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.performance th,
+.performance td {
+  text-align: left;
+  vertical-align: top;
+  padding: 12px;
+  border-bottom: 1px solid var(--line);
+}
+.performance small {
+  display: block;
+  opacity: 0.7;
+  margin-top: 4px;
+}
+.performance details {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+}
+.performance summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.performance pre {
+  max-width: 100%;
+  overflow: auto;
+  font-size: 12px;
+}
+.performance p {
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 680px) {
+  .performance .panel {
+    padding: 14px;
+  }
+  .performance th,
+  .performance td {
+    padding: 8px;
+  }
+}
+
+/* Everyday monitoring controls; technical tools remain one step away. */
+.advanced-nav {
+  margin-top: 12px;
+}
+.advanced-nav > summary {
+  padding: 12px 18px;
+  color: #71806c;
+  cursor: pointer;
+}
+.system-details,
+.advanced-options,
+.off-cameras {
+  margin-top: 22px;
+}
+.system-details > summary,
+.advanced-options > summary,
+.off-cameras > summary {
+  cursor: pointer;
+  padding: 12px 0;
+  color: #52684a;
+  font-size: 13px;
+}
+.detection-choices {
+  margin-top: 22px;
+  padding: 22px;
+  background: #f8faf6;
+  border: 1px solid #e1e8dc;
+  border-radius: 12px;
+}
+.detection-choices h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+.detection-choices p {
+  font-size: 13px;
+  line-height: 1.6;
+  color: #667660;
+}
+.choices-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+.choice-search {
+  flex: 1 1 220px;
+  margin: 0;
+}
+.choices-toolbar button {
+  padding: 11px 14px;
+}
+.choice-groups {
+  display: grid;
+  gap: 10px;
+}
+.choice-group {
+  padding: 14px 16px;
+  background: white;
+  border: 1px solid #e1e8dc;
+  border-radius: 8px;
+}
+.choice-group-toggle,
+.choice-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  cursor: pointer;
+}
+.choice-group-toggle {
+  font-size: 14px;
+  font-weight: 600;
+  color: #32442b;
+}
+.choice-group input,
+.choice-items input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  flex: 0 0 auto;
+  accent-color: #526f40;
+}
+.choice-group small {
+  display: block;
+  margin-top: 4px;
+  color: #7a8575;
+  font-size: 11px;
+  font-weight: 400;
+}
+.choice-group details {
+  margin-top: 8px;
+}
+.choice-group summary {
+  cursor: pointer;
+  font-size: 12px;
+  color: #52684a;
+}
+.choice-items {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  padding-top: 16px;
+}
+.choice-item {
+  font-size: 13px;
+  text-transform: capitalize;
+}
+.choice-item small {
+  text-transform: none;
+}
+@media (max-width: 600px) {
+  .detection-choices {
+    padding: 16px;
+  }
+  .choice-items {
+    grid-template-columns: 1fr;
+  }
+}
+
+.choices-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  background: #f8faf6;
+  padding: 12px 0;
+  border-top: 1px solid #e1e8dc;
+}

@@ -24,7 +24,7 @@ def validate_manifest(path):
     if manifest.get("task", "event") not in {"event", "detection"}:
         raise ValueError("Unsupported task; detection and video-event classification are supported")
     if manifest.get("task") == "detection":
-        from training.detection_pipeline import validate_detection_manifest
+        from training.detection_manifest import validate_detection_manifest
 
         manifest, counts, _ = validate_detection_manifest(path)
         return manifest, counts

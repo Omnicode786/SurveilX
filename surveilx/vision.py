@@ -76,9 +76,24 @@ class YOLODetector:
         self.model = YOLO(path)
         self.device = torch_device()
         self.name = f"yolo:{Path(path).name}"
+        # Initialize prediction/CUDA before scheduling real streams. Counting a
+        # cold first prediction as steady-state cost can starve this camera.
+        started = time.perf_counter()
+        self.model.predict(np.zeros((320, 320, 3), dtype=np.uint8),
+                           imgsz=320, device=self.device, verbose=False)
+        self.warmup_ms = (time.perf_counter() - started) * 1000
 
     def infer(self, frame, resolution=320):
-        result = self.model.predict(frame, imgsz=resolution, device=self.device, verbose=False)[0]
+        from surveilx.detection_preferences import DetectionSelection
+        return self.infer_selected(frame, resolution, DetectionSelection())
+
+    def infer_selected(self, frame, resolution, selection):
+        from surveilx.detection_preferences import selected_class_ids
+        classes = selected_class_ids(self.model.names, selection)
+        if classes == []:
+            return []
+        # Explicit None clears Ultralytics' cached predictor args between cameras.
+        result = self.model.predict(frame, imgsz=resolution, device=self.device, verbose=False, classes=classes)[0]
         return [
             Detection(box.tolist(), result.names[int(cls)], float(score))
             for box, cls, score in zip(

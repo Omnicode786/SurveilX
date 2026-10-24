@@ -69,28 +69,32 @@ export function DetectionDetails({
     <section className="detected-panel">
       <h3>What was detected</h3>
       <p>{detectionSummary(detections)}</p>
-      {detections.length > 0 && (
-        <div className="detected-list">
-          {detections.map((item, index) => (
-            <div className="detected-item" key={`${item.track_id}-${index}`}>
-              <strong>{entityName(item.label)}</strong>
-              <span>Track {item.track_id ?? "unassigned"}</span>
-              <span>
-                {item.label === "synthetic_entity"
-                  ? "Generated fixture match"
-                  : `${calibration === "fitted_detection_correctness" ? "Calibrated detection score" : "Raw model score"}: ${Number(item.score).toFixed(3)}`}
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
-      <small>
-        Model: {model}.{" "}
-        {calibration === "fitted_detection_correctness"
-          ? "Calibration estimates box/class correctness in the evaluation domain."
-          : "Raw scores are not calibrated probabilities."}{" "}
-        An object detection alone does not establish a threat.
-      </small>
+      <small>Review important detections before taking action.</small>
+      <details className="advanced-options">
+        <summary>Detection details</summary>
+        {detections.length > 0 && (
+          <div className="detected-list">
+            {detections.map((item, index) => (
+              <div className="detected-item" key={`${item.track_id}-${index}`}>
+                <strong>{entityName(item.label)}</strong>
+                <span>Track {item.track_id ?? "unassigned"}</span>
+                <span>
+                  {item.label === "synthetic_entity"
+                    ? "Generated fixture match"
+                    : `${calibration === "fitted_detection_correctness" ? "Calibrated detection score" : "Raw model score"}: ${Number(item.score).toFixed(3)}`}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+        <small>
+          Model: {model}.{" "}
+          {calibration === "fitted_detection_correctness"
+            ? "Calibration estimates box/class correctness in the evaluation domain."
+            : "Raw scores are not calibrated probabilities."}{" "}
+          An object detection alone does not establish a threat.
+        </small>
+      </details>
     </section>
   );
 }
@@ -117,7 +121,8 @@ export function EvidenceSequence({
       current = false;
     };
   }, [incidentId, request]);
-  if (error) return <p className="error">Recorded sequence could not be loaded.</p>;
+  if (error)
+    return <p className="error">Recorded sequence could not be loaded.</p>;
   if (!sequence) return <p role="status">Loading recorded sequence…</p>;
   return (
     <section className="evidence-sequence">

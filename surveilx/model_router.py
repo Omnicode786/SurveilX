@@ -2,6 +2,7 @@
 
 import time
 from surveilx.model_selection import rank_categories
+from surveilx.detection_preferences import DetectionSelection, infer_selected, label_key, model_labels
 
 
 class CategoryRouter:
@@ -41,13 +42,27 @@ class CategoryRouter:
         self.last = {}
 
     def infer(self, frame, resolution=320):
+        return self.infer_selected(frame, resolution, DetectionSelection())
+
+    def infer_selected(self, frame, resolution, selection):
         now = time.monotonic()
         outputs = []
         cache = {}
         used = []
         # Rotate category start only when constrained; shared experts still execute once.
-        ordered = self.routes[self.cursor :] + self.routes[: self.cursor]
-        self.cursor = (self.cursor + 1) % max(1, len(self.routes))
+        routes = [route for route in self.routes if selection.enabled(route["category"])]
+        cursor = self.cursor % max(1, len(routes))
+        ordered = routes[cursor:] + routes[:cursor]
+        self.cursor = (cursor + 1) % max(1, len(routes))
+        # Each shared expert must return all enabled routes it might serve, not
+        # just the first category that happens to request it this frame.
+        selections = {}
+        for version, expert in self.by_version.items():
+            wanted = {route["category"] for route in routes if version in route["candidates"]}
+            wanted = {label_key(label) for label in wanted}
+            selections[version] = DetectionSelection(disabled_labels=sorted(set(selection.disabled_labels) | {
+                label_key(label) for label in model_labels(expert) if label_key(label) not in wanted
+            }))
         route_status = []
         for route in ordered:
             selected = None
@@ -61,7 +76,7 @@ class CategoryRouter:
                     start = time.perf_counter()
                     try:
                         # Ranking evidence is for the artifact's native calibrated geometry.
-                        cache[version] = self.by_version[version].infer(frame, None)
+                        cache[version] = infer_selected(self.by_version[version], frame, None, selections[version])
                         self.failures.pop(version, None)
                         self.last[version] = {
                             "latency_ms": (time.perf_counter() - start) * 1000,
@@ -88,7 +103,7 @@ class CategoryRouter:
                 }
             )
         self.last_routes = route_status
-        if self.routes and not any(row["state"] == "served" for row in route_status):
+        if routes and not any(row["state"] == "served" for row in route_status):
             raise RuntimeError("All eligible routed experts failed; use explicit baseline fallback")
         return outputs
 

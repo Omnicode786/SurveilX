@@ -23,6 +23,20 @@ def read(path):
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def resource_failure(path):
+    """Classify only the current failed child's bounded log tail."""
+    with Path(path).open('rb') as stream:
+        stream.seek(0, 2)
+        stream.seek(max(0, stream.tell() - 65536))
+        tail = stream.read().decode('utf-8', errors='replace')
+    markers = ('Training resource guard:', 'DefaultCPUAllocator: not enough memory',
+        'CUDA out of memory', 'CUDA error: out of memory', 'No space left on device')
+    for line in reversed(tail.splitlines()):
+        if any(marker in line for marker in markers):
+            return line.strip()[-1000:]
+    return None
+
+
 def paths(job):
     for key in ("version", "dataset", "parent"):
         if not re.fullmatch(r"[a-zA-Z0-9_-]{1,100}", job[key]):
@@ -78,6 +92,11 @@ def verify_job(job):
         verify_expansion(previous, manifest)
     if metadata["classes"] != manifest["classes"] or metadata["domain"] != manifest["domain"]:
         raise ValueError("Parent taxonomy/domain differs from dataset")
+    if job["pipeline"] == "yolo" and job["options"].get("initialize-partial"):
+        from training.yolo_initialization import verify_partial
+        options = job["options"]
+        verify_partial(options["initialize-partial"], options["partial-sha256"], options["partial-plan"],
+            options["partial-plan-sha256"], job["dataset_sha256"], job["parent_sha256"])
     if expanded:
         if manifest.get("task") != "detection":
             raise ValueError("Expanded campaign comparison currently supports detection only")
@@ -156,6 +175,10 @@ def command_for(job, resume_checkpoint=None):
         "training-profile",
         "effective-batch-size",
         "training-decode-mode",
+        "adapter-version",
+        "class-weights-power",
+        "partial-plan",
+        "partial-plan-sha256",
     }
     for key, value in job["options"].items():
         if key not in allowed:
@@ -175,9 +198,18 @@ def command_for(job, resume_checkpoint=None):
 def comparison(parent, candidate):
     task = candidate["task"]
     metric = "map50" if task == "detection" else "accuracy"
-    before, after = parent["metrics"][metric], candidate["metrics"][metric]
+    parent_metrics = parent["metrics"]
+    aligned = candidate.get("parent_evaluation")
+    if aligned:
+        if (aligned.get("dataset_sha256") != candidate["dataset_sha256"]
+                or aligned.get("weights_sha256") != parent["weights_sha256"]
+                or aligned.get("image_size") != candidate.get("config", {}).get("image_size")
+                or aligned.get("preprocessing") != candidate.get("config", {}).get("preprocessing")):
+            raise ValueError("Paired parent evaluation contract mismatch")
+        parent_metrics = aligned["metrics"]
+    before, after = parent_metrics[metric], candidate["metrics"][metric]
     classes = []
-    old_classes = parent["metrics"].get("per_class", [])
+    old_classes = parent_metrics.get("per_class", [])
     new_classes = candidate["metrics"].get("per_class", [])
     class_metric = "ap50" if task == "detection" else "recall"
     for index, label in enumerate(candidate["classes"]):
@@ -204,7 +236,8 @@ def comparison(parent, candidate):
         "test_is_selection_criterion": False,
         "independent_acceptance": False,
         "evaluation_dataset_sha256": candidate["dataset_sha256"],
-        "parent_re_evaluated": "comparison_dataset_sha256" in parent,
+        "parent_re_evaluated": bool(aligned) or "comparison_dataset_sha256" in parent,
+        "paired_profile": {key: aligned[key] for key in ("image_size", "preprocessing")} if aligned else None,
     }
 
 
@@ -393,12 +426,23 @@ def run(plan_path):
                             environment["SURVEILX_REQUIRE_CUDA"] = "1"
                         if plan.get("gpu_memory_fraction") is not None:
                             environment["SURVEILX_GPU_MEMORY_FRACTION"] = str(plan["gpu_memory_fraction"])
+                        for key, variable in (("training_min_free_disk_bytes", "SURVEILX_TRAINING_MIN_DISK_BYTES"),
+                                ("training_min_available_commit_bytes", "SURVEILX_TRAINING_MIN_COMMIT_BYTES")):
+                            if plan.get(key) is not None:
+                                environment[variable] = str(plan[key])
                         process = subprocess.Popen(command, stdout=log, stderr=subprocess.STDOUT, env=environment)
                         item["pid"] = process.pid
                         save(journal_path, journal)
                         write_report(directory, plan, journal)
                         code = process.wait()
                     if code or not artifact.exists():
+                        exhausted = resource_failure(log_path)
+                        if exhausted:
+                            item.update(state="failed_resource_limit", error=exhausted, finished=time.time())
+                            journal.update(state="resource_limited", error=exhausted, updated=time.time())
+                            save(journal_path, journal)
+                            write_report(directory, plan, journal)
+                            return journal
                         raise RuntimeError(f"Training failed with code {code}; see {log_path}")
                 candidate = read(artifact)
                 if plan.get("required_cuda") and candidate.get("device") != "cuda":

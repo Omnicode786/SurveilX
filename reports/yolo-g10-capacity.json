@@ -1,0 +1,29 @@
+{
+  "gpu": "NVIDIA GeForce MX130",
+  "scope": "capacity only; repeated dense train sample, no optimizer steps or persisted weights",
+  "results": [
+    {
+      "parent": "capacity-g8c-weapons-yolo",
+      "resolution": 512,
+      "batch": 8,
+      "labels_per_image": 4,
+      "additional_parameters": 4608,
+      "max_allocated_mib": 1283.6591796875,
+      "max_reserved_mib": 1358.0,
+      "median_forward_backward_seconds": 0.7598654000030365,
+      "optimizer_steps": 0
+    },
+    {
+      "parent": "capacity-g8c-ppe-yolo",
+      "resolution": 640,
+      "batch": 2,
+      "labels_per_image": 154,
+      "additional_parameters": 4608,
+      "max_allocated_mib": 589.50927734375,
+      "max_reserved_mib": 618.0,
+      "median_forward_backward_seconds": 0.39393440000276314,
+      "optimizer_steps": 0
+    }
+  ],
+  "accuracy_claim": false
+}

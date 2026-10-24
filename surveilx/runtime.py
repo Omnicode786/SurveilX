@@ -10,12 +10,14 @@ import cv2
 import numpy as np
 from sqlalchemy import select
 
+from surveilx.detection_preferences import DetectionSelection, infer_selected, model_enabled
 from surveilx.config import settings
 from surveilx.controller import Candidate, Scheduler
 from surveilx.database import Camera, Incident, ModelVersion, Record, audit, transaction
 from surveilx.drift import drift_monitor
 from surveilx.evidence import delete_bundle, save_bundle
 from surveilx.hardware import PowerGovernor, probe
+from surveilx.preview import PreviewEncoder
 from surveilx.incidents import create_incident
 from surveilx.notifications import process_due
 from surveilx.security import cipher
@@ -23,6 +25,19 @@ from surveilx.policies import PolicyEngine
 from surveilx.vision import HOGDetector, SyntheticDetector, Tracker, YOLODetector, generated_frame, redact
 
 logger = logging.getLogger("surveilx")
+
+
+class IntervalGate:
+    """Wall-clock maintenance cadence independent of inference tick frequency."""
+
+    def __init__(self):
+        self.next_due = {}
+
+    def due(self, name, seconds, now):
+        if now < self.next_due.get(name, float("-inf")):
+            return False
+        self.next_due[name] = now + seconds
+        return True
 
 
 class Capture:
@@ -37,7 +52,10 @@ class Capture:
         self.frame = None
         self.timestamp = 0.0
         self.sequence = 0
+        self.preview = PreviewEncoder()
         self.consumed = 0
+        self.inference_count = 0
+        self.selection_work = {}
         self.dropped = 0
         self.reconnects = 0
         self.status = "connecting"
@@ -45,6 +63,8 @@ class Capture:
         self.last_service = time.monotonic()
         self.latency_ms = 50.0
         self.outputs = []
+        self.detection_selection = DetectionSelection()
+        self.preference_lock = threading.RLock()
         self.detector = "pending"
         self.calibration = "uncalibrated"
         self.category_routes = {}
@@ -117,14 +137,15 @@ class Capture:
                     self.timestamp = time.time()
                     self.sequence += 1
                     self.status = "online"
-                    self.brightness = float(gray.mean() / 255)
-                    self.motion = (
-                        float(np.mean(cv2.absdiff(gray, self.previous_gray) > 20))
-                        if self.previous_gray is not None
-                        else 0
-                    )
-                    self.previous_gray = gray
-                    self.buffer.append((self.timestamp, frame))
+                    # Keep analysis/evidence sampling independent of preview FPS.
+                    if not self.buffer or self.timestamp - self.buffer[-1][0] >= 1 / min(8, self.fps):
+                        self.brightness = float(gray.mean() / 255)
+                        self.motion = (
+                            float(np.mean(cv2.absdiff(gray, self.previous_gray) > 20))
+                            if self.previous_gray is not None else 0
+                        )
+                        self.previous_gray = gray
+                        self.buffer.append((self.timestamp, frame))
                 tick += 1
             except Exception:
                 self.status = "reconnecting"
@@ -149,6 +170,9 @@ class Capture:
                 "priority": self.priority,
                 "capture_fps_target": self.fps,
                 "frames": self.sequence,
+                "inference_count": self.inference_count,
+                "selection_work": dict(self.selection_work),
+                "frame_age_seconds": round(max(0, time.time() - self.timestamp), 3),
                 "dropped_frames": self.dropped,
                 "reconnects": self.reconnects,
                 "latency_ms": round(self.latency_ms, 2),
@@ -170,7 +194,7 @@ class Runtime:
         self.cameras = {}
         self.lock = threading.RLock()
         self.stop_event = threading.Event()
-        self.governor = PowerGovernor()
+        self.governor = PowerGovernor(settings.power_profile)
         self.scheduler = Scheduler()
         self.hardware = probe().json()
         self.power = {"level": "economy", "resolution": 320, "budget_ms": 200, "capture_fps": 5}
@@ -195,6 +219,7 @@ class Runtime:
                 self.yolo = YOLODetector(settings.detector_path)
             except Exception as exc:
                 self.error = f"Detector load failed: {type(exc).__name__}; HOG fallback active"
+        self.drift_thread = None
         self.thread = threading.Thread(target=self.run, daemon=True, name="global-inference")
 
     @staticmethod
@@ -285,6 +310,9 @@ class Runtime:
                 if camera.id not in self.cameras:
                     self.cameras[camera.id] = Capture(camera)
                     with transaction() as session:
+                        selection = session.get(Record, f"detection-selection:{camera.id}")
+                        if selection:
+                            self.cameras[camera.id].detection_selection = DetectionSelection.model_validate(selection.payload)
                         policy = session.get(Record, f"site-policy:{camera.id}")
                         if policy:
                             self.cameras[camera.id].policy_engine = PolicyEngine(policy.payload)
@@ -304,6 +332,7 @@ class Runtime:
 
     def status(self):
         return {
+            "live_processing": self.started,
             "hardware": self.hardware,
             "power": self.power,
             "decision": self.decision,
@@ -353,7 +382,51 @@ class Runtime:
                 incident.evidence_key = None
                 audit(session, "retention", "evidence_expired", incident.id)
 
+    def set_detection_selection(self, camera_id, selection):
+        capture = self.cameras.get(camera_id)
+        if capture:
+            with capture.preference_lock, capture.lock:
+                capture.detection_selection = selection
+                capture.outputs = []
+                capture.secondary_result = None
+                capture.category_routes = {}
+                capture.selection_work = {}
+                capture.tracker = Tracker()
+                capture.entity_history.clear()
+                capture.scene_history.clear()
+                capture.scene_times.clear()
+                capture.expert_states.clear()
+                capture.candidate_since = None
+                capture.last_detection_signature = ()
+                capture.policy_engine = PolicyEngine(capture.policy_engine.policy.model_dump())
+                capture.last_service = time.monotonic()
+
     def infer(self, capture):
+        with capture.preference_lock:
+            if not capture.stop_event.is_set():
+                return self._infer(capture)
+
+    def has_detection_work(self, capture):
+        """Keep intentionally idle cameras out of the global inference budget."""
+        selection = capture.detection_selection
+        if not selection.disabled_labels:
+            return True
+        baseline = self.synthetic_detector if capture.synthetic else (self.yolo or self.baseline)
+        if model_enabled(baseline, selection):
+            return True
+        with self.sva_lock:
+            values = [self.learned_detector, self.sva, *self.experts.values()]
+            for value in values:
+                if value is None or not model_enabled(value, selection):
+                    continue
+                manifest = getattr(value, "manifest", {})
+                if not manifest or (capture.synthetic == bool(manifest.get("synthetic", False))
+                        and ((capture.synthetic and value is self.learned_detector)
+                             or capture.environment == manifest.get("domain"))):
+                    return True
+        return False
+
+    def _infer(self, capture):
         with capture.lock:
             if capture.frame is None or capture.sequence <= capture.consumed:
                 return
@@ -363,10 +436,13 @@ class Runtime:
         started = time.perf_counter()
         with self.sva_lock:
             learned = self.learned_detector
+            if learned and not model_enabled(learned, capture.detection_selection):
+                learned = None
             specialists = [
                 (key, value)
                 for key, value in sorted(self.experts.items())
                 if key.startswith("detection:")
+                and model_enabled(value, capture.detection_selection)
                 and capture.synthetic == bool(value.manifest.get("synthetic", False))
                 and capture.environment == value.manifest.get("domain")
             ]
@@ -403,6 +479,8 @@ class Runtime:
                 router = CategoryRouter(candidates if all(c["evaluation"] for c in candidates) else [])
                 if router.routes:
                     self.category_routers[signature] = router
+                    while len(self.category_routers) > 32:
+                        self.category_routers.pop(next(iter(self.category_routers)))
             if router.routes:
                 detector, selected_key = router, "category-routing"
         # Keep tracks, temporal history and occupancy persistence isolated by artifact.
@@ -432,34 +510,21 @@ class Runtime:
             k: v for k, v in capture.expert_last_seen.items() if k in capture.expert_states or k == key
         }
         capture.expert_last_seen[key] = time.monotonic()
-        try:
-            detections = detector.infer(frame, self.power["resolution"])
-        except Exception as exc:
-            self.error = f"Expert failed: {type(exc).__name__}; baseline fallback"
-            detector = self.synthetic_detector if capture.synthetic else self.baseline
-            selected_key = "fallback"
-            detections = detector.infer(frame, 320)
-            capture.tracker = Tracker()
-            capture.entity_history.clear()
-            capture.candidate_since = None
-            capture.expert_key = ("fallback", detector.name)
-        detections = capture.tracker.update(detections)
-        outputs = [d.json() for d in detections]
-        compressed, encoded = cv2.imencode(".jpg", frame, [cv2.IMWRITE_JPEG_QUALITY, 85])
-        history_frame = encoded.tobytes() if compressed else frame
-        # Both histories share the immutable compressed object. Named detection histories may
-        # retain independent deques, so compression keeps multi-specialist memory bounded.
-        capture.entity_history.append((history_frame, outputs))
-        capture.scene_history.append((history_frame, []))
-        capture.scene_times.append(captured_at)
         # Secondary computation only on active candidates and compatible, explicitly activated experts.
         with self.sva_lock:
             expert = self.sva
+            if expert and not model_enabled(expert, capture.detection_selection):
+                expert = None
+            manifest = getattr(expert, "manifest", {})
+            if manifest and (capture.environment != manifest.get("domain")
+                    or capture.synthetic != bool(manifest.get("synthetic", False))):
+                expert = None
             event_slot = "event:default"
             events = [
                 (name, value)
                 for name, value in sorted(self.experts.items())
                 if name.startswith("event:")
+                and model_enabled(value, capture.detection_selection)
                 and capture.environment == value.manifest.get("domain")
                 and capture.synthetic == bool(value.manifest.get("synthetic", False))
             ]
@@ -474,7 +539,7 @@ class Runtime:
                     ranked = rank_categories(candidates)
                     scores = {}
                     for route in ranked:
-                        if route["category"] in {"normal", "background"}:
+                        if route["category"] in {"normal", "background"} or not capture.detection_selection.enabled(route["category"]):
                             continue
                         for candidate in [route["selected"], *route["fallbacks"]]:
                             scores.setdefault(candidate["version"], []).append(candidate["score"])
@@ -485,6 +550,57 @@ class Runtime:
             capture.expert_cursor += 1
         capture.secondary_result = None
         scene_expert = bool(expert and getattr(expert, "scene", False))
+        skipped_primary = False
+        try:
+            skipped_primary = not model_enabled(detector, capture.detection_selection)
+            detections = infer_selected(detector, frame, self.power["resolution"], capture.detection_selection)
+        except Exception as exc:
+            self.error = f"Expert failed: {type(exc).__name__}; baseline fallback"
+            detector = self.synthetic_detector if capture.synthetic else self.baseline
+            selected_key = "fallback"
+            skipped_primary = not model_enabled(detector, capture.detection_selection)
+            detections = infer_selected(detector, frame, 320, capture.detection_selection)
+            capture.tracker = Tracker()
+            capture.entity_history.clear()
+            capture.candidate_since = None
+            capture.expert_key = ("fallback", detector.name)
+        detections = capture.tracker.update(detections) if not skipped_primary else []
+        outputs = [d.json() for d in detections]
+        temporal_candidates = [value for _, value in events] + ([expert] if expert else [])
+        needs_scene = any(getattr(value, "scene", False) for value in temporal_candidates)
+        needs_entity = any(not getattr(value, "scene", False) for value in temporal_candidates)
+        if needs_scene or needs_entity:
+            compressed, encoded = cv2.imencode(".jpg", frame, [cv2.IMWRITE_JPEG_QUALITY, 85])
+            history_frame = encoded.tobytes() if compressed else frame
+            if needs_entity:
+                capture.entity_history.append((history_frame, outputs))
+            if needs_scene:
+                capture.scene_history.append((history_frame, []))
+                capture.scene_times.append(captured_at)
+        if not needs_entity:
+            capture.entity_history.clear()
+        if not needs_scene:
+            capture.scene_history.clear()
+            capture.scene_times.clear()
+        capture.selection_work = {
+            "primary_skipped": skipped_primary,
+            "enabled_detection_specialists": len(specialists),
+            "enabled_event_models": len({id(value) for value in temporal_candidates}),
+            "history_encoded": needs_scene or needs_entity,
+        }
+        if skipped_primary and not temporal_candidates:
+            # Preview capture/encoding is independent. With no requested work,
+            # consume the frame without tracking, policy, evidence or DB writes.
+            with capture.lock:
+                capture.outputs = []
+                capture.secondary_result = None
+                capture.candidate_since = None
+                capture.category_routes = {}
+                capture.detector = "detection-disabled"
+                capture.calibration = "not_applicable"
+                capture.latency_ms = (time.perf_counter() - started) * 1000
+                capture.last_service = time.monotonic()
+            return
         if expert and (capture.candidate_since is not None or scene_expert):
             try:
                 if self.event_failed_until.get(getattr(expert, "version", "default"), 0) > time.monotonic():
@@ -517,6 +633,7 @@ class Runtime:
                         break
                     except Exception:
                         self.event_failed_until[fallback.version] = time.monotonic() + 15
+        capture.secondary_result = capture.detection_selection.event(capture.secondary_result)
         elapsed = (time.perf_counter() - started) * 1000
         self.latencies.append(elapsed)
         now = time.monotonic()
@@ -533,6 +650,7 @@ class Runtime:
                 capture.calibration = "component_calibrated; pooled_reliability_unvalidated"
             capture.latency_ms = elapsed
             capture.last_service = now
+            capture.inference_count += int(not skipped_primary)
         occupied = False
         for detection in detections:
             x1, y1, x2, y2 = detection.box
@@ -579,7 +697,7 @@ class Runtime:
             )
             capture.last_incident = now
             evidence_saved = True
-        for observation in capture.policy_engine.evaluate(outputs, now, capture.expert_key):
+        for observation in capture.policy_engine.evaluate(outputs, now, capture.expert_key, capture.detection_selection.disabled_labels):
             details = {
                 "detections": outputs,
                 "model": detector.name,
@@ -605,7 +723,7 @@ class Runtime:
             )
             evidence_saved = True
         event_key = (event_slot, getattr(expert, "version", None))
-        for observation in capture.policy_engine.evaluate_event(capture.secondary_result, now, event_key):
+        for observation in capture.policy_engine.evaluate_event(capture.secondary_result, now, event_key, capture.detection_selection.disabled_labels):
             details = {
                 "detections": outputs,
                 "model": getattr(expert, "version", "event-expert"),
@@ -692,20 +810,48 @@ class Runtime:
                 )
             )
 
+    def request_drift_check(self):
+        # Statistical permutation tests must never pause live inference. Keep one
+        # worker and skip overlapping requests rather than building a work queue.
+        if self.drift_thread is not None and self.drift_thread.is_alive():
+            return False
+
+        def evaluate():
+            try:
+                drift_monitor.evaluate()
+            except Exception as exc:
+                self.error = f"Drift check failed: {type(exc).__name__}"
+                logger.exception("Background drift check failed")
+
+        self.drift_thread = threading.Thread(target=evaluate, daemon=True, name="drift-monitor")
+        self.drift_thread.start()
+        return True
+
     def run(self):
-        epoch = 0
+        intervals = IntervalGate()
         while not self.stop_event.is_set():
             start = time.monotonic()
             try:
-                hardware = probe()
-                self.hardware = hardware.json()
-                recent_latency = float(np.percentile(list(self.latencies)[-20:], 95)) if self.latencies else 0
-                self.power = self.governor.update(hardware, recent_latency)
+                if intervals.due("hardware", 1.0, start):
+                    hardware = probe()
+                    self.hardware = hardware.json()
+                    recent_latency = float(np.percentile(list(self.latencies)[-20:], 95)) if self.latencies else 0
+                    self.power = self.governor.update(hardware, recent_latency)
                 with self.lock:
                     captures = list(self.cameras.values())
                 candidates = []
                 for capture in captures:
                     capture.fps = self.power["capture_fps"]
+                    has_work = self.has_detection_work(capture)
+                    if not has_work:
+                        with capture.lock:
+                            capture.consumed = capture.sequence
+                            capture.last_service = time.monotonic()
+                            capture.latency_ms = 0.0
+                            capture.detector = "detection-disabled"
+                            capture.selection_work = {"primary_skipped": True,
+                                "enabled_detection_specialists": 0, "enabled_event_models": 0,
+                                "history_encoded": False}
                     age = time.monotonic() - capture.last_service
                     # Floor is cold-start reservation, not a fabricated benchmark.
                     candidates.append(
@@ -714,11 +860,13 @@ class Runtime:
                             capture.priority,
                             age,
                             max(10, capture.latency_ms * 1.25),
-                            capture.status == "online" and capture.sequence > capture.consumed,
+                            has_work and capture.status == "online" and capture.sequence > capture.consumed,
                         )
                     )
                 self.decision = self.scheduler.allocate(
-                    candidates, self.power["budget_ms"], settings.coverage_seconds, settings.epoch_seconds
+                    candidates, min(900.0, self.power["budget_ms"] * settings.runtime_budget_scale)
+                    * min(1.0, settings.epoch_seconds),
+                    settings.coverage_seconds, settings.epoch_seconds
                 )
                 for camera_id in self.decision["selected"]:
                     capture = next((c for c in captures if c.id == camera_id), None)
@@ -727,18 +875,17 @@ class Runtime:
                             self.infer(capture)
                         except Exception as exc:
                             self.error = f"Inference/persistence failure: {type(exc).__name__}"
-                if epoch % 10 == 0:
+                if intervals.due("maintenance", 10.0, start):
                     self.flush_spool()
                     with transaction() as session:
                         session.add(Record(kind="hardware", payload=self.hardware | {"power": self.power}))
                         process_due(session)
                     self.sync_cameras()
-                if epoch % 60 == 0:
-                    drift_monitor.evaluate()
-                if epoch % 600 == 0:
+                if intervals.due("drift", 60.0, start):
+                    self.request_drift_check()
+                if intervals.due("retention", 600.0, start):
                     self.retention()
                 self.heartbeat = time.time()
-                epoch += 1
             except Exception as exc:
                 self.error = f"Runtime degraded: {type(exc).__name__}"
                 logger.error(json.dumps({"event": "runtime_error", "type": type(exc).__name__}))

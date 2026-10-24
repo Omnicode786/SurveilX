@@ -132,3 +132,22 @@ def test_dataset_import_rejects_traversal(tmp_path):
     with pytest.raises(ValueError, match="Unsafe"):
         import_bundle(buffer.getvalue(), tmp_path / "import")
     assert not (tmp_path / "import").exists()
+
+
+def test_requested_performance_uses_gpu_but_still_throttles():
+    governor = PowerGovernor("performance")
+    assert governor.update(hardware(cores=6, gpu={"name": "GPU"}))["level"] == "performance"
+    assert governor.update(hardware(cores=6, gpu={"name": "GPU"}, temperature_c=90))["level"] == "balanced"
+    assert governor.update(hardware(cores=6, gpu={"name": "GPU"}, available_gb=.2))["level"] == "economy"
+    assert governor.update(hardware(cores=6, gpu={"name": "GPU"}))["level"] == "economy"
+
+
+def test_requested_performance_still_respects_low_memory_limit():
+    assert PowerGovernor("performance").update(hardware(ram_gb=2))["level"] == "economy"
+
+
+def test_detector_throttling_does_not_force_choppy_performance_preview():
+    governor=PowerGovernor('performance')
+    limited=governor.update(hardware(gpu={'name':'GPU'},cpu_percent=91))
+    assert limited['capture_fps']==15
+    assert governor.update(hardware(available_gb=.1))['capture_fps']==5

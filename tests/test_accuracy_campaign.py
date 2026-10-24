@@ -194,6 +194,23 @@ def test_campaign_checks_commit_before_starting_child(tmp_path, monkeypatch):
     assert "commit" in result["error"]
 
 
+def test_child_resource_failure_halts_queue_even_after_memory_recovers(tmp_path, monkeypatch):
+    plan, job, _ = fixture(tmp_path, monkeypatch)
+    plan.write_text(json.dumps({'name': 'campaign', 'jobs': [job, {**job, 'version': 'second'}]}))
+    calls = []
+    def fail(command, **kwargs):
+        calls.append(command)
+        kwargs['stdout'].write('RuntimeError: Training resource guard: Windows commit reserve reached\n')
+        kwargs['stdout'].flush()
+        return SimpleNamespace(pid=123, wait=lambda: 1)
+    monkeypatch.setattr(runner.subprocess, 'Popen', fail)
+    result = runner.run(plan)
+    assert len(calls) == 1
+    assert result['state'] == 'resource_limited'
+    assert result['jobs']['candidate']['state'] == 'failed_resource_limit'
+    assert 'second' not in result['jobs']
+
+
 def test_old_resource_error_becomes_history_on_clean_continuation(tmp_path, monkeypatch):
     plan, _, _ = fixture(tmp_path, monkeypatch)
     original = {"plan_sha256": runner.digest(plan), "jobs": {}, "state": "resource_limited", "error": "old disk pressure"}

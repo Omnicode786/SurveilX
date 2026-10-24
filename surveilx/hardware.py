@@ -126,13 +126,18 @@ class PowerGovernor:
 
     levels = ["economy", "balanced", "performance"]
 
-    def __init__(self):
-        self.index = 0
+    def __init__(self, preference="auto"):
+        self.preference = preference
+        self.index = {"auto": 0, "economy": 0, "balanced": 1, "performance": 2}[preference]
         self.healthy_ticks = 0
         self.reason = "Conservative startup; collecting measured load"
 
     def update(self, hardware, latency_ms=0):
         ceiling = 2 if hardware.cores >= 8 and hardware.ram_gb >= 12 else 1
+        if self.preference == "performance" and hardware.gpu and hardware.ram_gb >= 8:
+            ceiling = 2
+        if self.preference in {"economy", "balanced"}:
+            ceiling = min(ceiling, {"economy": 0, "balanced": 1}[self.preference])
         if hardware.ram_gb < 4:
             ceiling = 0
         pressure = (
@@ -152,14 +157,20 @@ class PowerGovernor:
             if self.healthy_ticks >= 10:
                 self.index = min(ceiling, self.index + 1)
                 self.healthy_ticks = 0
-            self.reason = "Hardware capacity and sustained measured headroom"
+            self.reason = "Requested performance profile with measured safeguards" if self.preference == "performance" else "Hardware capacity and sustained measured headroom"
         self.index = min(self.index, ceiling)
+        preview_fps = [5, 15, 30][self.index]
+        # Model latency alone should not make the operator's video choppy.
+        if self.preference == "performance" and hardware.ram_gb >= 8:
+            preview_fps = 30 if self.index == 2 else 15
+            if hardware.available_gb < .75 or (hardware.temperature_c is not None and hardware.temperature_c >= 82):
+                preview_fps = 5
         return {
             "level": self.levels[self.index],
             "reason": self.reason,
             "resolution": [320, 480, 640][self.index],
             "budget_ms": [200, 450, 700][self.index],
-            "capture_fps": [5, 8, 12][self.index],
+            "capture_fps": preview_fps,
             "watts_target": None,
             "os_power_plan_changed": False,
         }

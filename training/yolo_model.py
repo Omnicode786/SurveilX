@@ -52,10 +52,10 @@ class SceneZoneAdapter(nn.Module):
 
 
 class ConditionedBlock(nn.Module):
-    def __init__(self, original, channels):
+    def __init__(self, original, channels, adapter_version="v1"):
         super().__init__()
         self.base = original
-        self.adapter = SceneZoneAdapter(channels)
+        self.adapter = (LocalDetailAdapter if adapter_version == "local-v2" else SceneZoneAdapter)(channels)
         for key in ("i", "f", "type", "np"):
             if hasattr(original, key):
                 setattr(self, key, getattr(original, key))
@@ -64,7 +64,57 @@ class ConditionedBlock(nn.Module):
         return self.adapter(self.base(features))
 
 
-def install_adapters(model):
+class LocalDetailAdapter(SceneZoneAdapter):
+    """Bounded per-channel spatial refinement; starts as the preserved v1 adapter.
+
+    The existing spatial mask is shared across channels and its channel mask is
+    globally pooled. This additional depthwise branch can represent a different
+    local response in each channel without a new detector head or dense conv.
+    It is an experimental capacity extension, not a demonstrated accuracy gain.
+    """
+
+    def __init__(self, channels, context_dim=4):
+        super().__init__(channels, context_dim)
+        self.local_detail = nn.Conv2d(channels, channels, 3, padding=1, groups=channels, bias=False)
+        nn.init.zeros_(self.local_detail.weight)
+
+    def forward(self, features):
+        return super().forward(features) + 0.1 * features * self.local_detail(features).tanh()
+
+
+def adapter_version(model):
+    versions = {"local-v2" if isinstance(block.adapter, LocalDetailAdapter) else "v1"
+                for block in model.modules() if isinstance(block, ConditionedBlock)}
+    if len(versions) != 1:
+        raise ValueError("Expected one consistent modified-YOLO adapter architecture")
+    return versions.pop()
+
+
+def upgrade_adapters(model, version):
+    if version not in {"v1", "local-v2"}:
+        raise ValueError("Unknown modified-YOLO adapter architecture")
+    current = adapter_version(model)
+    if current == version:
+        return model
+    if version == "v1":
+        raise ValueError("Refusing to discard trained local-detail parameters")
+    for block in model.modules():
+        if isinstance(block, ConditionedBlock):
+            old = block.adapter
+            channels = old.channel[-1].out_channels
+            parameter = next(old.parameters())
+            upgraded = LocalDetailAdapter(channels).to(device=parameter.device, dtype=parameter.dtype)
+            incompatible = upgraded.load_state_dict(old.state_dict(), strict=False)
+            if incompatible.missing_keys != ["local_detail.weight"] or incompatible.unexpected_keys:
+                raise ValueError("Adapter upgrade failed to restore every existing parameter")
+            upgraded.train(old.training)
+            block.adapter = upgraded
+    return model
+
+
+def install_adapters(model, version="v1"):
+    if version not in {"v1", "local-v2"}:
+        raise ValueError("Unknown modified-YOLO adapter architecture")
     adapted = []
     for index in (4, 6, 8):
         block = model.model[index]
@@ -73,7 +123,7 @@ def install_adapters(model):
                 f"Unsupported YOLO backbone block at {index}; architecture needs explicit integration"
             )
         channels = block.cv2.conv.out_channels
-        model.model[index] = ConditionedBlock(block, channels)
+        model.model[index] = ConditionedBlock(block, channels, version)
         adapted.append(index)
     model.surveilx_adapted_blocks = adapted
     return model

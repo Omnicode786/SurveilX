@@ -32,8 +32,17 @@ class AdaptedYOLODetector:
             raise ValueError("Checkpoint class order differs from the artifact taxonomy")
 
     def infer(self, frame, resolution=320):
+        from surveilx.detection_preferences import DetectionSelection
+        return self.infer_selected(frame, resolution, DetectionSelection())
+
+    def infer_selected(self, frame, resolution, selection):
         from training.detection_pipeline import calibrate_scores
         from surveilx.model_profiles import runtime_profile
+        from surveilx.detection_preferences import selected_class_ids
+
+        classes = selected_class_ids(self.classes, selection)
+        if classes == []:
+            return []
 
         profile = runtime_profile(self.manifest, resolution) if resolution is not None else None
         size = profile["image_size"] if profile else self.manifest["config"]["image_size"]
@@ -42,7 +51,7 @@ class AdaptedYOLODetector:
         square, geometry = prepare_image(frame, size, self.manifest.get("config", {}).get("preprocessing", "stretch"))
         square = cv2.cvtColor(square, cv2.COLOR_RGB2BGR)
         result = self.model.predict(
-            square, imgsz=size, device=self.device, conf=0.001, iou=0.5, max_det=100, verbose=False
+            square, imgsz=size, device=self.device, conf=0.001, iou=0.5, max_det=100, verbose=False, classes=classes
         )[0]
         scores = calibrate_scores(result.boxes.conf.cpu().numpy(), calibration)
         threshold = calibration.get("threshold", 0.25)

@@ -1,6 +1,38 @@
+Latest verification: weapons epoch1/24 completed, native validation AP50 .549454; epoch2 running, five jobs queued. Both best/last checkpoints passed ZIP integrity checks. This is not yet an improvement over preserved best .5776104 and is not final test accuracy. A supervised helper will restore the paused CPU dashboard after the campaign exits. See campaign first-epoch-verification.json for exact evidence.
+
+## Latest: G10d CUDA training started - 2026-10-24
+
+The prepared six-job YOLO campaign is now running serially. The weapons local-adapter job is executing its first CUDA epoch at512px, physical batch2/effective8, initialized from the verified preserved G10 best weights with a fresh optimizer. No new completed evaluation or accuracy gain yet. Scratch/event training and automatic activation remain excluded.
+
+The paused dashboard server was temporarily stopped for memory headroom; its restoration configuration is preserved. A separate visible training terminal is open. Original guards and frozen source/plan hashes remain enforced. See CONTINUE.md and the campaign launch-verification.json for exact processes and evidence. The preflight notes below are historical.
+
+## Current status - 2026-10-24: paused for Windows commit reserve
+
+Disk cleanup succeeded: 8.40 GiB free at final verification. Training is **not running**: the G10c memory guard stopped after its first CUDA batch, with zero completed epochs. The G10d preflight then refused to launch because 3.03 GiB Windows commit headroom was below its 3.5 GiB reserve. Physical free RAM and disk space are separate limits. No automatic retry/queue remains.
+
+Fixed a controller memory cost by separating dataset integrity checks from PyTorch imports, retaining all validation rules and old public imports. New controller measured about112MiB versus648MiB previously with bounded BLAS threads. Resource failure now stops the entire campaign. A no-optimizer CUDA batch-two probe passed with1.33GiB commit headroom; this excludes full trainer/evaluation overhead.30final safe regression tests passed; Ruff clean.
+
+Prepared plan `data/generations/yolo-g10d-lightcontrol-1024/plan.json` retains all weights, uses smaller physical batches with effective eight, and starts fresh optimizers. It has not trained. Free additional commit headroom, verify the frozen sources/resources, then use its runner and `scripts.watch_training yolo-g10d-lightcontrol-1024` with OMP/MKL/OPENBLAS threads3. Exact commands/hashes/evidence are in `CONTINUE.md`.
+
+Original G10 saved weapons native validation AP50 **0.543506 -> 0.577610** before its CPU allocation failure. This remains a provisional validation result; no new calibrated/test gain or deployment readiness is claimed. G10b's disk-full best.pt is empty and excluded. No model accepted/activated, and camera workers remain paused. Historical entries below do not describe current processes.
+
+## G10 modified-YOLO continuation - 2026-10-24
+
+Training is reauthorized in a NEW immutable campaign, `data/generations/yolo-g10-local-1024`. Six serial jobs cover weapons and PPE (paired local-adapter/control runs), fire/smoke continuation and person retention. G9 remains stopped and preserved; its interrupted weapons weights were weaker than the completed parent on matching validation geometry, so G10 uses the completed G8c parent with a fresh optimizer.
+
+The optional `local-v2` adapter adds 4,608 parameters and initially preserves existing predictions exactly. Its accuracy benefit is unvalidated. PPE uses mild train-only class balancing in both architecture runs. New reports evaluate the parent and candidate at matching input profiles, and use actual trainer epoch counts. Validation selects checkpoints; calibration/test remain separate. No model is accepted or activated.
+
+CUDA FP32, effective batch eight; weapons 512px/batch8, PPE 640px/batch2, fire 512px/batch4, person 320px/batch8. GPU capacity checks and safe tests passed before launch. Live camera workers remain paused. Follow the existing dashboard or the read-only terminal `scripts.watch_training yolo-g10-local-1024`. No new accuracy results yet. See [architecture and evidence](yolo-local-adapter.md) and `CONTINUE.md` for current processes, hashes and next steps.
+
+## G9 YOLO-only session - 2026-10-22
+
+Seven serial experiments are authorized and running/preparing in `data/generations/yolo-g9-focus-1022`: fire/smoke, weapons and PPE each have a v3 transfer-learning recipe and v2 control; person uses one modified-YOLO check. Scratch/SVA and temporal-event training are excluded. No new accuracy results are available yet. Live cameras are paused; the admin dashboard remains available. Disk reserve may stop the queue. All prior artifacts remain intact. See `CONTINUE.md` for exact processes, plan checksum, tests, resource limits and next steps.
+
+The v3 recipe preserves the pretrained model and freezes early features while testing mild augmentation, consistent with [Ultralytics fine-tuning guidance](https://docs.ultralytics.com/guides/finetuning-guide/). These choices are experiments, not demonstrated improvements.
+
 # Training status — 2026-10-15
 
-**Capacity-tuned G8c is running under the user's renewed training authorization.** The first G8 job reached native validation but failed in metric recording because the installed trainer returns dictionary losses. The recorder now supports both dictionary and legacy tensor losses; 29 focused safe tests and lint passed. That failed trial and interrupted follow-on preparation are preserved. G8b was frozen but never launched.
+**Verified 2026-10-22: G8c completed all nine jobs; all nine final weight checksums match their manifests.** The evaluation finalizer completed 71 reports without changing deployment state. No training was started during the current physical-webcam setup. The camera test uses the inherited 80-class general-object baseline; custom models are inactive. The following recipe/launch details are historical.
 
 ## Current capacity-tuned G8c campaign
 

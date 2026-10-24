@@ -9,6 +9,9 @@ from pathlib import Path
 import cv2
 import numpy as np
 import math
+import os
+import hashlib
+import tempfile
 import torch
 import yaml
 from ultralytics import YOLO
@@ -24,7 +27,7 @@ from training.detection_pipeline import (
     resolve_asset,
     validate_detection_manifest,
 )
-from training.yolo_model import ConditionedBlock, install_adapters
+from training.yolo_model import ConditionedBlock, install_adapters, adapter_version as model_adapter_version, upgrade_adapters
 from training.yolo_policy import training_policy, bounded_warmup_iterations
 
 
@@ -62,6 +65,10 @@ def native_validation(model, manifest_path, manifest, image_size, preprocessing)
 
 
 class NativeSelectionMixin:
+    def save_model(self):
+        from training.yolo_resources import protected_save
+        return protected_save(self, super().save_model)
+
     def _get_warmup_iterations(self, num_batches):
         count = super()._get_warmup_iterations(num_batches)
         context = getattr(self, "surveilx_context", {})
@@ -104,7 +111,7 @@ class ConditionedTrainer(NativeSelectionMixin, DetectionTrainer):
             isinstance(block, ConditionedBlock) for block in weights.modules()
         ):
             # Wrapping after loading loses .base and .adapter checkpoint keys.
-            model = install_adapters(super().get_model(cfg, None, verbose))
+            model = install_adapters(super().get_model(cfg, None, verbose), model_adapter_version(weights))
             model.load(weights, verbose=verbose)
             return model
         return install_adapters(super().get_model(cfg, weights, verbose))
@@ -132,6 +139,8 @@ def bind_native_selection(model, path, manifest, preprocessing, policy, output):
         trainer.surveilx_lr_ranges = {}
 
     def batch_end(trainer):
+        from training.yolo_resources import check_resources
+        check_resources(output)
         for index, group in enumerate(trainer.optimizer.param_groups):
             rate = group["lr"]
             state = trainer.surveilx_lr_ranges.setdefault(str(index), {"name": group.get("param_group", str(index)),
@@ -171,6 +180,39 @@ def bind_native_selection(model, path, manifest, preprocessing, policy, output):
         model.add_callback(event, callback)
 
 
+def write_prepared_pixels(image, pixels):
+    """Content-address new PNGs, sharing identical bytes without touching old runs."""
+    if image.suffix != ".png":
+        if not cv2.imwrite(str(image), pixels):
+            raise ValueError(f"Could not prepare training image: {image}")
+        return
+    success, encoded = cv2.imencode(".png", pixels)
+    if not success:
+        raise ValueError(f"Could not encode training image: {image}")
+    payload = encoded.tobytes()
+    fingerprint = hashlib.sha256(payload).hexdigest()
+    from surveilx.config import settings
+    shared = settings.data_dir / "prepared-images" / fingerprint[:2] / f"{fingerprint}.png"
+    shared.parent.mkdir(parents=True, exist_ok=True)
+    if shared.exists():
+        if digest(shared) != fingerprint:
+            raise ValueError("Prepared image cache integrity mismatch")
+    else:
+        with tempfile.NamedTemporaryFile(dir=shared.parent, suffix=".partial", delete=False) as stream:
+            temporary = Path(stream.name)
+            stream.write(payload)
+        try:
+            os.replace(temporary, shared)
+        finally:
+            temporary.unlink(missing_ok=True)
+    if image.exists():
+        raise ValueError("Refusing to overwrite an existing prepared image")
+    try:
+        os.link(shared, image)
+    except OSError:
+        shutil.copy2(shared, image)
+
+
 def prepare_yolo_data(manifest_path, manifest, directory, image_size=None, preprocessing="stretch", lossless=False, decode_mode="full-v1"):
     """Materialize any validated manifest, preserving all four split memberships."""
     directory.mkdir(parents=True, exist_ok=True)
@@ -194,8 +236,7 @@ def prepare_yolo_data(manifest_path, manifest, directory, image_size=None, prepr
             pixels, geometry = prepare_image(pixels, image_size, preprocessing)
             pixels = cv2.cvtColor(pixels, cv2.COLOR_RGB2BGR)
             boxes = transform_boxes(boxes, geometry)
-            if not cv2.imwrite(str(image), pixels):
-                raise ValueError(f"Could not prepare training image: {source}")
+            write_prepared_pixels(image, pixels)
         lines = []
         for box, category in zip(boxes, sample["labels"], strict=True):
             x1, y1, x2, y2 = box
@@ -260,7 +301,23 @@ def train(
     preprocessing="stretch",
     training_profile="auto",
     effective_batch_size=None,
+    adapter_version="preserve",
+    class_weights_power=0.0,
+    initialize_partial=None,
+    partial_sha256=None,
+    partial_plan=None,
+    partial_plan_sha256=None,
 ):
+    if initialize_partial and (not initialize_from or resume_checkpoint):
+        raise ValueError("Partial weight initialization needs a preserved parent and a new version")
+    if not math.isfinite(class_weights_power) or not 0 <= class_weights_power <= .5:
+        raise ValueError("Class balancing power must be finite and between 0 and 0.5")
+    if adapter_version not in {"preserve", "v1", "local-v2"} or (baseline and adapter_version != "preserve"):
+        raise ValueError("Choose a compatible modified-YOLO adapter version")
+    if adapter_version != "preserve" and not initialize_from:
+        raise ValueError("Explicit architecture upgrade requires a verified modified-YOLO parent")
+    if resume_checkpoint and (adapter_version != "preserve" or class_weights_power != 0):
+        raise ValueError("Architecture/balancing changes require a new weight-initialized version")
     if preprocessing not in {"stretch", "letterbox"}:
         raise ValueError("Unknown preprocessing contract")
     manifest_path, output = Path(manifest_path).resolve(), Path(output).resolve()
@@ -279,6 +336,7 @@ def train(
     device = torch_device()
     started = time.perf_counter()
     initialization = "pretrained"
+    partial_initialization = None
     if initialize_from:
         parent = Path(initialize_from).resolve()
         metadata = json.loads((parent / "manifest.json").read_text())
@@ -291,6 +349,11 @@ def train(
             raise ValueError("Continuation checkpoint checksum mismatch")
         base = str(parent / "weights.pt")
         initialization = metadata["weights_sha256"]
+    if initialize_partial:
+        from training.yolo_initialization import verify_partial
+        partial_initialization = verify_partial(initialize_partial, partial_sha256, partial_plan,
+            partial_plan_sha256, digest(manifest_path), initialization)
+        base = partial_initialization["checkpoint"]
     # Legacy crash resumes retain their original prepared geometry.
     if resume_checkpoint and preprocessing != "stretch":
         raise ValueError("Non-legacy YOLO optimizer resume requires a separately verified geometry contract")
@@ -328,12 +391,16 @@ def train(
         if Path(arguments.get("data", "")).resolve() != data.resolve():
             raise ValueError("Resume checkpoint belongs to another prepared dataset")
         model = bound_threads(YOLO(str(checkpoint)), threads)
-        if policy["version"] == "finetune-v2":
+        if policy["version"] in {"finetune-v2", "finetune-v3"}:
             bind_native_selection(model, manifest_path, manifest, preprocessing, policy, output)
         model.train(resume=True, trainer=NativeDetectionTrainer if baseline else ConditionedTrainer)
     else:
         model = bound_threads(YOLO(base), threads)
-        if policy["version"] == "finetune-v2":
+        if initialize_partial and [model.model.names[i] for i in range(len(model.model.names))] != manifest["classes"]:
+            raise ValueError("Partial checkpoint taxonomy differs from the verified dataset")
+        if adapter_version != "preserve":
+            upgrade_adapters(model.model, adapter_version)
+        if policy["version"] in {"finetune-v2", "finetune-v3"}:
             bind_native_selection(model, manifest_path, manifest, preprocessing, policy, output)
         model.train(
             trainer=NativeDetectionTrainer if baseline else ConditionedTrainer,
@@ -352,11 +419,16 @@ def train(
             patience=epochs if patience is None else patience,
             pretrained=True,
             verbose=False,
-            mosaic=0,
-            close_mosaic=0,
+
             max_det=100,
-            **policy["arguments"],
+            cls_pw=class_weights_power,
+            **({"mosaic": 0, "close_mosaic": 0} | policy["arguments"]),
         )
+    # CSV can contain a final evaluation row; it is not another training epoch.
+    epochs_completed = model.trainer.epoch + 1
+    stopping = {"epochs_completed": epochs_completed, "maximum_epochs": epochs,
+        "stopping_reason": "patience" if epochs_completed < epochs else "epoch_limit",
+        "best_epoch": getattr(getattr(model.trainer, "stopper", None), "best_epoch", None)}
     shutil.copy2(model.trainer.best, output / "weights.pt")
     model = bound_threads(YOLO(str(output / "weights.pt")), threads)
     validation_predictions, validation_targets, _ = predict_split(
@@ -394,6 +466,20 @@ def train(
         len(manifest["classes"]),
         calibration["threshold"],
     )
+    parent_evaluation = None
+    if initialize_from:
+        # Size/geometry changes must not be reported as a learned weight gain.
+        # Refit only on calibration, then report test AFTER validation selection.
+        parent_metrics = metrics
+        if selection["selected"] != "parent":
+            pp, pt, _ = predict_split(parent_model, manifest_path, manifest, "calibration", imgsz, device, preprocessing)
+            parent_calibration = fit_detection_calibration(pp, pt)
+            pp, pt, _ = predict_split(parent_model, manifest_path, manifest, "test", imgsz, device, preprocessing)
+            parent_metrics = evaluate_detections(calibrated_predictions(pp, parent_calibration), pt,
+                len(manifest["classes"]), parent_calibration["threshold"])
+        parent_evaluation = {"dataset_sha256": digest(manifest_path), "weights_sha256": initialization,
+            "image_size": imgsz, "preprocessing": preprocessing, "metrics": parent_metrics,
+            "scope": "Same-profile calibrated test report; never checkpoint selection"}
     (output / "test_predictions.json").write_text(
         json.dumps([{k: v.tolist() for k, v in p.items()} for p in predictions], indent=2), encoding="utf-8"
     )
@@ -402,6 +488,7 @@ def train(
         "schema_version": 1,
         "task": "detection",
         "architecture": "yolo_baseline" if baseline else "yolo_rai",
+        "adapter_architecture": None if baseline else model_adapter_version(model.model),
         "name": "YOLO11n baseline" if baseline else "YOLO11n scene/zone adapter",
         "stage": "candidate",
         "classes": manifest["classes"],
@@ -416,12 +503,18 @@ def train(
                    "threads": threads,
                    "training_profile": training_profile, "resolved_training_profile": policy["version"],
                    "effective_batch_size": effective_batch_size,
+                   "adapter_version": adapter_version,
+                   "class_weights_power": class_weights_power,
+                   "initialize_partial": initialize_partial, "partial_sha256": partial_sha256,
+                   "partial_plan": partial_plan, "partial_plan_sha256": partial_plan_sha256,
                    "effective_training_policy": policy,
                    "preprocessing": preprocessing,
                    "training_geometry": "legacy_letterbox" if resume_checkpoint and not initialize_from
                    else "square_matches_runtime"},
         "initialization": initialization,
+        "partial_initialization": partial_initialization,
         "validation_selection": selection,
+        "parent_evaluation": parent_evaluation,
         "trained_candidate": trained_candidate,
         "calibration": calibration,
         "calibrated": calibration["status"] == "fitted",
@@ -433,7 +526,8 @@ def train(
         "device": device,
         "parameters": sum(p.numel() for p in model.model.parameters()),
         "duration_seconds": time.perf_counter() - started,
-        "epochs_completed": sum(1 for _ in (output / "fit" / "results.csv").open()) - 1,
+        "epochs_completed": epochs_completed,
+        "stopping": stopping,
         "deployment_eligible": False,
         "license": "Ultralytics AGPL-3.0 / Enterprise terms; dataset retains its own terms",
         "context_supervision": "neutral context only; context training not implemented for YOLO batches",
@@ -458,8 +552,14 @@ def main():
     parser.add_argument("--learning-rate", type=float)
     parser.add_argument("--patience", type=int)
     parser.add_argument("--preprocessing", choices=("stretch", "letterbox"), default="stretch")
-    parser.add_argument("--training-profile", choices=("auto", "legacy-v1", "finetune-v2"), default="auto")
+    parser.add_argument("--training-profile", choices=("auto", "legacy-v1", "finetune-v2", "finetune-v3"), default="auto")
     parser.add_argument("--effective-batch-size", type=int)
+    parser.add_argument("--adapter-version", choices=("preserve", "v1", "local-v2"), default="preserve")
+    parser.add_argument("--class-weights-power", type=float, default=0.0)
+    parser.add_argument("--initialize-partial")
+    parser.add_argument("--partial-sha256")
+    parser.add_argument("--partial-plan")
+    parser.add_argument("--partial-plan-sha256")
     args = vars(parser.parse_args())
     args.pop("command")
     print(json.dumps(train(**args), indent=2))

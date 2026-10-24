@@ -36,7 +36,49 @@ import { AcceptancePanel, AnnotationEditor, LearningPanel } from "./learning";
 import { CapabilitiesPanel } from "./capabilities";
 import { ModelPerformance } from "./performance";
 import { PolicyPanel } from "./policies";
+import { DetectionChoices } from "./detection-choices";
+import { RuntimeControls } from "./runtime-controls";
 import { NotificationSettings } from "./notifications";
+
+// Continuous preview; detector cadence is independent of camera presentation.
+function LivePreview({
+  cameraId,
+  paused = false,
+  ...props
+}: {
+  cameraId: string;
+  paused?: boolean;
+  alt: string;
+  className?: string;
+}) {
+  const [visible, setVisible] = useState(!document.hidden);
+  const [retry, setRetry] = useState(0);
+  const timer = React.useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined,
+  );
+  useEffect(() => {
+    const update = () => setVisible(!document.hidden);
+    document.addEventListener("visibilitychange", update);
+    return () => {
+      document.removeEventListener("visibilitychange", update);
+      clearTimeout(timer.current);
+    };
+  }, []);
+  return (
+    <img
+      {...props}
+      src={
+        visible && !paused
+          ? `/api/cameras/${cameraId}/live.mjpg?r=${retry}`
+          : undefined
+      }
+      onError={() => {
+        clearTimeout(timer.current);
+        timer.current = setTimeout(() => setRetry((v) => v + 1), 1000);
+      }}
+    />
+  );
+}
 
 type Row = Record<string, any>;
 async function api(path: string, method = "GET", body?: unknown) {
@@ -117,7 +159,6 @@ function App() {
     [connected, setConnected] = useState(false),
     [filter, setFilter] = useState(""),
     [busy, setBusy] = useState(false);
-  const [tick, setTick] = useState(0);
   const [deploymentSlot, setDeploymentSlot] = useState("default");
   useEffect(() => {
     api("/auth/me")
@@ -204,10 +245,6 @@ function App() {
       socket?.close();
     };
   }, [user]);
-  useEffect(() => {
-    const timer = setInterval(() => setTick((t) => t + 1), 1000);
-    return () => clearInterval(timer);
-  }, []);
   const perform = async (path: string, body?: unknown, method = "POST") => {
     setBusy(true);
     setError("");
@@ -427,34 +464,35 @@ function App() {
     >
       <div className="camera-image">
         {camera.status === "online" ? (
-          <img
-            src={`/api/cameras/${camera.id}/stream?t=${tick}`}
+          <LivePreview
+            cameraId={camera.id}
             alt={camera.name}
+            paused={selected?.id === camera.id}
           />
         ) : (
           <div className="camera-off">
             <Camera />
-            <span>{camera.status || "Waiting for source"}</span>
+            <span>No live preview</span>
           </div>
         )}
         <div className="camera-overlay">
           <Tag tone={camera.status === "online" ? "green" : ""}>
             <i />
-            {camera.status === "online" ? "LIVE" : camera.status}
+            {camera.status === "online"
+              ? "Live"
+              : camera.status === "disabled"
+                ? "Off"
+                : camera.status === "paused"
+                  ? "Paused"
+                  : "Connecting"}
           </Tag>
           {camera.synthetic && <Tag>GENERATED TEST</Tag>}
-        </div>
-        <div className="camera-bottom">
-          <span>{camera.model || "Awaiting inference"}</span>
-          <span>{Number(camera.latency_ms || 0).toFixed(1)} ms</span>
         </div>
       </div>
       <div className="camera-caption">
         <div>
           <strong>{camera.name}</strong>
-          <small>
-            {camera.environment} <span>·</span> Priority {camera.priority}
-          </small>
+          <small>View camera and detection choices</small>
         </div>
         <ArrowUpRight size={17} />
       </div>
@@ -492,11 +530,19 @@ function App() {
         </div>
         <p className="nav-label">COMMAND CENTER</p>
         <nav>
-          {navigation.map(([id, label, Icon]) => (
-            <React.Fragment key={id}>
-              {id === "models" && <p className="nav-label">INTELLIGENCE LAB</p>}
-              {id === "users" && <p className="nav-label">WORKSPACE</p>}
+          {navigation
+            .filter(([id]) =>
+              [
+                "overview",
+                "cameras",
+                "incidents",
+                "alerts",
+                "settings",
+              ].includes(id),
+            )
+            .map(([id, label, Icon]) => (
               <button
+                key={id}
                 className={page === id ? "active" : ""}
                 onClick={() => go(id)}
               >
@@ -506,14 +552,54 @@ function App() {
                   <b>{active.length}</b>
                 )}
               </button>
-            </React.Fragment>
-          ))}
+            ))}
+          <details
+            className="advanced-nav"
+            open={
+              ![
+                "overview",
+                "cameras",
+                "incidents",
+                "alerts",
+                "settings",
+              ].includes(page) || undefined
+            }
+          >
+            <summary>More tools</summary>
+            {navigation
+              .filter(
+                ([id]) =>
+                  ![
+                    "overview",
+                    "cameras",
+                    "incidents",
+                    "alerts",
+                    "settings",
+                  ].includes(id),
+              )
+              .map(([id, label, Icon]) => (
+                <button
+                  key={id}
+                  className={page === id ? "active" : ""}
+                  onClick={() => go(id)}
+                >
+                  <Icon size={17} />
+                  {label}
+                </button>
+              ))}
+          </details>
         </nav>
         <div className="side-bottom">
           <div className="engine-status">
             <i />
             <div>
-              <strong>{connected ? "Live connection" : "Reconnecting"}</strong>
+              <strong>
+                {status.live_processing === false
+                  ? "Monitoring paused"
+                  : connected
+                    ? "Connected"
+                    : "Reconnecting"}
+              </strong>
               <small>{status.power.level} compute profile</small>
             </div>
           </div>
@@ -584,7 +670,7 @@ function App() {
                     overview:
                       "Your environment, in focus. Every observation. Every decision.",
                     cameras:
-                      "Live sources, tracked entities, and the context behind them.",
+                      "Open a camera to watch it or choose what to detect.",
                     incidents:
                       "Review the evidence. Keep every decision accountable.",
                     datasets:
@@ -593,8 +679,7 @@ function App() {
                     experiments:
                       "Train, evaluate, and calibrate. Keep every run reproducible.",
                   } as Row
-                )[page] ||
-                  "Measured evidence and explicit controls for your workspace."}
+                )[page] || "Your cameras, recordings and settings."}
               </p>
             </div>
             {["overview", "cameras"].includes(page) &&
@@ -638,6 +723,13 @@ function App() {
               {notice}
             </div>
           )}
+          {status.live_processing === false &&
+            ["overview", "cameras"].includes(page) && (
+              <div className="notice">
+                Monitoring is paused. You can still change detection choices and
+                review recordings.
+              </div>
+            )}
           {page === "overview" && (
             <>
               <div className="stats">
@@ -653,23 +745,6 @@ function App() {
                   icon={<ShieldAlert />}
                   detail="Observations requiring an operator"
                   warm
-                />
-                <Stat
-                  label="Inference latency"
-                  value={
-                    status.mean_latency_ms == null
-                      ? "—"
-                      : `${status.mean_latency_ms.toFixed(1)}`
-                  }
-                  unit="ms"
-                  icon={<Activity />}
-                  detail="Measured mean · current session"
-                />
-                <Stat
-                  label="Compute profile"
-                  value={status.power.level || "economy"}
-                  icon={<Cpu />}
-                  detail="Automatically selected for this hardware"
                 />
               </div>
               <div className="overview-layout">
@@ -691,30 +766,33 @@ function App() {
                       text="Add a webcam, RTSP stream, local video, or generated test source."
                     />
                   )}
-                  <div className="panel adaptation">
-                    <div className="adaptation-icon">
-                      <Cpu />
+                  <details className="system-details">
+                    <summary>System details</summary>
+                    <div className="panel adaptation">
+                      <div className="adaptation-icon">
+                        <Cpu />
+                      </div>
+                      <div>
+                        <h3>Intelligence, within your budget.</h3>
+                        <p>
+                          {status.power.reason ||
+                            "Collecting hardware measurements."}
+                        </p>
+                        <small>
+                          {status.power.resolution}px inference ·{" "}
+                          {status.power.budget_ms} ms budget / epoch ·
+                          CPU-compatible
+                        </small>
+                      </div>
+                      <button
+                        className="icon-btn"
+                        aria-label="View hardware"
+                        onClick={() => go("hardware")}
+                      >
+                        <ArrowUpRight />
+                      </button>
                     </div>
-                    <div>
-                      <h3>Intelligence, within your budget.</h3>
-                      <p>
-                        {status.power.reason ||
-                          "Collecting hardware measurements."}
-                      </p>
-                      <small>
-                        {status.power.resolution}px inference ·{" "}
-                        {status.power.budget_ms} ms budget / epoch ·
-                        CPU-compatible
-                      </small>
-                    </div>
-                    <button
-                      className="icon-btn"
-                      aria-label="View hardware"
-                      onClick={() => go("hardware")}
-                    >
-                      <ArrowUpRight />
-                    </button>
-                  </div>
+                  </details>
                 </div>
                 <div>
                   <div className="section-heading">
@@ -762,75 +840,100 @@ function App() {
                       Open incident center <ArrowUpRight size={15} />
                     </button>
                   </div>
-                  <div className="panel resources">
-                    <div className="section-heading">
-                      <h2>Resource pulse</h2>
-                      <i className="pulse" />
-                    </div>
-                    <Meter
-                      label="CPU utilization"
-                      value={status.hardware.cpu_percent}
-                    />
-                    <Meter
-                      label="Memory utilization"
-                      value={status.hardware.memory_percent}
-                    />
-                    <div className="resource-detail">
-                      <span>Available memory</span>
-                      <strong>
-                        {status.hardware.available_gb?.toFixed(1) || "—"} GB
-                      </strong>
-                    </div>
-                    <div className="resource-detail">
-                      <span>GPU telemetry</span>
-                      <strong>
-                        {status.hardware.gpu?.name || "Unavailable"}
-                      </strong>
-                    </div>
-                    {status.hardware.gpu?.utilization != null && (
+                  <details className="system-details">
+                    <summary>Computer usage</summary>
+                    <div className="panel resources">
+                      <div className="section-heading">
+                        <h2>Resource pulse</h2>
+                        <i className="pulse" />
+                      </div>
                       <Meter
-                        label="GPU utilization"
-                        value={status.hardware.gpu.utilization}
+                        label="CPU utilization"
+                        value={status.hardware.cpu_percent}
                       />
-                    )}
-                    {status.hardware.gpu?.used_mb != null && (
+                      <Meter
+                        label="Memory utilization"
+                        value={status.hardware.memory_percent}
+                      />
                       <div className="resource-detail">
-                        <span>GPU memory / free</span>
+                        <span>Available memory</span>
                         <strong>
-                          {status.hardware.gpu.used_mb} /{" "}
-                          {Math.max(
-                            0,
-                            status.hardware.gpu.memory_mb -
-                              status.hardware.gpu.used_mb,
-                          )}{" "}
-                          MB
+                          {status.hardware.available_gb?.toFixed(1) || "—"} GB
                         </strong>
                       </div>
-                    )}
-                    <div className="resource-detail">
-                      <span>Energy measurement</span>
-                      <strong>
-                        {status.hardware.gpu?.power_w != null
-                          ? `${status.hardware.gpu.power_w} W`
-                          : "Not measured"}
-                      </strong>
+                      <div className="resource-detail">
+                        <span>GPU telemetry</span>
+                        <strong>
+                          {status.hardware.gpu?.name || "Unavailable"}
+                        </strong>
+                      </div>
+                      {status.hardware.gpu?.utilization != null && (
+                        <Meter
+                          label="GPU utilization"
+                          value={status.hardware.gpu.utilization}
+                        />
+                      )}
+                      {status.hardware.gpu?.used_mb != null && (
+                        <div className="resource-detail">
+                          <span>GPU memory / free</span>
+                          <strong>
+                            {status.hardware.gpu.used_mb} /{" "}
+                            {Math.max(
+                              0,
+                              status.hardware.gpu.memory_mb -
+                                status.hardware.gpu.used_mb,
+                            )}{" "}
+                            MB
+                          </strong>
+                        </div>
+                      )}
+                      <div className="resource-detail">
+                        <span>Energy measurement</span>
+                        <strong>
+                          {status.hardware.gpu?.power_w != null
+                            ? `${status.hardware.gpu.power_w} W`
+                            : "Not measured"}
+                        </strong>
+                      </div>
                     </div>
-                  </div>
+                  </details>
                 </div>
               </div>
             </>
           )}
           {page === "cameras" && (
-            <div className="camera-grid full">
-              {visible.map(cameraCard)}
-              {!visible.length && (
-                <Empty
-                  title="No camera sources"
-                  text="Add a source to start monitoring."
-                />
+            <>
+              <div className="camera-grid full">
+                {visible
+                  .filter((camera) => camera.enabled !== false)
+                  .map(cameraCard)}
+                {!visible.some((camera) => camera.enabled !== false) && (
+                  <Empty
+                    title="No cameras are on"
+                    text="Add a camera to get started, or check your off cameras below."
+                  />
+                )}
+              </div>
+              {visible.some((camera) => camera.enabled === false) && (
+                <details className="off-cameras">
+                  <summary>
+                    Off cameras (
+                    {
+                      visible.filter((camera) => camera.enabled === false)
+                        .length
+                    }
+                    )
+                  </summary>
+                  <div className="camera-grid full">
+                    {visible
+                      .filter((camera) => camera.enabled === false)
+                      .map(cameraCard)}
+                  </div>
+                </details>
               )}
-            </div>
+            </>
           )}
+
           {page === "hardware" && (
             <>
               <div className="stats">
@@ -1074,15 +1177,7 @@ function App() {
                 <span>{visible.length} records</span>
               </div>
               {page === "settings" ? (
-                <div className="panel padded">
-                  <h2>Runtime policy</h2>
-                  <p>
-                    Configure these values in the local .env file, then restart
-                    the service. All durations are seconds unless labeled
-                    otherwise.
-                  </p>
-                  <Json data={rows[0] || {}} />
-                </div>
+                <RuntimeControls request={api} admin={user.role === "admin"} />
               ) : (
                 <div className="panel table-panel">
                   <table>
@@ -1311,19 +1406,28 @@ function App() {
             >
               <X />
             </button>
-            <p className="eyebrow">EVIDENCE WORKSPACE</p>
+            <p className="eyebrow">
+              {selected.status && selected.name ? "CAMERA" : "REVIEW"}
+            </p>
             <h2>
               {selected.name ||
                 selected.event_type?.replaceAll("_", " ") ||
                 "Record details"}
             </h2>
-            {selected.status && selected.name && (
-              <img
-                className="detail-image"
-                src={`/api/cameras/${selected.id}/stream?t=${tick}`}
-                alt={selected.name}
-              />
-            )}{" "}
+            {selected.status &&
+              selected.name &&
+              (selected.status === "online" ? (
+                <LivePreview
+                  className="detail-image"
+                  cameraId={selected.id}
+                  alt={selected.name}
+                />
+              ) : (
+                <p className="notice">
+                  This camera is paused. Your choices apply when monitoring
+                  resumes.
+                </p>
+              ))}
             {selected.event_type && (
               <>
                 <p>
@@ -1393,12 +1497,26 @@ function App() {
                   request={api}
                 />
               )}
-            {page === "cameras" && (
-              <PolicyPanel
+            {selected.status && selected.name && (
+              <DetectionChoices
+                key={selected.id}
                 cameraId={selected.id}
                 request={api}
                 editable={["admin", "operator"].includes(user.role)}
+                onSaved={() => {
+                  void refresh();
+                }}
               />
+            )}
+            {selected.status && selected.name && (
+              <details className="advanced-options">
+                <summary>Advanced alert rules</summary>
+                <PolicyPanel
+                  cameraId={selected.id}
+                  request={api}
+                  editable={["admin", "operator"].includes(user.role)}
+                />
+              </details>
             )}
             <details>
               <summary>Technical record</summary>

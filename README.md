@@ -2,7 +2,7 @@
 
 A local command center for adaptive multi-camera monitoring, incident review and reproducible detection/video-event training. Works on an ordinary CPU computer, with optional accelerator integrations. This is a tested development prototype; deployment and research gaps are tracked explicitly in [phase status](docs/phase-status.md). The research paper is excluded.
 
-Current model/training status: **capacity-tuned G8c CUDA campaign running**, with nine serial, versioned jobs using existing data. The app and visible progress terminal are available; no learned model is automatically activated. Fine-tuning warmup, native checkpoint selection and prepared-data resume checks were corrected, but accuracy gains must still be measured. See [training status](docs/training-status.md), [diagnosis](docs/g7-stagnation-diagnosis.md) and the [performance dashboard](http://127.0.0.1:8000/performance).
+Current model/training status: **G8c completed nine jobs; G9 modified-YOLO-only training is running.** Live webcam inference is paused to free GPU resources. Admin Settings now supports performance preferences and explicit scoped model selection; production approval remains separate. The earlier general-object webcam baseline had no fire class. See [training status](docs/training-status.md) and [current continuation state](CONTINUE.md).
 
 ## Run on Windows
 
@@ -23,6 +23,20 @@ npm ci
 npm run build
 Pop-Location
 ```
+
+## Choose what to detect
+
+Open **Camera wall**, select a camera, and use **What should this camera detect?** Turn categories or individual items on/off, then **Save detection choices**. Search finds specific items; Undo restores the last saved selection. Changes affect new detections and alerts, including fallback output. Existing recordings remain unchanged. A compatible active model is still required; turning an option on does not install or approve a model. Administrators and operators can edit; viewers can inspect.
+
+Choices also control computation: disabled categories leave routing, unused specialist/event/fallback models skip inference, and cameras with no requested model work release their inference budget while previews continue. YOLO receives class filters before NMS; tracking and recording handle selected outputs only. Disabling a few classes in a shared neural network does not remove its shared backbone or guarantee higher FPS. See [selection performance](docs/detection-selection-performance.md) for measured limits.
+
+The sidebar shows everyday pages first. **More tools**, **Detection details** and **Advanced alert rules** keep technical controls available without crowding the main view.
+
+## Live performance tuning
+
+Camera previews use authenticated continuous MJPEG with shared, bounded JPEG encoding and disconnect when the tab is hidden. Performance mode requests30captureFPS (balanced15/economy5); actual delivery depends on the camera, lighting and system load. Detection runs independently; preview FPS is not model FPS. Preview JPEGquality80 does not alter stored raw evidence or model inputs. Evidence/input-motion sampling is capped at8Hz to retain bounded memory and a useful review time window. Expensive statistical drift checks run in one background worker.
+
+For a supported CUDA environment, a responsive local configuration is `SURVEILX_EPOCH_SECONDS=0.25` and `SURVEILX_RUNTIME_BUDGET_SCALE=1.75` before starting the server. Set `SURVEILX_POWER_PROFILE=performance` to request the highest profile on a GPU computer with sufficient RAM; thermal, memory, latency and low-battery throttling still apply. The scale defaults to 1 and accepts 0.25–2; the total scheduling budget is capped at 900 ms per second. Hardware pressure still reduces the workload. Keep one server worker for physical cameras. Use the installed CUDA environment and existing approved or explicitly configured local-test detector; these settings do not approve models or start training. Actual throughput depends on hardware, power state, inference cost and evidence storage.
 
 ## Available workflows
 

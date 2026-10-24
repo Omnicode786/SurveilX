@@ -124,12 +124,18 @@ class PolicyEngine:
         self.states = {}
         self.last_alert = {}
 
-    def evaluate(self, outputs, now, expert_key):
+    def evaluate(self, outputs, now, expert_key, disabled_labels=()):
+        from surveilx.detection_preferences import label_key
+        disabled = {label_key(label) for label in disabled_labels}
         observations = []
         if not math.isfinite(now):
             return observations
         seen = set()
         for rule in self.policy.rules:
+            dependencies = {"possible_missing_helmet": {"person", "head", "helmet"},
+                            "possible_missing_vest": {"person", "torso", "safety_vest"}}.get(rule.kind, set())
+            if label_key(rule.kind) in disabled or dependencies.intersection(disabled):
+                continue  # A disabled protective item is not evidence it is missing.
             if rule.kind == "scene_event":
                 continue  # Scene rules require calibrated temporal evidence, not a same-named box.
             reliable = [d for d in outputs if d["score"] >= rule.confidence]
@@ -384,13 +390,16 @@ class PolicyEngine:
         self.last_alert = {key: value for key, value in self.last_alert.items() if now - value <= 3600}
         return observations
 
-    def evaluate_event(self, evidence, now, expert_key):
+    def evaluate_event(self, evidence, now, expert_key, disabled_labels=()):
         """Persist configured calibrated clip classifications before review alerts."""
         observations = []
         def reset():
             self.states = {key: value for key, value in self.states.items()
                            if not (key[1] == expert_key and key[2] == "scene")}
 
+        if "scene_event" in disabled_labels:
+            reset()
+            return observations
         if not evidence or evidence.get("decision") != "experimental_evidence" or not evidence.get("calibrated"):
             reset()
             return observations
@@ -400,7 +409,10 @@ class PolicyEngine:
                 or len(classes) != len(set(classes))
                 or not all(isinstance(score, (int, float)) and math.isfinite(score) and 0 <= score <= 1
                            for score in probabilities)
-                or not math.isclose(sum(probabilities), 1, abs_tol=1e-6)):
+                or not isinstance(evidence.get("excluded_probability_mass", 0), (int, float))
+                or not math.isfinite(evidence.get("excluded_probability_mass", 0))
+                or not 0 <= evidence.get("excluded_probability_mass", 0) <= 1
+                or not math.isclose(sum(probabilities) + evidence.get("excluded_probability_mass", 0), 1, abs_tol=1e-6)):
             reset()
             return observations
         scores = dict(zip(classes, probabilities, strict=True))
